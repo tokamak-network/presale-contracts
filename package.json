@@ -1,0 +1,24 @@
+{
+  "name": "presale",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "openzeppelin-solidity": "^2.3.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "ethereumjs-util": "^6.1.0",
+    "openzeppelin-test-helpers": "^0.4.0",
+    "truffle": "^5.0.21"
+  }
+}
