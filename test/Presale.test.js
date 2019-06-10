@@ -1,4 +1,4 @@
-const { BN, ether, constants, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
+const { BN, ether, constants, expectRevert } = require('openzeppelin-test-helpers');
 const { expect } = require('chai');
 
 const Presale = artifacts.require('Presale');
