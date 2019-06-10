@@ -36,7 +36,6 @@ contract Presale is WhitelistCrowdsale, CappedCrowdsale {
      */
     function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal view {
         super._preValidatePurchase(beneficiary, weiAmount);
-        // solhint-disable-next-line max-line-length
         require(contributions[beneficiary].add(weiAmount) <= individualCap, "Presale: beneficiary's individual cap exceeded");
     }
 
