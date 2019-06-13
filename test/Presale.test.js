@@ -3,6 +3,8 @@ const { balance, BN, ether, constants, expectRevert } = require('openzeppelin-te
 const Presale = artifacts.require('Presale');
 const MiniMeToken = artifacts.require('MiniMeToken');
 const MiniMeTokenFactory = artifacts.require('MiniMeTokenFactory');
+const ERC20Mintable = artifacts.require('ERC20Mintable');
+const Swapper = artifacts.require('Swapper');
 
 require('chai')
   .should();
@@ -16,14 +18,17 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
   const individualMaxCap = ether('20');
   const moreThanMaxCap = ether('25');
 
-  const presaleAmount = new BN('10').pow(new BN('18')).mul(new BN('65000'));
-  const devAmount = new BN('10').pow(new BN('18')).mul(new BN('10000'));
-  const partnershipAmount = new BN('10').pow(new BN('18')).mul(new BN('10000'));
+  const decimals = new BN('18');
+  const presaleAmount = new BN('10').pow(decimals).mul(new BN('65000'));
+  const devAmount = new BN('10').pow(decimals).mul(new BN('10000'));
+  const partnershipAmount = new BN('10').pow(decimals).mul(new BN('10000'));
+  const initialAmount = new BN('10').pow(decimals); // number of tokens sold at public sale
+  const swapRate = initialAmount.div(new BN('100'));
 
   context('once deployed', async function () {
     beforeEach(async function () {
       this.tokenFactory = await MiniMeTokenFactory.new({ from: controller });
-      this.token = await MiniMeToken.new(
+      this.pton = await MiniMeToken.new(
         this.tokenFactory.address,
         constants.ZERO_ADDRESS,
         0,
@@ -36,7 +41,7 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
       this.presale = await Presale.new(
         rate,
         wallet,
-        this.token.address,
+        this.pton.address,
         tokenWallet,
         cap,
         individualMinCap, 
@@ -66,11 +71,11 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
 
     context('start sale', function () {
       beforeEach(async function () {
-        await this.token.generateTokens(tokenWallet, presaleAmount, { from: controller });
-        await this.token.generateTokens(dev, devAmount, { from: controller });
-        await this.token.generateTokens(partnership, partnershipAmount, { from: controller });
-        await this.token.approve(this.presale.address, presaleAmount, { from: tokenWallet });     
-        await this.token.changeController(constants.ZERO_ADDRESS, { from: controller });
+        await this.pton.generateTokens(tokenWallet, presaleAmount, { from: controller });
+        await this.pton.generateTokens(dev, devAmount, { from: controller });
+        await this.pton.generateTokens(partnership, partnershipAmount, { from: controller });
+        await this.pton.approve(this.presale.address, presaleAmount, { from: tokenWallet });     
+        await this.pton.changeController(constants.ZERO_ADDRESS, { from: controller });
 
         // buyers[0], buyers[1]: whitelist member
         // buyers[2]           : whitelist non-member
@@ -81,7 +86,7 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
       describe('on sale', function () {
         it('should accept payments within individual cap', async function () {
           await this.presale.buyTokens(buyers[0], { value: purchaseAmount });
-          (await this.token.balanceOf(buyers[0])).should.be.bignumber.equal(purchaseAmount.mul(rate));
+          (await this.pton.balanceOf(buyers[0])).should.be.bignumber.equal(purchaseAmount.mul(rate));
         });
 
         it('should reject payments that exceed cap', async function () {
@@ -111,7 +116,7 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
         });
       });
 
-      context('after sale', function () {
+      context('finish sale', function () {
         beforeEach(async function () {
           await this.presale.buyTokens(buyers[0], { from: buyers[0], value: purchaseAmount });
         });
@@ -139,6 +144,23 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
           await this.presale.refund({ from: admin });
           await this.presale.claimRefund(buyers[0]);
           (await balance.current(buyers[0])).sub(purchaseAmount).should.be.bignumber.equal(refundeeBalance);
+        });
+
+        context('swap token', function () {
+          beforeEach(async function () {
+            await this.presale.finalize({ from: admin });
+
+            this.ton = await ERC20Mintable.new( { from: admin });
+            this.swapper = await Swapper.new(initialAmount);
+            await this.ton.addMinter(this.swapper.address, { from: admin });
+          });
+
+          it('should accept swap from PTON to TON', async function () {
+            const ptonAmount = await this.pton.balanceOf(buyers[0]);
+            await this.pton.approve(this.swapper.address, ptonAmount, { from: buyers[0] });
+            await this.swapper.swap(this.pton.address, this.ton.address, { from: buyers[0] });
+            (await this.ton.balanceOf(buyers[0])).should.be.bignumber.equals(ptonAmount.mul(swapRate));
+          })
         });
       });
     }); 
