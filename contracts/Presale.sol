@@ -6,7 +6,9 @@ import 'openzeppelin-solidity/contracts/token/ERC20/IERC20.sol';
 
 contract Presale is WhitelistCrowdsale, CappedCrowdsale {
 
-    uint256 private individualCap;
+    // refund escrow used to hold funds while crowdsale is running
+    RefundEscrow private escrow;
+    
     mapping(address => uint256) private contributions;
     uint256 private individualMinCap;
     uint256 private individualMaxCap;
@@ -18,7 +20,8 @@ contract Presale is WhitelistCrowdsale, CappedCrowdsale {
         Crowdsale(_rate, _wallet, _token)
         CappedCrowdsale(_cap)
     {
-        individualCap = _individualCap;
+        escrow = new RefundEscrow(_wallet);
+
         individualMinCap = _individualMinCap;
         individualMaxCap = _individualMaxCap;
     }
@@ -39,15 +42,17 @@ contract Presale is WhitelistCrowdsale, CappedCrowdsale {
         return individualMaxCap;
     }
 
-
+    function finalize() public onlyWhitelistAdmin {
+        escrow.close();
+        escrow.beneficiaryWithdraw();
     }
 
-    /**
-     * @dev Returns the cap of a individual cap.
-     * @return Current individual cap
-     */
-    function getIndividualCap() public view returns (uint256) {
-        return individualCap;
+    function refund() public onlyWhitelistAdmin {
+        escrow.enableRefunds();
+    }
+
+    function claimRefund(address payable refundee) public {
+        escrow.withdraw(refundee);
     }
 
     /**
@@ -71,5 +76,12 @@ contract Presale is WhitelistCrowdsale, CappedCrowdsale {
     function _updatePurchasingState(address beneficiary, uint256 weiAmount) internal {
         super._updatePurchasingState(beneficiary, weiAmount);
         contributions[beneficiary] = contributions[beneficiary].add(weiAmount);
+    }
+
+    /**
+     * @dev Overrides Crowdsale fund forwarding, sending funds to escrow.
+     */
+    function _forwardFunds() internal {
+        escrow.deposit.value(msg.value)(msg.sender);
     }
 }
