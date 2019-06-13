@@ -1,10 +1,10 @@
 pragma solidity ^0.5.0;
 
-import 'openzeppelin-solidity/contracts/token/ERC20/IERC20.sol';
+import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 import "openzeppelin-solidity/contracts/payment/escrow/RefundEscrow.sol";
-import 'openzeppelin-solidity/contracts/crowdsale/validation/CappedCrowdsale.sol';
-import 'openzeppelin-solidity/contracts/crowdsale/emission/AllowanceCrowdsale.sol';
-import 'openzeppelin-solidity/contracts/crowdsale/validation/WhitelistCrowdsale.sol';
+import "openzeppelin-solidity/contracts/crowdsale/validation/CappedCrowdsale.sol";
+import "openzeppelin-solidity/contracts/crowdsale/emission/AllowanceCrowdsale.sol";
+import "openzeppelin-solidity/contracts/crowdsale/validation/WhitelistCrowdsale.sol";
 
 contract Presale is CappedCrowdsale, AllowanceCrowdsale, WhitelistCrowdsale {
     using SafeMath for uint256;

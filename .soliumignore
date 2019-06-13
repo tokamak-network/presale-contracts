@@ -1,0 +1,4 @@
+node_modules
+contracts/misc
+contracts/MiniMeToken.sol
+contracts/Controlled.sol

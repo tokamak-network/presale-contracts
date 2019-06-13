@@ -27,7 +27,7 @@ pragma solidity ^0.5.0;
 
 import "./Controlled.sol";
 import "./TokenController.sol";
-import 'openzeppelin-solidity/contracts/token/ERC20/IERC20.sol';
+import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 
 contract ApproveAndCallFallBack {
     function receiveApproval(address from, uint256 _amount, address _token, bytes memory _data) public;
@@ -41,7 +41,7 @@ contract MiniMeToken is Controlled, IERC20 {
     string public name;                //The Token's name: e.g. DigixDAO Tokens
     uint8 public decimals;             //Number of decimals of the smallest unit
     string public symbol;              //An identifier: e.g. REP
-    string public version = 'MMT_0.2'; //An arbitrary versioning scheme
+    string public version = "MMT_0.2"; //An arbitrary versioning scheme
 
 
     /// @dev `Checkpoint` is the structure that attaches a block number to a
