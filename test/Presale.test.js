@@ -44,7 +44,7 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
         this.pton.address,
         tokenWallet,
         cap,
-        individualMinCap, 
+        individualMinCap,
         individualMaxCap,
         { from: admin }
       );
@@ -74,7 +74,7 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
         await this.pton.generateTokens(tokenWallet, presaleAmount, { from: controller });
         await this.pton.generateTokens(dev, devAmount, { from: controller });
         await this.pton.generateTokens(partnership, partnershipAmount, { from: controller });
-        await this.pton.approve(this.presale.address, presaleAmount, { from: tokenWallet });     
+        await this.pton.approve(this.presale.address, presaleAmount, { from: tokenWallet });
         await this.pton.changeController(constants.ZERO_ADDRESS, { from: controller });
 
         // buyers[0], buyers[1]: whitelist member
@@ -150,7 +150,7 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
           beforeEach(async function () {
             await this.presale.finalize({ from: admin });
 
-            this.ton = await ERC20Mintable.new( { from: admin });
+            this.ton = await ERC20Mintable.new({ from: admin });
             this.swapper = await Swapper.new(initialAmount);
             await this.ton.addMinter(this.swapper.address, { from: admin });
           });
@@ -160,9 +160,9 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
             await this.pton.approve(this.swapper.address, ptonAmount, { from: buyers[0] });
             await this.swapper.swap(this.pton.address, this.ton.address, { from: buyers[0] });
             (await this.ton.balanceOf(buyers[0])).should.be.bignumber.equals(ptonAmount.mul(swapRate));
-          })
+          });
         });
       });
-    }); 
+    });
   });
 });
