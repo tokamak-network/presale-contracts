@@ -8,17 +8,38 @@ contract Presale is WhitelistCrowdsale, CappedCrowdsale {
 
     uint256 private individualCap;
     mapping(address => uint256) private contributions;
+    uint256 private individualMinCap;
+    uint256 private individualMaxCap;
 
     constructor (uint256 _rate, address payable _wallet, IERC20 _token, uint256 _cap, uint256 _individualCap)
+        uint256 _individualMinCap,
+        uint256 _individualMaxCap
         public
         Crowdsale(_rate, _wallet, _token)
         CappedCrowdsale(_cap)
     {
         individualCap = _individualCap;
+        individualMinCap = _individualMinCap;
+        individualMaxCap = _individualMaxCap;
     }
 
-    function setIndividualCap(uint256 newIndividualCap) external onlyWhitelistAdmin {
-        individualCap = newIndividualCap;
+    function setIndividualMinCap(uint256 newIndividualMinCap) external onlyWhitelistAdmin {
+        individualMinCap = newIndividualMinCap;
+    }
+
+    function setIndividualMaxCap(uint256 newIndividualMaxCap) external onlyWhitelistAdmin {
+        individualMaxCap = newIndividualMaxCap;
+    }
+
+    function getIndividualMinCap() public view returns (uint256) {
+        return individualMinCap;
+    }
+
+    function getIndividualMaxCap() public view returns (uint256) {
+        return individualMaxCap;
+    }
+
+
     }
 
     /**
@@ -36,7 +57,10 @@ contract Presale is WhitelistCrowdsale, CappedCrowdsale {
      */
     function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal view {
         super._preValidatePurchase(beneficiary, weiAmount);
-        require(contributions[beneficiary].add(weiAmount) <= individualCap, "Presale: beneficiary's individual cap exceeded");
+
+        uint256 individualWeiAmount = contributions[beneficiary].add(weiAmount);
+        require(individualWeiAmount >= individualMinCap, "Presale: Less than min cap");
+        require(individualWeiAmount <= individualMaxCap, "Presale: More than max cap");
     }
 
     /**
