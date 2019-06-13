@@ -1,10 +1,13 @@
 pragma solidity ^0.5.0;
 
-import 'openzeppelin-solidity/contracts/crowdsale/validation/CappedCrowdsale.sol';
-import 'openzeppelin-solidity/contracts/crowdsale/validation/WhitelistCrowdsale.sol';
 import 'openzeppelin-solidity/contracts/token/ERC20/IERC20.sol';
+import "openzeppelin-solidity/contracts/payment/escrow/RefundEscrow.sol";
+import 'openzeppelin-solidity/contracts/crowdsale/validation/CappedCrowdsale.sol';
+import 'openzeppelin-solidity/contracts/crowdsale/emission/AllowanceCrowdsale.sol';
+import 'openzeppelin-solidity/contracts/crowdsale/validation/WhitelistCrowdsale.sol';
 
-contract Presale is WhitelistCrowdsale, CappedCrowdsale {
+contract Presale is CappedCrowdsale, AllowanceCrowdsale, WhitelistCrowdsale {
+    using SafeMath for uint256;
 
     // refund escrow used to hold funds while crowdsale is running
     RefundEscrow private escrow;
@@ -13,12 +16,19 @@ contract Presale is WhitelistCrowdsale, CappedCrowdsale {
     uint256 private individualMinCap;
     uint256 private individualMaxCap;
 
-    constructor (uint256 _rate, address payable _wallet, IERC20 _token, uint256 _cap, uint256 _individualCap)
+    constructor (
+        uint256 _rate,
+        address payable _wallet,
+        IERC20 _token,
+        address tokenWallet,
+        uint256 _cap,
         uint256 _individualMinCap,
         uint256 _individualMaxCap
+    )
         public
         Crowdsale(_rate, _wallet, _token)
         CappedCrowdsale(_cap)
+        AllowanceCrowdsale(tokenWallet)
     {
         escrow = new RefundEscrow(_wallet);
 
