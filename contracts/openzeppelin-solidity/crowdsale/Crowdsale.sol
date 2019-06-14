@@ -102,6 +102,7 @@ contract Crowdsale is ReentrancyGuard {
     }
 
     /**
+     * @notice This is modified to update purchase amount.
      * @dev low level token purchase ***DO NOT OVERRIDE***
      * This function has a non-reentrancy guard, so it shouldn't be called by
      * another `nonReentrant` function.
@@ -109,6 +110,10 @@ contract Crowdsale is ReentrancyGuard {
      */
     function buyTokens(address beneficiary) public nonReentrant payable {
         uint256 weiAmount = msg.value;
+
+        // adjust weiAmount with respect to cap and individual cap.
+        weiAmount = _updatePurchaseAmount(beneficiary, weiAmount);
+
         _preValidatePurchase(beneficiary, weiAmount);
 
         // calculate token amount to be created
@@ -122,9 +127,19 @@ contract Crowdsale is ReentrancyGuard {
 
         _updatePurchasingState(beneficiary, weiAmount);
 
-        _forwardFunds();
+        _forwardFunds(weiAmount);
         _postValidatePurchase(beneficiary, weiAmount);
     }
+
+    /**
+     * @dev Update of an incoming purchase amount.
+     * @param beneficiary Address performing the token purchase
+     * @param weiAmount Value in wei involved in the purchase
+     */
+    function _updatePurchaseAmount(address beneficiary, uint weiAmount) internal returns (uint) {
+        return weiAmount;
+    }
+
 
     /**
      * @dev Validation of an incoming purchase. Use require statements to revert state when conditions are not met.
@@ -192,7 +207,7 @@ contract Crowdsale is ReentrancyGuard {
     /**
      * @dev Determines how ETH is stored/forwarded on purchases.
      */
-    function _forwardFunds() internal {
-        _wallet.transfer(msg.value);
+    function _forwardFunds(uint256 amount) internal {
+        _wallet.transfer(amount);
     }
 }
