@@ -1,4 +1,4 @@
-const { balance, BN, ether, constants, expectRevert } = require('openzeppelin-test-helpers');
+const { balance, BN, ether, constants, expectRevert, time } = require('openzeppelin-test-helpers');
 
 const Presale = artifacts.require('Presale');
 const MiniMeToken = artifacts.require('MiniMeToken');
@@ -38,6 +38,11 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
         true,
         { from: controller }
       );
+
+      await time.advanceBlock();
+      const startingTime = await time.latest();
+      const closingTime = startingTime.add(time.duration.years(1));
+
       this.presale = await Presale.new(
         rate,
         wallet,
@@ -46,6 +51,8 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
         cap,
         individualMinCap,
         individualMaxCap,
+        startingTime,
+        closingTime,
         { from: admin }
       );
     });
