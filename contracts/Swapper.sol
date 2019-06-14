@@ -18,7 +18,7 @@ contract Swapper is ERC20 {
 
     function swap(IERC20 PTON, ERC20Mintable TON) external {
         uint256 allowance = PTON.allowance(msg.sender, address(this));
-        require(allowance != 0, "Swapper: allowance is zero"); 
+        require(allowance != 0, "Swapper: allowance is zero");
 
         PTON.transferFrom(msg.sender, address(this), allowance);
         TON.mint(msg.sender, allowance.mul(swapRate));
