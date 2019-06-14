@@ -96,6 +96,13 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
           (await this.pton.balanceOf(buyers[0])).should.be.bignumber.equal(purchaseAmount.mul(rate));
         });
 
+        it('should accept additional payments within individual cap', async function () {
+          await this.presale.buyTokens(buyers[0], { value: purchaseAmount });
+          await this.presale.buyTokens(buyers[0], { value: lessThanMinCap });
+          (await this.pton.balanceOf(buyers[0])).should.be.bignumber
+            .equal(purchaseAmount.add(lessThanMinCap).mul(rate));
+        });
+
         it('should reject payments that exceed cap', async function () {
           await this.presale.buyTokens(buyers[0], { value: individualMaxCap });
           await expectRevert(this.presale.buyTokens(buyers[1], { value: individualMaxCap }),
