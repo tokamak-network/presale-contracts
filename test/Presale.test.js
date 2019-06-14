@@ -39,9 +39,8 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
         { from: controller }
       );
 
-      await time.advanceBlock();
-      const startingTime = await time.latest();
-      const closingTime = startingTime.add(time.duration.years(1));
+      this.openingTime = (await time.latest()).add(time.duration.weeks(1));
+      this.closingTime = this.openingTime.add(time.duration.weeks(1));
 
       this.presale = await Presale.new(
         rate,
@@ -51,8 +50,8 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
         cap,
         individualMinCap,
         individualMaxCap,
-        startingTime,
-        closingTime,
+        this.openingTime,
+        this.closingTime,
         { from: admin }
       );
     });
@@ -88,6 +87,8 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
         // buyers[2]           : whitelist non-member
         await this.presale.addWhitelisted(buyers[0], { from: admin });
         await this.presale.addWhitelisted(buyers[1], { from: admin });
+
+        await time.increaseTo(this.openingTime);
       });
 
       describe('on sale', function () {
