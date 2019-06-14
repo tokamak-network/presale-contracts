@@ -5,13 +5,15 @@ import "openzeppelin-solidity/contracts/payment/escrow/RefundEscrow.sol";
 import "openzeppelin-solidity/contracts/crowdsale/validation/CappedCrowdsale.sol";
 import "openzeppelin-solidity/contracts/crowdsale/emission/AllowanceCrowdsale.sol";
 import "openzeppelin-solidity/contracts/crowdsale/validation/WhitelistCrowdsale.sol";
+import "openzeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.sol";
 
-contract Presale is CappedCrowdsale, AllowanceCrowdsale, WhitelistCrowdsale {
+
+contract Presale is CappedCrowdsale, AllowanceCrowdsale, WhitelistCrowdsale, FinalizableCrowdsale {
     using SafeMath for uint256;
 
     // refund escrow used to hold funds while crowdsale is running
     RefundEscrow private escrow;
-    
+
     mapping(address => uint256) private contributions;
     uint256 private individualMinCap;
     uint256 private individualMaxCap;
@@ -23,12 +25,15 @@ contract Presale is CappedCrowdsale, AllowanceCrowdsale, WhitelistCrowdsale {
         address tokenWallet,
         uint256 _cap,
         uint256 _individualMinCap,
-        uint256 _individualMaxCap
+        uint256 _individualMaxCap,
+        uint256 _openingTime,
+        uint256 _closingTime
     )
         public
         Crowdsale(_rate, _wallet, _token)
         CappedCrowdsale(_cap)
         AllowanceCrowdsale(tokenWallet)
+        TimedCrowdsale(_openingTime, _closingTime)
     {
         escrow = new RefundEscrow(_wallet);
 
@@ -53,6 +58,8 @@ contract Presale is CappedCrowdsale, AllowanceCrowdsale, WhitelistCrowdsale {
     }
 
     function finalize() public onlyWhitelistAdmin {
+        super.finalize();
+
         escrow.close();
         escrow.beneficiaryWithdraw();
     }
@@ -63,6 +70,10 @@ contract Presale is CappedCrowdsale, AllowanceCrowdsale, WhitelistCrowdsale {
 
     function claimRefund(address payable refundee) public {
         escrow.withdraw(refundee);
+    }
+
+    function hasClosed() public view returns (bool) {
+        return !super.finalized();
     }
 
     /**
