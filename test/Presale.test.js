@@ -146,20 +146,23 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
           (await balance.current(buyers[0])).sub(purchaseAmount).should.be.bignumber.equal(refundeeBalance);
         });
 
-        context('swap token', function () {
+        context('after sale', function () {
           beforeEach(async function () {
             await this.presale.finalize({ from: admin });
 
-            this.ton = await ERC20Mintable.new({ from: admin });
-            this.swapper = await Swapper.new(initialAmount);
-            await this.ton.addMinter(this.swapper.address, { from: admin });
-          });
+          context('swap token', function () {
+            beforeEach(async function () {
+              this.ton = await ERC20Mintable.new({ from: admin });
+              this.swapper = await Swapper.new(initialAmount);
+              await this.ton.addMinter(this.swapper.address, { from: admin });
+            });
 
-          it('should accept swap from PTON to TON', async function () {
-            const ptonAmount = await this.pton.balanceOf(buyers[0]);
-            await this.pton.approve(this.swapper.address, ptonAmount, { from: buyers[0] });
-            await this.swapper.swap(this.pton.address, this.ton.address, { from: buyers[0] });
-            (await this.ton.balanceOf(buyers[0])).should.be.bignumber.equals(ptonAmount.mul(swapRate));
+            it('should accept swap from PTON to TON', async function () {
+              const ptonAmount = await this.pton.balanceOf(buyers[0]);
+              await this.pton.approve(this.swapper.address, ptonAmount, { from: buyers[0] });
+              await this.swapper.swap(this.pton.address, this.ton.address, { from: buyers[0] });
+              (await this.ton.balanceOf(buyers[0])).should.be.bignumber.equals(ptonAmount.mul(swapRate));
+            });
           });
         });
       });
