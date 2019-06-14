@@ -108,6 +108,8 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
         it('should accept payments within individual cap', async function () {
           await this.presale.buyTokens(buyers[0], { value: purchaseAmount });
           (await this.pton.balanceOf(buyers[0])).should.be.bignumber.equal(purchaseAmount.mul(rate));
+          (await this.presale.weiRaised()).should.be.bignumber
+            .equal(purchaseAmount);
         });
 
         it('should accept additional payments within individual cap', async function () {
@@ -115,25 +117,45 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
           await this.presale.buyTokens(buyers[0], { value: lessThanMinCap });
           (await this.pton.balanceOf(buyers[0])).should.be.bignumber
             .equal(purchaseAmount.add(lessThanMinCap).mul(rate));
+          (await this.presale.weiRaised()).should.be.bignumber
+            .equal(purchaseAmount.add(lessThanMinCap));
+
+        });
+
+        it('should accept additional payments over individual cap', async function () {
+          await this.presale.buyTokens(buyers[0], { from: buyers[0], value: purchaseAmount });
+          await this.presale.buyTokens(buyers[0], { from: buyers[0], value: purchaseAmount, gas: 5000000 });
+          (await this.pton.balanceOf(buyers[0])).should.be.bignumber
+            .equal(individualMaxCap.mul(rate));
+          (await this.presale.weiRaised()).should.be.bignumber
+            .equal(individualMaxCap);
         });
 
         it('should reject payments that exceed cap', async function () {
           await this.presale.buyTokens(buyers[0], { value: individualMaxCap });
-          await expectRevert(this.presale.buyTokens(buyers[1], { value: individualMaxCap }),
-            'CappedCrowdsale: cap exceeded'
-          );
+          (await this.pton.balanceOf(buyers[0])).should.be.bignumber
+            .equal(individualMaxCap.mul(rate));
+          (await this.presale.weiRaised()).should.be.bignumber
+            .equal(individualMaxCap);
+
+          await this.presale.buyTokens(buyers[1], { value: individualMaxCap });
+          (await this.pton.balanceOf(buyers[1])).should.be.bignumber
+            .equal(cap.sub(individualMaxCap).mul(rate));
+          (await this.presale.weiRaised()).should.be.bignumber
+            .equal(cap);
+
         });
 
-        it('should reject payments outside individual min cap', async function () {
+        it('should reject payments under individual min cap', async function () {
           await expectRevert(this.presale.buyTokens(buyers[0], { value: lessThanMinCap }),
-            'Presale: less than min cap'
+            'Presale: less than individual min cap'
           );
         });
 
-        it('should reject payments outside individual max cap', async function () {
+        it('should reject payments over individual max cap', async function () {
           await this.presale.buyTokens(buyers[0], { value: individualMaxCap });
           await expectRevert(this.presale.buyTokens(buyers[0], { value: 1 }),
-            'Presale: more than max cap'
+            'Crowdsale: weiAmount is 0'
           );
         });
 
