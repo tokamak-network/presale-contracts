@@ -73,7 +73,7 @@ contract Presale is CappedCrowdsale, AllowanceCrowdsale, WhitelistCrowdsale, Fin
     }
 
     function hasClosed() public view returns (bool) {
-        return !super.finalized();
+        return !finalized();
     }
 
     function addWhitelistedList(address[] memory accounts) public onlyWhitelistAdmin {
