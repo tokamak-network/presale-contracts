@@ -76,6 +76,13 @@ contract Presale is CappedCrowdsale, AllowanceCrowdsale, WhitelistCrowdsale, Fin
         return !super.finalized();
     }
 
+    function addWhitelistedList(address[] memory accounts) public onlyWhitelistAdmin {
+        for(uint256 i = 0; i < accounts.length; i++) {
+            require(accounts[i] != address(0), "Presale: account is the zero address");
+            _addWhitelisted(accounts[i]);
+        }
+    }
+
     /**
      * @dev Extend parent behavior requiring purchase to respect the beneficiary's funding cap.
      * @param beneficiary Token purchaser

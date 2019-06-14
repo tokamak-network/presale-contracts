@@ -66,10 +66,23 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
       });
 
       it('reverts when a non-admin sets individual cap', async function () {
-        await expectRevert(this.presale.setIndividualMinCap(individualMinCap, { from: buyers[0] }),
+        await expectRevert(this.presale.setIndividualMinCap(individualMinCap),
           'WhitelistAdminRole: caller does not have the WhitelistAdmin role'
         );
-        await expectRevert(this.presale.setIndividualMaxCap(individualMaxCap, { from: buyers[0] }),
+        await expectRevert(this.presale.setIndividualMaxCap(individualMaxCap),
+          'WhitelistAdminRole: caller does not have the WhitelistAdmin role'
+        );
+      });
+
+      it('adds whitelisted list when the sender is a admin', async function () {
+        await this.presale.addWhitelistedList([buyers[0], buyers[1]], { from: admin });
+        (await this.presale.isWhitelisted(buyers[0])).should.be.equal(true);
+        (await this.presale.isWhitelisted(buyers[1])).should.be.equal(true);
+        (await this.presale.isWhitelisted(buyers[2])).should.be.equal(false);
+      });
+
+      it('reverts when a non-admin adds whitelisted members', async function () {
+        await expectRevert(this.presale.addWhitelistedList([buyers[0], buyers[1]]),
           'WhitelistAdminRole: caller does not have the WhitelistAdmin role'
         );
       });
