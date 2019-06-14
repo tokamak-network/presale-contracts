@@ -163,6 +163,19 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
         context('after sale', function () {
           beforeEach(async function () {
             await this.presale.finalize({ from: admin });
+          });
+
+          it('reverts when admin try to finalize sale after sale ends', async function () {
+            await expectRevert(this.presale.finalize({ from: admin }),
+              'FinalizableCrowdsale: already finalized'
+            );
+          });
+
+          it('reverts when buyers try to buy tokens after sale', async function () {
+            await expectRevert(this.presale.buyTokens(buyers[1], { value: purchaseAmount }),
+              'RefundEscrow: can only deposit while active'
+            );
+          });
 
           context('swap token', function () {
             beforeEach(async function () {
