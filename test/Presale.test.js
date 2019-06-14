@@ -113,14 +113,14 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
 
         it('should reject payments outside individual min cap', async function () {
           await expectRevert(this.presale.buyTokens(buyers[0], { value: lessThanMinCap }),
-            'Presale: Less than min cap'
+            'Presale: less than min cap'
           );
         });
 
         it('should reject payments outside individual max cap', async function () {
           await this.presale.buyTokens(buyers[0], { value: individualMaxCap });
           await expectRevert(this.presale.buyTokens(buyers[0], { value: 1 }),
-            'Presale: More than max cap'
+            'Presale: more than max cap'
           );
         });
 

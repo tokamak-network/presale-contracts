@@ -85,8 +85,8 @@ contract Presale is CappedCrowdsale, AllowanceCrowdsale, WhitelistCrowdsale, Fin
         super._preValidatePurchase(beneficiary, weiAmount);
 
         uint256 individualWeiAmount = contributions[beneficiary].add(weiAmount);
-        require(individualWeiAmount >= individualMinCap, "Presale: Less than min cap");
-        require(individualWeiAmount <= individualMaxCap, "Presale: More than max cap");
+        require(individualWeiAmount >= individualMinCap, "Presale: less than min cap");
+        require(individualWeiAmount <= individualMaxCap, "Presale: more than max cap");
     }
 
     /**
