@@ -1,11 +1,11 @@
 pragma solidity ^0.5.0;
 
-import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
-import "openzeppelin-solidity/contracts/payment/escrow/RefundEscrow.sol";
-import "openzeppelin-solidity/contracts/crowdsale/validation/CappedCrowdsale.sol";
-import "openzeppelin-solidity/contracts/crowdsale/emission/AllowanceCrowdsale.sol";
-import "openzeppelin-solidity/contracts/crowdsale/validation/WhitelistCrowdsale.sol";
-import "openzeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.sol";
+import "./openzeppelin-solidity/token/ERC20/IERC20.sol";
+import "./openzeppelin-solidity/payment/escrow/RefundEscrow.sol";
+import "./openzeppelin-solidity/crowdsale/validation/CappedCrowdsale.sol";
+import "./openzeppelin-solidity/crowdsale/emission/AllowanceCrowdsale.sol";
+import "./openzeppelin-solidity/crowdsale/validation/WhitelistCrowdsale.sol";
+import "./openzeppelin-solidity/crowdsale/distribution/FinalizableCrowdsale.sol";
 
 
 contract Presale is CappedCrowdsale, AllowanceCrowdsale, WhitelistCrowdsale, FinalizableCrowdsale {
@@ -83,6 +83,33 @@ contract Presale is CappedCrowdsale, AllowanceCrowdsale, WhitelistCrowdsale, Fin
         }
     }
 
+    function _updatePurchaseAmount(address beneficiary, uint weiAmount) internal returns (uint) {
+        uint amount = super._updatePurchaseAmount(beneficiary, weiAmount);
+        uint maxCap = cap();
+
+        // check max cap
+        uint amountWithWeiRaised = weiRaised().add(amount);
+        if (amountWithWeiRaised > maxCap) {
+            amount = maxCap.sub(weiRaised());
+        }
+
+        // check individual max cap
+        uint amountWithContribution = contributions[beneficiary].add(amount);
+        if (amountWithContribution > individualMaxCap) {
+            amount = individualMaxCap.sub(contributions[beneficiary]);
+        }
+
+        uint refundAmount = weiAmount.sub(amount);
+        if (refundAmount > 0) {
+            // buyTokens is safe for reenterancy attack, so we can transfer transfer here.
+            msg.sender.transfer(refundAmount);
+
+        }
+
+        return amount;
+    }
+
+
     /**
      * @dev Extend parent behavior requiring purchase to respect the beneficiary's funding cap.
      * @param beneficiary Token purchaser
@@ -92,8 +119,8 @@ contract Presale is CappedCrowdsale, AllowanceCrowdsale, WhitelistCrowdsale, Fin
         super._preValidatePurchase(beneficiary, weiAmount);
 
         uint256 individualWeiAmount = contributions[beneficiary].add(weiAmount);
-        require(individualWeiAmount >= individualMinCap, "Presale: less than min cap");
-        require(individualWeiAmount <= individualMaxCap, "Presale: more than max cap");
+        require(individualWeiAmount >= individualMinCap, "Presale: less than individual min cap");
+        require(individualWeiAmount <= individualMaxCap, "Presale: more than individual max cap");
     }
 
     /**
@@ -109,7 +136,7 @@ contract Presale is CappedCrowdsale, AllowanceCrowdsale, WhitelistCrowdsale, Fin
     /**
      * @dev Overrides Crowdsale fund forwarding, sending funds to escrow.
      */
-    function _forwardFunds() internal {
-        escrow.deposit.value(msg.value)(msg.sender);
+    function _forwardFunds(uint256 amount) internal {
+        escrow.deposit.value(amount)(msg.sender);
     }
 }
