@@ -11,6 +11,8 @@ import "./openzeppelin-solidity/crowdsale/distribution/FinalizableCrowdsale.sol"
 contract Presale is CappedCrowdsale, AllowanceCrowdsale, WhitelistCrowdsale, FinalizableCrowdsale {
     using SafeMath for uint256;
 
+    address private admin;
+
     // refund escrow used to hold funds while crowdsale is running
     RefundEscrow private escrow;
 
@@ -36,6 +38,7 @@ contract Presale is CappedCrowdsale, AllowanceCrowdsale, WhitelistCrowdsale, Fin
         TimedCrowdsale(_openingTime, _closingTime)
     {
         escrow = new RefundEscrow(_wallet);
+        admin = msg.sender;
 
         individualMinCap = _individualMinCap;
         individualMaxCap = _individualMaxCap;
@@ -109,7 +112,6 @@ contract Presale is CappedCrowdsale, AllowanceCrowdsale, WhitelistCrowdsale, Fin
         return amount;
     }
 
-
     /**
      * @dev Extend parent behavior requiring purchase to respect the beneficiary's funding cap.
      * @param beneficiary Token purchaser
@@ -119,7 +121,9 @@ contract Presale is CappedCrowdsale, AllowanceCrowdsale, WhitelistCrowdsale, Fin
         super._preValidatePurchase(beneficiary, weiAmount);
 
         uint256 individualWeiAmount = contributions[beneficiary].add(weiAmount);
-        require(individualWeiAmount >= individualMinCap, "Presale: less than individual min cap");
+        if (beneficiary != admin) {
+            require(individualWeiAmount >= individualMinCap, "Presale: less than individual min cap");
+        }
         require(individualWeiAmount <= individualMaxCap, "Presale: more than individual max cap");
     }
 
@@ -136,6 +140,7 @@ contract Presale is CappedCrowdsale, AllowanceCrowdsale, WhitelistCrowdsale, Fin
     /**
      * @dev Overrides Crowdsale fund forwarding, sending funds to escrow.
      */
+
     function _forwardFunds(uint256 amount) internal {
         escrow.deposit.value(amount)(msg.sender);
     }

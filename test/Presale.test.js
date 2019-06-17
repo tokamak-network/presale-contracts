@@ -154,6 +154,13 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
           );
         });
 
+        it('should accept payments under individual min cap from admin', async function () {
+          await this.presale.addWhitelisted(admin, { from: admin });
+          await this.presale.buyTokens(admin, { value: lessThanMinCap });
+          (await this.pton.balanceOf(admin)).should.be.bignumber
+            .equal(lessThanMinCap.mul(rate));
+        });
+
         it('should reject payments over individual max cap', async function () {
           await this.presale.buyTokens(buyers[0], { value: individualMaxCap });
           await expectRevert(this.presale.buyTokens(buyers[0], { value: 1 }),
