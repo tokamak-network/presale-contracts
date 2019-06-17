@@ -105,6 +105,10 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
       });
 
       describe('on sale', function () {
+        it('sale is not yet finished', async function () {
+          (await this.presale.finalized()).should.be.equal(false);
+        });
+
         it('should accept payments within individual cap', async function () {
           await this.presale.buyTokens(buyers[0], { value: purchaseAmount });
           (await this.pton.balanceOf(buyers[0])).should.be.bignumber.equal(purchaseAmount.mul(rate));
@@ -119,7 +123,6 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
             .equal(purchaseAmount.add(lessThanMinCap).mul(rate));
           (await this.presale.weiRaised()).should.be.bignumber
             .equal(purchaseAmount.add(lessThanMinCap));
-
         });
 
         it('should accept additional payments over individual cap', async function () {
@@ -143,7 +146,6 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
             .equal(cap.sub(individualMaxCap).mul(rate));
           (await this.presale.weiRaised()).should.be.bignumber
             .equal(cap);
-
         });
 
         it('should reject payments under individual min cap', async function () {
@@ -199,6 +201,10 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
         context('after sale', function () {
           beforeEach(async function () {
             await this.presale.finalize({ from: admin });
+          });
+
+          it('sale is finished', async function () {
+            (await this.presale.finalized()).should.be.equal(true);
           });
 
           it('reverts when admin try to finalize sale after sale ends', async function () {
