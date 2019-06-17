@@ -152,7 +152,7 @@ contract MiniMeToken is Controlled, IERC20 {
             require(transfersEnabled);
 
             // The standard ERC 20 transferFrom functionality
-            require(allowed[_from][msg.sender] >= _amount);
+            require(allowed[_from][msg.sender] >= _amount, "MiniMeToken: short allowance");
             allowed[_from][msg.sender] -= _amount;
         }
         doTransfer(_from, _to, _amount);
@@ -182,7 +182,7 @@ contract MiniMeToken is Controlled, IERC20 {
            //  account the transfer throws
            uint previousBalanceFrom = balanceOfAt(_from, block.number);
 
-           require(previousBalanceFrom >= _amount);
+           require(previousBalanceFrom >= _amount, "MiniMeToken: short balance");
 
            // Alerts the token controller of the transfer
            if (isContract(controller)) {
