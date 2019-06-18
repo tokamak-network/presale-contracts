@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
+import "./MiniMeToken.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol";
 
 contract Swapper is ERC20 {
@@ -8,14 +8,14 @@ contract Swapper is ERC20 {
 
     uint256 public initialSupply;
 
-    IERC20 public PTON;
-    IERC20 public MTON;
+    MiniMeToken public PTON;
+    MiniMeToken public MTON;
     ERC20Mintable public TON;
 
     uint256 public swapMTONRate;
     uint256 public swapPTONRate;
 
-    constructor (uint256 _initialSupply, IERC20 _PTON, IERC20 _MTON, ERC20Mintable _TON) public {
+    constructor (MiniMeToken _PTON, MiniMeToken _MTON, ERC20Mintable _TON) public {
         require(_initialSupply != 0, "Swapper: initial supply is zero");
         require(address(_PTON) != address(0) && address(_MTON) != address(0) && address(_TON) != address(0), "Swapper: zero address");
         initialSupply = _initialSupply;

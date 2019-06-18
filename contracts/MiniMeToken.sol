@@ -27,7 +27,6 @@ pragma solidity ^0.5.0;
 
 import "./Controlled.sol";
 import "./TokenController.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 
 contract ApproveAndCallFallBack {
     function receiveApproval(address from, uint256 _amount, address _token, bytes memory _data) public;
@@ -36,12 +35,12 @@ contract ApproveAndCallFallBack {
 /// @dev The actual token contract, the default controller is the msg.sender
 ///  that deploys the contract, so usually this token will be deployed by a
 ///  token controller contract, which Giveth will call a "Campaign"
-contract MiniMeToken is Controlled, IERC20 {
+contract MiniMeToken is Controlled {
 
     string public name;                //The Token's name: e.g. DigixDAO Tokens
     uint8 public decimals;             //Number of decimals of the smallest unit
     string public symbol;              //An identifier: e.g. REP
-    string public version = "MMT_0.2"; //An arbitrary versioning scheme
+    string public version = 'MMT_0.2'; //An arbitrary versioning scheme
 
 
     /// @dev `Checkpoint` is the structure that attaches a block number to a
@@ -152,7 +151,7 @@ contract MiniMeToken is Controlled, IERC20 {
             require(transfersEnabled);
 
             // The standard ERC 20 transferFrom functionality
-            require(allowed[_from][msg.sender] >= _amount, "MiniMeToken: short allowance");
+            require(allowed[_from][msg.sender] >= _amount);
             allowed[_from][msg.sender] -= _amount;
         }
         doTransfer(_from, _to, _amount);
@@ -182,7 +181,7 @@ contract MiniMeToken is Controlled, IERC20 {
            //  account the transfer throws
            uint previousBalanceFrom = balanceOfAt(_from, block.number);
 
-           require(previousBalanceFrom >= _amount, "MiniMeToken: short balance");
+           require(previousBalanceFrom >= _amount);
 
            // Alerts the token controller of the transfer
            if (isContract(controller)) {
@@ -511,8 +510,13 @@ contract MiniMeToken is Controlled, IERC20 {
 // Events
 ////////////////
     event ClaimedTokens(address indexed _token, address indexed _controller, uint _amount);
+    event Transfer(address indexed _from, address indexed _to, uint256 _amount);	
     event NewCloneToken(address indexed _cloneToken, uint _snapshotBlock);
-
+    event Approval(	
+        address indexed _owner,	
+        address indexed _spender,	
+        uint256 _amount	
+        );
 }
 
 
