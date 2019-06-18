@@ -4,7 +4,6 @@ const Presale = artifacts.require('Presale');
 const MiniMeToken = artifacts.require('MiniMeToken');
 const MiniMeTokenFactory = artifacts.require('MiniMeTokenFactory');
 const ERC20Mintable = artifacts.require('ERC20Mintable');
-const Swapper = artifacts.require('Swapper');
 
 require('chai')
   .should();
@@ -23,7 +22,6 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
   const devAmount = new BN('10').pow(decimals).mul(new BN('10000'));
   const partnershipAmount = new BN('10').pow(decimals).mul(new BN('10000'));
   const initialAmount = new BN('10').pow(decimals); // number of tokens sold at public sale
-  const swapRate = initialAmount.div(new BN('100'));
 
   context('once deployed', async function () {
     beforeEach(async function () {
