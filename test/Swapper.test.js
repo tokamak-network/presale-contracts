@@ -1,4 +1,5 @@
 const { BN, constants, expectRevert } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 const MiniMeToken = artifacts.require('MiniMeToken');
 const MiniMeTokenFactory = artifacts.require('MiniMeTokenFactory');
@@ -23,7 +24,7 @@ contract('Swapper', function ([_, controller, admin, ptonHolder, mtonHolder, oth
 
   it('requires a non-zero address', async function () {
     await expectRevert(
-      Swapper.new(initialAmount, constants.ZERO_ADDRESS, constants.ZERO_ADDRESS, constants.ZERO_ADDRESS),
+      Swapper.new(ZERO_ADDRESS, ZERO_ADDRESS, ZERO_ADDRESS),
       'Swapper: zero address'
     );
   });
@@ -33,7 +34,7 @@ contract('Swapper', function ([_, controller, admin, ptonHolder, mtonHolder, oth
       this.tokenFactory = await MiniMeTokenFactory.new({ from: controller });
       this.pton = await MiniMeToken.new(
         this.tokenFactory.address,
-        constants.ZERO_ADDRESS,
+        ZERO_ADDRESS,
         0,
         'MiniMe Test Token',
         18,
@@ -44,7 +45,7 @@ contract('Swapper', function ([_, controller, admin, ptonHolder, mtonHolder, oth
       // use create clone?
       this.mton = await MiniMeToken.new(
         this.tokenFactory.address,
-        constants.ZERO_ADDRESS,
+        ZERO_ADDRESS,
         0,
         'MiniMe Test Token',
         18,

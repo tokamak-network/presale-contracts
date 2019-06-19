@@ -1,4 +1,5 @@
 const { balance, BN, ether, constants, expectRevert, time } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 const Presale = artifacts.require('Presale');
 const MiniMeToken = artifacts.require('MiniMeToken');
@@ -28,7 +29,7 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
       this.tokenFactory = await MiniMeTokenFactory.new({ from: controller });
       this.pton = await MiniMeToken.new(
         this.tokenFactory.address,
-        constants.ZERO_ADDRESS,
+        ZERO_ADDRESS,
         0,
         'MiniMe Test Token',
         18,
@@ -92,7 +93,7 @@ contract('Presale', function ([_, controller, admin, wallet, tokenWallet, dev, p
         await this.pton.generateTokens(dev, devAmount, { from: controller });
         await this.pton.generateTokens(partnership, partnershipAmount, { from: controller });
         await this.pton.approve(this.presale.address, presaleAmount, { from: tokenWallet });
-        await this.pton.changeController(constants.ZERO_ADDRESS, { from: controller });
+        await this.pton.changeController(ZERO_ADDRESS, { from: controller });
 
         // buyers[0], buyers[1]: whitelist member
         // buyers[2]           : whitelist non-member
