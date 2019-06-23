@@ -41,7 +41,7 @@ contract('TokenVestingCrowdsale', function ([_, owner, wallet, investor]) {
 
       this.start = (await time.latest()).add(time.duration.minutes(1));
       this.cliffDuration = time.duration.years(1);
-      this.duration = time.duration.years(2);      
+      this.duration = time.duration.years(2);
       await expectRevert(
         this.crowdsale._initiate(this.start, this.cliffDuration, this.duration),
         'TokenVestingCrowdsale: all tokens have not been sold yet'
