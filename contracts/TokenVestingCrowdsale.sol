@@ -27,9 +27,9 @@ contract TokenVestingCrowdsale is Crowdsale {
      * @param cliffDuration duration in seconds of the cliff in which tokens will begin to vest
      * @param duration duration in seconds of the period in which the tokens will vest
      */
-    function _initiate(uint256 start, uint256 cliffDuration, uint256 duration) public {
+    function initiate(uint256 start, uint256 cliffDuration, uint256 duration) public {
         require(!_initiated, "TokenVestingCrowdsale: already initiated");
-        require(remainingAmount() == 0, "TokenVestingCrowdsale: all tokens have not been sold yet");
+        require(_remainingAmount() == 0, "TokenVestingCrowdsale: all tokens have not been sold yet");
 
         _tokenVesting.initiate(start, cliffDuration, duration);
 
@@ -52,7 +52,7 @@ contract TokenVestingCrowdsale is Crowdsale {
      * @notice Transfers vested tokens to beneficiary.
      * @param beneficiary the beneficiary of the tokens.
      */
-    function _release(address beneficiary) public {
+    function release(address beneficiary) public {
         _tokenVesting.release(beneficiary);
     }
 
@@ -69,7 +69,7 @@ contract TokenVestingCrowdsale is Crowdsale {
     /**
      * @dev Calculates total token amount that has not been sold.
      */
-    function remainingAmount() private view returns (uint256) {
+    function _remainingAmount() private view returns (uint256) {
         return token().balanceOf(address(this));
     }
 }

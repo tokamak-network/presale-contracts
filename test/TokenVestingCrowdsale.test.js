@@ -45,15 +45,15 @@ contract('TokenVestingCrowdsale', function ([_, owner, wallet, beneficiary]) {
     it('reverts when all token have not yet sold', async function () {
       await this.token.mint(this.crowdsale.address, saleAmount, { from: owner });
       await expectRevert(
-        this.crowdsale._initiate(this.start, this.cliffDuration, this.duration),
+        this.crowdsale.initiate(this.start, this.cliffDuration, this.duration),
         'TokenVestingCrowdsale: all tokens have not been sold yet'
       );
     });
 
     it('reverts when initiation already happened', async function () {
-      await this.crowdsale._initiate(this.start, this.cliffDuration, this.duration);
+      await this.crowdsale.initiate(this.start, this.cliffDuration, this.duration);
       await expectRevert(
-        this.crowdsale._initiate(this.start, this.cliffDuration, this.duration),
+        this.crowdsale.initiate(this.start, this.cliffDuration, this.duration),
         'TokenVestingCrowdsale: already initiated'
       );
     });
@@ -74,11 +74,11 @@ contract('TokenVestingCrowdsale', function ([_, owner, wallet, beneficiary]) {
         const remainingAmount = await this.token.balanceOf(this.crowdsale.address);
         await this.crowdsale.sendTransaction({ value: remainingAmount.div(rate) });
 
-        await this.crowdsale._initiate(this.start, this.cliffDuration, this.duration);
+        await this.crowdsale.initiate(this.start, this.cliffDuration, this.duration);
       });
 
       it('cannot be released before cliff', async function () {
-        await expectRevert(this.crowdsale._release(beneficiary),
+        await expectRevert(this.crowdsale.release(beneficiary),
           'TokenVesting: no tokens are due'
         );
       });
@@ -86,7 +86,7 @@ contract('TokenVestingCrowdsale', function ([_, owner, wallet, beneficiary]) {
       it('should release proper amount after cliff', async function () {
         await time.increaseTo(this.start.add(this.cliffDuration));
 
-        await this.crowdsale._release(beneficiary);
+        await this.crowdsale.release(beneficiary);
         const releaseTime = await time.latest();
 
         const releasedAmount = amount.mul(releaseTime.sub(this.start)).div(this.duration);
@@ -95,7 +95,7 @@ contract('TokenVestingCrowdsale', function ([_, owner, wallet, beneficiary]) {
 
       it('should have released all after end', async function () {
         await time.increaseTo(this.start.add(this.duration));
-        await this.crowdsale._release(beneficiary);
+        await this.crowdsale.release(beneficiary);
         (await this.token.balanceOf(beneficiary)).should.bignumber.equal(amount);
       });
     });
