@@ -53,6 +53,8 @@ contract TokenVestingCrowdsale is Crowdsale {
      * @param beneficiary the beneficiary of the tokens.
      */
     function release(address beneficiary) public {
+        require(_initiated, "TokenVestingCrowdsale: not yet initiated");
+
         _tokenVesting.release(beneficiary);
     }
 

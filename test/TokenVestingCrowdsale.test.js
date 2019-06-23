@@ -60,8 +60,8 @@ contract('TokenVestingCrowdsale', function ([_, owner, wallet, beneficiary]) {
 
     it('can not be released before initiation', async function () {
       await expectRevert(
-        this.crowdsale._release(beneficiary, { from: beneficiary }),
-        'TokenVesting: no tokens are due'
+        this.crowdsale.release(beneficiary, { from: beneficiary }),
+        'TokenVestingCrowdsale: not yet initiated'
       );
     });
 
