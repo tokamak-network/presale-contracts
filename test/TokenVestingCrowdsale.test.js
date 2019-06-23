@@ -65,6 +65,16 @@ contract('TokenVestingCrowdsale', function ([_, owner, wallet, beneficiary]) {
       );
     });
 
+    it('can not be released before initiation even after purchase', async function () {
+      await this.token.mint(this.crowdsale.address, saleAmount, { from: owner });
+      await this.crowdsale.sendTransaction({ value: value, from: beneficiary });
+
+      await expectRevert(
+        this.crowdsale.release(beneficiary, { from: beneficiary }),
+        'TokenVestingCrowdsale: not yet initiated'
+      );
+    });
+
     context('after initiated', function () {
       beforeEach(async function () {
         await this.token.mint(this.crowdsale.address, saleAmount, { from: owner });
