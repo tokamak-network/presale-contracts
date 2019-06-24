@@ -12,6 +12,11 @@ contract TokenVestingCrowdsale is Crowdsale {
 
     constructor () public {
         _tokenVesting = new TokenVesting(token());
+    /**
+     * @dev Returns contract that token vests.
+     */
+    function tokenVesting() public view returns (TokenVesting) {
+        return _tokenVesting;
     }
 
     /**
