@@ -72,10 +72,11 @@ contract TokenVesting is Secondary {
     }
 
     /**
+     * @param beneficiary the beneficiary of the tokens.
      * @return the amount of the token released.
      */
-    function released(address token) public view returns (uint256) {
-        return _released[token];
+    function released(address beneficiary) public view returns (uint256) {
+        return _released[beneficiary];
     }
 
     /**
