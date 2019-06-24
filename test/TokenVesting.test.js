@@ -85,14 +85,14 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
       });
 
       it('reverts with no allowance', async function () {
-        await expectRevert(this.vesting.vesting(beneficiary, amount),
+        await expectRevert(this.vesting.vest(beneficiary, amount),
           'SafeERC20: low-level call failed'
         );
       });
 
       it('reverts with less than allowance', async function () {
         await this.token.approve(this.vesting.address, amount.sub(new BN('1')), { from: beneficiary });
-        await expectRevert(this.vesting.vesting(beneficiary, amount),
+        await expectRevert(this.vesting.vest(beneficiary, amount),
           'SafeERC20: low-level call failed'
         );
       });
@@ -101,7 +101,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
         await this.token.mint(beneficiary, amount, { from: owner });
         await this.token.approve(this.vesting.address, amount, { from: beneficiary });
 
-        const { logs } = await this.vesting.vesting(beneficiary, amount, { from: beneficiary });
+        const { logs } = await this.vesting.vest(beneficiary, amount, { from: beneficiary });
         expectEvent.inLogs(logs, 'TokensVested', {
           beneficiary: beneficiary,
           amount: amount,
@@ -114,7 +114,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
         beforeEach(async function () {
           await this.token.mint(beneficiary, amount, { from: owner });
           await this.token.approve(this.vesting.address, amount, { from: beneficiary });
-          await this.vesting.vesting(beneficiary, amount, { from: beneficiary });
+          await this.vesting.vest(beneficiary, amount, { from: beneficiary });
         });
 
         it('cannot be released before cliff', async function () {

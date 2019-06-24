@@ -42,10 +42,10 @@ contract TokenVestingCrowdsale is Crowdsale {
      * @param beneficiary the beneficiary of the tokens.
      * @param amount vesting token amount.
      */
-    function _vesting(IERC20 token, address beneficiary, uint256 amount) internal {
+    function _vest(IERC20 token, address beneficiary, uint256 amount) internal {
         token.approve(address(_tokenVesting), amount);
 
-        _tokenVesting.vesting(beneficiary, amount);
+        _tokenVesting.vest(beneficiary, amount);
     }
 
     /**
@@ -65,7 +65,7 @@ contract TokenVestingCrowdsale is Crowdsale {
      * @param tokenAmount Number of tokens to be emitted
      */
     function _deliverTokens(address beneficiary, uint256 tokenAmount) internal {
-        _vesting(token(), beneficiary, tokenAmount);
+        _vest(token(), beneficiary, tokenAmount);
     }
 
     /**
