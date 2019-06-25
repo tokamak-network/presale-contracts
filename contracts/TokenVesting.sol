@@ -20,13 +20,13 @@ contract TokenVesting is Secondary {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
-    event TokensReleased(address beneficiary, uint256 amount);
     event TokensVested(address beneficiary, uint256 amount);
+    event TokensReleased(address beneficiary, uint256 amount);
     event TokensRefunded(address refunder, address refundee, uint256 amount);
 
     IERC20 private _vestedToken;
 
-    mapping(address => uint256) private _vested;
+    mapping (address => uint256) private _vested;
     mapping (address => uint256) private _released;
 
     // Durations and timestamps are expressed in UNIX time, the same units as block.timestamp.
