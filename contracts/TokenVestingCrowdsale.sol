@@ -1,22 +1,21 @@
 pragma solidity ^0.5.0;
 
-import "./TokenVesting.sol";
+import "./RefundableTokenVesting.sol";
 import "./openzeppelin-solidity/ownership/Ownable.sol";
 import "./openzeppelin-solidity/token/ERC20/IERC20.sol";
 import "./openzeppelin-solidity/crowdsale/Crowdsale.sol";
 
 contract TokenVestingCrowdsale is Crowdsale, Ownable {
-
-    TokenVesting private _tokenVesting;
-
-    bool private _initiated;
+    RefundableTokenVesting private _tokenVesting;
 
     constructor () public {
-        _tokenVesting = new TokenVesting(token());
+        _tokenVesting = new RefundableTokenVesting(address(0), token());
+    }
+
     /**
      * @dev Returns contract that token vests.
      */
-    function tokenVesting() public view returns (TokenVesting) {
+    function tokenVesting() public view returns (RefundableTokenVesting) {
         return _tokenVesting;
     }
 
