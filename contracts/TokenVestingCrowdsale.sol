@@ -20,37 +20,16 @@ contract TokenVestingCrowdsale is Crowdsale {
     }
 
     /**
-     * @dev Returns true if the token can be released, and false otherwise.
-     */
-    function initiated() public view returns (bool) {
-        return _initiated;
-    }
-
-    /**
      * @notice Initiate vesting period, only if there are no remaining tokens.
      * @param start the time (as Unix time) at which point vesting starts
      * @param cliffDuration duration in seconds of the cliff in which tokens will begin to vest
      * @param duration duration in seconds of the period in which the tokens will vest
      */
     function initiate(uint256 start, uint256 cliffDuration, uint256 duration) public {
-        require(!_initiated, "TokenVestingCrowdsale: already initiated");
+        require(_vestingAmount() != 0, "TokenVestingCrowdsale: vested token amount is the zero");
         require(_remainingAmount() == 0, "TokenVestingCrowdsale: all tokens have not been sold yet");
 
         _tokenVesting.initiate(start, cliffDuration, duration);
-
-        _initiated = true;
-    }
-
-    /**
-     * @notice Vested beneficiary's tokens.
-     * @param token token to vest.
-     * @param beneficiary the beneficiary of the tokens.
-     * @param amount vesting token amount.
-     */
-    function _vest(IERC20 token, address beneficiary, uint256 amount) internal {
-        token.approve(address(_tokenVesting), amount);
-
-        _tokenVesting.vest(beneficiary, amount);
     }
 
     /**
@@ -67,7 +46,9 @@ contract TokenVestingCrowdsale is Crowdsale {
      * @param tokenAmount Number of tokens to be emitted
      */
     function _deliverTokens(address beneficiary, uint256 tokenAmount) internal {
-        _vest(token(), beneficiary, tokenAmount);
+        token().approve(address(_tokenVesting), tokenAmount);
+
+        _tokenVesting.vest(beneficiary, tokenAmount);
     }
 
     /**

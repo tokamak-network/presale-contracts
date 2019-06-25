@@ -24,6 +24,8 @@ contract TokenVesting is Secondary {
     event TokensReleased(address beneficiary, uint256 amount);
     event TokensRefunded(address refunder, address refundee, uint256 amount);
 
+    bool private _initiated;
+
     IERC20 private _vestedToken;
 
     mapping (address => uint256) private _vested;
@@ -40,15 +42,15 @@ contract TokenVesting is Secondary {
         _vestedToken = vestedToken;
     }
 
-    function vestedToken() public view returns (IERC20) {
-        return _vestedToken;
+    /**
+     * @dev Returns true if the token can be released, and false otherwise.
+     */
+    function initiated() public view returns (bool) {
+        return _initiated;
     }
 
-    /**
-     * @return the beneficiary of the tokens.
-     */
-    function vested(address beneficiary) public view returns (uint256) {
-        return _vested[beneficiary];
+    function vestedToken() public view returns (IERC20) {
+        return _vestedToken;
     }
 
     /**
@@ -72,6 +74,13 @@ contract TokenVesting is Secondary {
         return _duration;
     }
 
+     /**
+     * @return the beneficiary of the tokens.
+     */
+    function vested(address beneficiary) public view returns (uint256) {
+        return _vested[beneficiary];
+    }
+
     /**
      * @param beneficiary the beneficiary of the tokens.
      * @return the amount of the token released.
@@ -87,6 +96,10 @@ contract TokenVesting is Secondary {
      * @param duration duration in seconds of the period in which the tokens will vest
      */
     function initiate(uint256 start, uint256 cliffDuration, uint256 duration) public onlyPrimary {
+        require(!_initiated, "TokenVesting: already initiated");
+
+        _initiated = true;
+
         // solhint-disable-next-line max-line-length
         require(cliffDuration <= duration, "TokenVesting: cliff is longer than duration");
         require(duration > 0, "TokenVesting: duration is 0");
