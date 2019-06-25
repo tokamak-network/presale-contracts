@@ -17,7 +17,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     this.duration = time.duration.years(2);
   });
 
-  it('reverts with zero address', async function () {
+  it('reverts when deploying with zero address', async function () {
     await expectRevert(
       TokenVesting.new(ZERO_ADDRESS, { from: owner }),
       'TokenVesting: token is zero address'
@@ -30,14 +30,27 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
       this.vesting = await TokenVesting.new(this.token.address, { from: owner });
     });
 
-    it('reverts with no ownership', async function () {
+    it('can get state', async function () {
+      (await this.vesting.initiated()).should.be.equal(false);
+      (await this.vesting.vestedToken()).should.be.equal(this.token.address);
+    });
+
+    it('reverts when initiating with not primary account', async function () {
       await expectRevert(
         this.vesting.initiate(this.start, this.cliffDuration, this.duration),
         'Secondary: caller is not the primary account'
       );
     });
 
-    it('reverts with a duration shorter than the cliff', async function () {
+    it('reverts when trying to initiate twice', async function () {
+      await this.vesting.initiate(this.start, this.cliffDuration, this.duration, { from: owner });
+      await expectRevert(
+        this.vesting.initiate(this.start, this.cliffDuration, this.duration, { from: owner }),
+        'TokenVesting: already initiated'
+      );
+    });
+
+    it('reverts when initiating with a duration shorter than the cliff', async function () {
       const cliffDuration = this.duration;
       const duration = this.cliffDuration;
 
@@ -49,14 +62,14 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
       );
     });
 
-    it('reverts with a null duration', async function () {
+    it('reverts when initiating with a null duration', async function () {
       // cliffDuration should also be 0, since the duration must be larger than the cliff
       await expectRevert(
         this.vesting.initiate(this.start, 0, 0, { from: owner }), 'TokenVesting: duration is 0'
       );
     });
 
-    it('reverts if the end time is in the past', async function () {
+    it('reverts when initiating if the end time is in the past', async function () {
       const now = await time.latest();
 
       const start = now.sub(this.duration).sub(time.duration.minutes(1));
@@ -67,41 +80,50 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
     });
 
     it('cannot be released before initiation', async function () {
-      await expectRevert(this.vesting.release(beneficiary),
-        'TokenVesting: no tokens are due'
+      await expectRevert(this.vesting.release(beneficiary, { from: owner }),
+        'TokenVesting: not yet initiated'
       );
     });
 
-    context('once initiated', function () {
+    context('after initiated', function () {
       beforeEach(async function () {
         await this.vesting.initiate(this.start, this.cliffDuration, this.duration, { from: owner });
       });
 
-      it('can get state', async function () {
-        (await this.vesting.vestedToken()).should.be.equal(this.token.address);
+      it('can get state after initiated', async function () {
         (await this.vesting.cliff()).should.be.bignumber.equal(this.start.add(this.cliffDuration));
         (await this.vesting.start()).should.be.bignumber.equal(this.start);
         (await this.vesting.duration()).should.be.bignumber.equal(this.duration);
       });
 
       it('reverts with no allowance', async function () {
-        await expectRevert(this.vesting.vest(beneficiary, amount),
+        await expectRevert(this.vesting.vest(beneficiary, amount, { from: owner }),
           'SafeERC20: low-level call failed'
         );
       });
 
       it('reverts with less than allowance', async function () {
         await this.token.approve(this.vesting.address, amount.sub(new BN('1')), { from: beneficiary });
-        await expectRevert(this.vesting.vest(beneficiary, amount),
+        await expectRevert(this.vesting.vest(beneficiary, amount, { from: owner }),
           'SafeERC20: low-level call failed'
         );
       });
 
-      it('can vest tokens', async function () {
-        await this.token.mint(beneficiary, amount, { from: owner });
+      it('reverts when vesting with not primary account', async function () {
+        await this.token.mint(owner, amount, { from: owner });
         await this.token.approve(this.vesting.address, amount, { from: beneficiary });
 
-        const { logs } = await this.vesting.vest(beneficiary, amount, { from: beneficiary });
+        await expectRevert(
+          this.vesting.vest(beneficiary, amount),
+          'Secondary: caller is not the primary account'
+        );
+      });
+
+      it('can vest tokens', async function () {
+        await this.token.mint(owner, amount, { from: owner });
+        await this.token.approve(this.vesting.address, amount, { from: owner });
+
+        const { logs } = await this.vesting.vest(beneficiary, amount, { from: owner });
         expectEvent.inLogs(logs, 'TokensVested', {
           beneficiary: beneficiary,
           amount: amount,
@@ -112,20 +134,42 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
       context('with vested tokens', function () {
         beforeEach(async function () {
-          await this.token.mint(beneficiary, amount, { from: owner });
-          await this.token.approve(this.vesting.address, amount, { from: beneficiary });
-          await this.vesting.vest(beneficiary, amount, { from: beneficiary });
+          await this.token.mint(owner, amount, { from: owner });
+          await this.token.approve(this.vesting.address, amount, { from: owner });
+          await this.vesting.vest(beneficiary, amount, { from: owner });
+        });
+
+        it('cannot be released with not primary account', async function () {
+          await this.token.mint(owner, amount, { from: owner });
+          await this.token.approve(this.vesting.address, amount, { from: owner });
+
+          await expectRevert(
+            this.vesting.release(beneficiary),
+            'Secondary: caller is not the primary account'
+          );
+          await expectRevert(
+            this.vesting.releaseAt(beneficiary, amount),
+            'Secondary: caller is not the primary account'
+          );
+        });
+
+        it('cannot be released with over block timestamp', async function () {
+          const timestamp = (await time.latest()).add(time.duration.minutes(1));
+          await expectRevert(
+            this.vesting.releaseAt(beneficiary, timestamp, { from: owner }),
+            'TokenVesting: invalid timestamp'
+          );
         });
 
         it('cannot be released before cliff', async function () {
-          await expectRevert(this.vesting.release(beneficiary),
+          await expectRevert(this.vesting.release(beneficiary, { from: owner }),
             'TokenVesting: no tokens are due'
           );
         });
 
         it('can be released after cliff', async function () {
           await time.increaseTo(this.start.add(this.cliffDuration).add(time.duration.weeks(1)));
-          const { logs } = await this.vesting.release(beneficiary);
+          const { logs } = await this.vesting.release(beneficiary, { from: owner });
           expectEvent.inLogs(logs, 'TokensReleased', {
             beneficiary: beneficiary,
             amount: await this.token.balanceOf(beneficiary),
@@ -135,7 +179,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
         it('should release proper amount after cliff', async function () {
           await time.increaseTo(this.start.add(this.cliffDuration));
 
-          await this.vesting.release(beneficiary);
+          await this.vesting.release(beneficiary, { from: owner });
           const releaseTime = await time.latest();
 
           const releasedAmount = amount.mul(releaseTime.sub(this.start)).div(this.duration);
@@ -151,7 +195,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
             const now = this.start.add(this.cliffDuration).add((vestingPeriod.muln(i).divn(checkpoints)));
             await time.increaseTo(now);
 
-            await this.vesting.release(beneficiary);
+            await this.vesting.release(beneficiary, { from: owner });
             const expectedVesting = amount.mul(now.sub(this.start)).div(this.duration);
             (await this.token.balanceOf(beneficiary)).should.bignumber.equal(expectedVesting);
             (await this.vesting.released(beneficiary)).should.bignumber.equal(expectedVesting);
@@ -160,7 +204,7 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
         it('should have released all after end', async function () {
           await time.increaseTo(this.start.add(this.duration));
-          await this.vesting.release(beneficiary);
+          await this.vesting.release(beneficiary, { from: owner });
           (await this.token.balanceOf(beneficiary)).should.bignumber.equal(amount);
           (await this.vesting.released(beneficiary)).should.bignumber.equal(amount);
         });
