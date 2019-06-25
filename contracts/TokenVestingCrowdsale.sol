@@ -1,10 +1,11 @@
 pragma solidity ^0.5.0;
 
 import "./TokenVesting.sol";
+import "./openzeppelin-solidity/ownership/Ownable.sol";
 import "./openzeppelin-solidity/token/ERC20/IERC20.sol";
 import "./openzeppelin-solidity/crowdsale/Crowdsale.sol";
 
-contract TokenVestingCrowdsale is Crowdsale {
+contract TokenVestingCrowdsale is Crowdsale, Ownable {
 
     TokenVesting private _tokenVesting;
 
@@ -25,7 +26,7 @@ contract TokenVestingCrowdsale is Crowdsale {
      * @param cliffDuration duration in seconds of the cliff in which tokens will begin to vest
      * @param duration duration in seconds of the period in which the tokens will vest
      */
-    function initiate(uint256 start, uint256 cliffDuration, uint256 duration) public {
+    function initiate(uint256 start, uint256 cliffDuration, uint256 duration) public onlyOwner {
         require(_vestingAmount() != 0, "TokenVestingCrowdsale: vested token amount is the zero");
         require(_remainingAmount() == 0, "TokenVestingCrowdsale: all tokens have not been sold yet");
 
