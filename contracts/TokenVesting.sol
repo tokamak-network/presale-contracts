@@ -113,8 +113,21 @@ contract TokenVesting is Secondary {
      * @notice Transfers vested tokens to beneficiary.
      * @param beneficiary the beneficiary of the tokens.
      */
-    function release(address beneficiary) public {
-        uint256 unreleased = _releasableAmount(beneficiary);
+    function release(address beneficiary) public returns (uint256) {
+        return releaseAt(beneficiary, block.timestamp);
+    }
+
+    /**
+     * @notice Transfers vested tokens to beneficiary.
+     * @param beneficiary the beneficiary of the tokens.
+     * @param timestamp the time related with releasable token amount.
+     */
+    function releaseAt(address beneficiary, uint256 timestamp) public returns (uint256 unreleased) {
+        require(_initiated, "TokenVesting: not yet initiated");
+
+        require(timestamp <= block.timestamp, "TokenVesting: invalid timestamp");
+
+        unreleased = _releasableAmount(beneficiary, timestamp);
 
         require(unreleased > 0, "TokenVesting: no tokens are due");
 
@@ -129,25 +142,27 @@ contract TokenVesting is Secondary {
     /**
      * @dev Calculates the amount that has already vested but hasn't been released yet.
      * @param beneficiary the beneficiary of the tokens.
+     * @param timestamp the time related with releasable token amount.
      */
-    function _releasableAmount(address beneficiary) private view returns (uint256) {
-        return _vestedAmount(beneficiary).sub(_released[beneficiary]);
+    function _releasableAmount(address beneficiary, uint256 timestamp) private view returns (uint256) {
+        return _vestedAmount(beneficiary, timestamp).sub(_released[beneficiary]);
     }
 
     /**
      * @dev Calculates the amount that has already vested.
      * @param beneficiary the beneficiary of the tokens.
+     * @param timestamp the time related with releasable token amount.
      */
-    function _vestedAmount(address beneficiary) private view returns (uint256) {
+    function _vestedAmount(address beneficiary, uint256 timestamp) private view returns (uint256) {
         uint256 currentVestedAmount = _vested[beneficiary];
         uint256 totalVestedAmount = currentVestedAmount.add(_released[beneficiary]);
 
-        if (block.timestamp < _cliff) {
+        if (timestamp < _cliff) {
             return 0;
-        } else if (block.timestamp >= _start.add(_duration)) {
+        } else if (timestamp >= _start.add(_duration)) {
             return totalVestedAmount;
         } else {
-            return totalVestedAmount.mul(block.timestamp.sub(_start)).div(_duration);
+            return totalVestedAmount.mul(timestamp.sub(_start)).div(_duration);
         }
     }
 }
