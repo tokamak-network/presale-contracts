@@ -21,8 +21,9 @@ contract Seedsale is IndividuallyCappedCrowdsale, CappedCrowdsale, WhitelistCrow
      * @param weiAmount Amount of wei contributed
      */
     function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal view {
-        super._preValidatePurchase(beneficiary, weiAmount);
         // solhint-disable-next-line max-line-length
         require(getContribution(beneficiary).add(weiAmount) == getCap(beneficiary), "Seedsale: wei amount is not exact");
+
+        super._preValidatePurchase(beneficiary, weiAmount);
     }
 }
