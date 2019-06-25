@@ -53,9 +53,16 @@ contract TokenVestingCrowdsale is Crowdsale, Ownable {
     }
 
     /**
-     * @dev Calculates total token amount that has not been sold.
+     * @dev Gets remaining token amount.
      */
     function _remainingAmount() private view returns (uint256) {
         return token().balanceOf(address(this));
+    }
+
+    /**
+     * @dev Gets token amount in vesting contract.
+     */
+    function _vestingAmount() private view returns (uint256) {
+        return token().balanceOf(address(_tokenVesting));
     }
 }
