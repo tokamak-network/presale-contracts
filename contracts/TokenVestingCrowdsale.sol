@@ -55,12 +55,9 @@ contract TokenVestingCrowdsale is Crowdsale {
 
     /**
      * @notice Transfers vested tokens to beneficiary.
-     * @param beneficiary the beneficiary of the tokens.
      */
-    function release(address beneficiary) public {
-        require(_initiated, "TokenVestingCrowdsale: not yet initiated");
-
-        _tokenVesting.release(beneficiary);
+    function release() public returns (uint256) {
+        return _tokenVesting.release(msg.sender);
     }
 
     /**

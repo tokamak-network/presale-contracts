@@ -103,8 +103,8 @@ contract TokenVesting is Secondary {
      * @param beneficiary the beneficiary of the tokens.
      * @param amount the amount of the token.
      */
-    function vest(address beneficiary, uint256 amount) public {
-        _vested[beneficiary] = _vested[beneficiary].add(amount) ;
+    function vest(address beneficiary, uint256 amount) public onlyPrimary {
+        _vested[beneficiary] = _vested[beneficiary].add(amount);
         _vestedToken.safeTransferFrom(msg.sender, address(this), amount);
 
         emit TokensVested(beneficiary, amount);
@@ -123,7 +123,7 @@ contract TokenVesting is Secondary {
      * @param beneficiary the beneficiary of the tokens.
      * @param timestamp the time related with releasable token amount.
      */
-    function releaseAt(address beneficiary, uint256 timestamp) public returns (uint256 unreleased) {
+    function releaseAt(address beneficiary, uint256 timestamp) public onlyPrimary returns (uint256 unreleased) {
         require(_initiated, "TokenVesting: not yet initiated");
 
         require(timestamp <= block.timestamp, "TokenVesting: invalid timestamp");
