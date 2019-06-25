@@ -22,6 +22,7 @@ contract TokenVesting is Secondary {
 
     event TokensReleased(address beneficiary, uint256 amount);
     event TokensVested(address beneficiary, uint256 amount);
+    event TokensRefunded(address refunder, address refundee, uint256 amount);
 
     IERC20 private _vestedToken;
 
@@ -137,6 +138,24 @@ contract TokenVesting is Secondary {
         _vestedToken.safeTransfer(beneficiary, unreleased);
 
         emit TokensReleased(beneficiary, unreleased);
+    }
+
+    /**
+     * @notice Transfers vested tokens to beneficiary.
+     * @param refunder one who refunds.
+     * @param refundee one who receives a refund.
+     */
+    function _refund(address refunder, address refundee) internal onlyPrimary returns (uint256 unreleased) {
+        unreleased = _releasableAmount(refunder, block.timestamp);
+
+        require(unreleased > 0, "TokenVesting: no tokens are due");
+
+        _released[refunder] = _released[refunder].add(unreleased);
+        _vested[refunder] = _vested[refunder].sub(unreleased);
+
+        _vestedToken.safeTransfer(refundee, unreleased);
+
+        emit TokensRefunded(refunder, refundee, unreleased);
     }
 
     /**
