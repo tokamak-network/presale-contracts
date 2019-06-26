@@ -183,8 +183,8 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
           const releaseTime = await time.latest();
 
           const releasedAmount = amount.mul(releaseTime.sub(this.start)).div(this.duration);
-          (await this.token.balanceOf(beneficiary)).should.bignumber.equal(releasedAmount);
-          (await this.vesting.released(beneficiary)).should.bignumber.equal(releasedAmount);
+          (await this.token.balanceOf(beneficiary)).should.be.bignumber.equal(releasedAmount);
+          (await this.vesting.released(beneficiary)).should.be.bignumber.equal(releasedAmount);
         });
 
         it('should linearly release tokens during vesting period', async function () {
@@ -197,16 +197,16 @@ contract('TokenVesting', function ([_, owner, beneficiary]) {
 
             await this.vesting.release(beneficiary, { from: owner });
             const expectedVesting = amount.mul(now.sub(this.start)).div(this.duration);
-            (await this.token.balanceOf(beneficiary)).should.bignumber.equal(expectedVesting);
-            (await this.vesting.released(beneficiary)).should.bignumber.equal(expectedVesting);
+            (await this.token.balanceOf(beneficiary)).should.be.bignumber.equal(expectedVesting);
+            (await this.vesting.released(beneficiary)).should.be.bignumber.equal(expectedVesting);
           }
         });
 
         it('should have released all after end', async function () {
           await time.increaseTo(this.start.add(this.duration));
           await this.vesting.release(beneficiary, { from: owner });
-          (await this.token.balanceOf(beneficiary)).should.bignumber.equal(amount);
-          (await this.vesting.released(beneficiary)).should.bignumber.equal(amount);
+          (await this.token.balanceOf(beneficiary)).should.be.bignumber.equal(amount);
+          (await this.vesting.released(beneficiary)).should.be.bignumber.equal(amount);
         });
       });
     });

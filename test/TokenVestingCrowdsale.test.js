@@ -105,13 +105,13 @@ contract('TokenVestingCrowdsale', function ([_, owner, wallet, beneficiary]) {
         const releaseTime = await time.latest();
 
         const releasedAmount = amount.mul(releaseTime.sub(this.start)).div(this.duration);
-        (await this.token.balanceOf(beneficiary)).should.bignumber.equal(releasedAmount);
+        (await this.token.balanceOf(beneficiary)).should.be.bignumber.equal(releasedAmount);
       });
 
       it('should have released all after end', async function () {
         await time.increaseTo(this.start.add(this.duration));
         await this.crowdsale.release({ from: beneficiary });
-        (await this.token.balanceOf(beneficiary)).should.bignumber.equal(amount);
+        (await this.token.balanceOf(beneficiary)).should.be.bignumber.equal(amount);
       });
     });
   });
