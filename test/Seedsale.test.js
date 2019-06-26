@@ -1,6 +1,8 @@
-const { BN, ether, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
+const { BN, constants, ether, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
-const ERC20Mintable = artifacts.require('ERC20Mintable');
+const MiniMeTokenFactory = artifacts.require('MiniMeTokenFactory');
+const MiniMeToken = artifacts.require('MiniMeToken');
 const Seedsale = artifacts.require('Seedsale');
 
 contract('Seedsale', function ([_, owner, wallet, purchaser]) {
@@ -13,10 +15,13 @@ contract('Seedsale', function ([_, owner, wallet, purchaser]) {
 
   context('once deployed', async function () {
     beforeEach(async function () {
-      this.token = await ERC20Mintable.new({ from: owner });
+      const tokenFactory = await MiniMeTokenFactory.new({ from: owner });
+      this.token = await MiniMeToken.new(
+        tokenFactory.address, ZERO_ADDRESS, 0, 'MiniMe Test Token', 18, 'MMT', true, { from: owner }
+      );
       this.seedsale = await Seedsale.new(rate, wallet, this.token.address, cap, { from: owner });
 
-      await this.token.mint(this.seedsale.address, totalSupply, { from: owner });
+      await this.token.generateTokens(this.seedsale.address, totalSupply, { from: owner });
       await this.seedsale.addWhitelisted(purchaser, { from: owner });
       await this.seedsale.setCap(purchaser, purchaserCap, { from: owner });
     });
