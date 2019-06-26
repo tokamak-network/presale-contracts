@@ -1,12 +1,11 @@
 pragma solidity ^0.5.0;
 
-import "./TokenVestingCrowdsale.sol";
 import "./openzeppelin-solidity/token/ERC20/IERC20.sol";
 import "./openzeppelin-solidity/crowdsale/validation/CappedCrowdsale.sol";
 import "./openzeppelin-solidity/crowdsale/validation/IndividuallyCappedCrowdsale.sol";
 import "./openzeppelin-solidity/crowdsale/validation/WhitelistCrowdsale.sol";
 
-contract Seedsale is IndividuallyCappedCrowdsale, CappedCrowdsale, WhitelistCrowdsale, TokenVestingCrowdsale {
+contract Seedsale is IndividuallyCappedCrowdsale, CappedCrowdsale, WhitelistCrowdsale {
     constructor (uint256 _rate, address payable wallet, IERC20 _token, uint256 _cap)
         public
         Crowdsale(_rate, wallet, _token)
