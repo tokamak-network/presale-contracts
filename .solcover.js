@@ -5,8 +5,6 @@ module.exports = {
     skipFiles: [
         'misc',
         'openzeppelin-solidity',
-        'Controlled.sol',
-        'MiniMeToken.sol',
-        'TokenController.sol'
+        'minime'
     ]
 }

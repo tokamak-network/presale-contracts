@@ -1,5 +1,4 @@
 node_modules
 contracts/misc
 contracts/openzeppelin-solidity
-contracts/MiniMeToken.sol
-contracts/Controlled.sol
+contracts/minime
