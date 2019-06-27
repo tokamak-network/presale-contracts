@@ -6,7 +6,7 @@ import "./openzeppelin-solidity/crowdsale/validation/IndividuallyCappedCrowdsale
 import "./openzeppelin-solidity/crowdsale/validation/WhitelistCrowdsale.sol";
 
 contract Seedsale is IndividuallyCappedCrowdsale, CappedCrowdsale, WhitelistCrowdsale {
-    // Used for rate calcuration.
+    // Used for rate calcuration. So rate value must be 1.
     uint256 private _numerator;
     uint256 private _denominator;
 
@@ -23,19 +23,12 @@ contract Seedsale is IndividuallyCappedCrowdsale, CappedCrowdsale, WhitelistCrow
     }
 
     /**
-     * @return the number of token units a buyer gets per wei.
-     */
-    function rate() public view returns (uint256) {
-        return super.rate().mul(_numerator).div(_denominator);
-    }
-
-    /**
      * @dev Override to extend the way in which ether is converted to tokens.
      * @param weiAmount Value in wei to be converted into tokens
      * @return Number of tokens that can be purchased with the specified _weiAmount
      */
     function _getTokenAmount(uint256 weiAmount) internal view returns (uint256) {
-        return weiAmount.mul(rate());
+        return weiAmount.mul(_numerator).div(_denominator);
     }
 
     /**

@@ -67,13 +67,12 @@ contract('Seedsale', function ([_, owner, wallet, purchaser]) {
         });
 
         it('can buy tokens', async function () {
-          const rate = await this.seedsale.rate();
           const { logs } = await this.seedsale.buyTokens(purchaser, { from: purchaser, value: purchaserCap });
           expectEvent.inLogs(logs, 'TokensPurchased', {
             purchaser: purchaser,
             beneficiary: purchaser,
             value: purchaserCap,
-            amount: purchaserCap.mul(rate),
+            amount: purchaserCap.mul(numerator).div(denominator),
           });
         });
       });
