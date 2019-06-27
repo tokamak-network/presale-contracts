@@ -6,12 +6,36 @@ import "./openzeppelin-solidity/crowdsale/validation/IndividuallyCappedCrowdsale
 import "./openzeppelin-solidity/crowdsale/validation/WhitelistCrowdsale.sol";
 
 contract Seedsale is IndividuallyCappedCrowdsale, CappedCrowdsale, WhitelistCrowdsale {
-    constructor (uint256 _rate, address payable wallet, IERC20 _token, uint256 _cap)
+    // Used for rate calcuration.
+    uint256 private _numerator;
+    uint256 private _denominator;
+
+    constructor (uint256 numerator, uint256 denominator, address payable wallet, IERC20 _token, uint256 _cap)
         public
-        Crowdsale(_rate, wallet, _token)
+        Crowdsale(1, wallet, _token)
         CappedCrowdsale(_cap)
     {
-        // solhint-disable-previous-line no-empty-blocks
+        require(numerator != 0 && denominator != 0, "Seedsale: get zero value");
+        require(numerator >= denominator, "Seedsale: denominator is more than numerator");
+
+        _numerator = numerator;
+        _denominator = denominator;
+    }
+
+    /**
+     * @return the number of token units a buyer gets per wei.
+     */
+    function rate() public view returns (uint256) {
+        return super.rate().mul(_numerator).div(_denominator);
+    }
+
+    /**
+     * @dev Override to extend the way in which ether is converted to tokens.
+     * @param weiAmount Value in wei to be converted into tokens
+     * @return Number of tokens that can be purchased with the specified _weiAmount
+     */
+    function _getTokenAmount(uint256 weiAmount) internal view returns (uint256) {
+        return weiAmount.mul(rate());
     }
 
     /**
