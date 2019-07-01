@@ -28,7 +28,7 @@ module.exports = function (deployer, network, accounts) {
       0,
       'Seedsale Tokamak Network Token',
       18,
-      'STON',
+      'SeedTON',
       true,
     ))
     .then(async () => {
