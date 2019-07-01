@@ -8,7 +8,7 @@ const Capitalsale = artifacts.require('Capitalsale');
 require('chai')
   .should();
 
-contract('Capitalsale', function ([_, owner, wallet, ...purchaser]) {  
+contract('Capitalsale', function ([_, owner, wallet, ...purchaser]) {
   const decimal = new BN('18');
   const rate = new BN('15');
   const totalSupply = new BN('10').pow(decimal).mul(new BN('150000'));
@@ -60,6 +60,11 @@ contract('Capitalsale', function ([_, owner, wallet, ...purchaser]) {
         );
         await this.token.generateTokens(this.capitalsale.address, totalSupply, { from: owner });
         await this.capitalsale.addWhitelisted(purchaser[0], { from: owner });
+      });
+
+      it('can get individual min cap and individual max cap', async function () {
+        (await this.capitalsale.individualMinCap()).should.be.bignumber.equal(individualMinCap);
+        (await this.capitalsale.individualMaxCap()).should.be.bignumber.equal(individualMaxCap);
       });
 
       describe('on sale', function () {
