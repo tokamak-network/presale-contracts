@@ -11,10 +11,11 @@ require('chai')
 contract('Seedsale', function ([_, owner, wallet, ...purchaser]) {
   const numerator = new BN('100');
   const denominator = new BN('3');
+  const minCap = ether('200');
   const cap = ether('900');
   const decimal = new BN('18');
   const totalSupply = new BN('10').pow(decimal).mul(new BN('30000'));
-  const purchaserCap = ether('200');
+  const purchaserCap = ether('300');
   const lessThanBuyerCap = purchaserCap.sub(new BN('1'));
   const moreThanBuyerCap = purchaserCap.add(new BN('1'));
 
@@ -28,12 +29,12 @@ contract('Seedsale', function ([_, owner, wallet, ...purchaser]) {
 
     it('reverts with zero numerato(or zero denominator)', async function () {
       await expectRevert(
-        Seedsale.new(0, denominator, wallet, this.token.address, cap, { from: owner }),
+        Seedsale.new(0, denominator, wallet, this.token.address, cap, minCap, { from: owner }),
         'Seedsale: get zero value'
       );
 
       await expectRevert(
-        Seedsale.new(numerator, 0, wallet, this.token.address, cap, { from: owner }),
+        Seedsale.new(numerator, 0, wallet, this.token.address, cap, minCap, { from: owner }),
         'Seedsale: get zero value'
       );
     });
@@ -41,14 +42,16 @@ contract('Seedsale', function ([_, owner, wallet, ...purchaser]) {
     it('reverts with denominator more than numerator', async function () {
       const moreThanNumerator = numerator.add(new BN('1'));
       await expectRevert(
-        Seedsale.new(numerator, moreThanNumerator, wallet, this.token.address, cap, { from: owner }),
+        Seedsale.new(numerator, moreThanNumerator, wallet, this.token.address, cap, minCap, { from: owner }),
         'Seedsale: denominator is more than numerator'
       );
     });
 
     context('once deployed', async function () {
       beforeEach(async function () {
-        this.seedsale = await Seedsale.new(numerator, denominator, wallet, this.token.address, cap, { from: owner });
+        this.seedsale = await Seedsale.new(
+          numerator, denominator, wallet, this.token.address, cap, minCap, { from: owner }
+        );
 
         await this.token.generateTokens(this.seedsale.address, totalSupply, { from: owner });
         await this.seedsale.addWhitelisted(purchaser[0], { from: owner });
@@ -56,6 +59,16 @@ contract('Seedsale', function ([_, owner, wallet, ...purchaser]) {
       });
 
       describe('on sale', function () {
+        it('cannot buy tokens with less than min cap', async function () {
+          const lessThanMinCap = minCap.sub(new BN('1'));
+          await this.seedsale.addWhitelisted(purchaser[1], { from: owner });
+          await this.seedsale.setCap(purchaser[1], lessThanMinCap, { from: owner });
+          await expectRevert(
+            this.seedsale.buyTokens(purchaser[1], { value: lessThanMinCap }),
+            'Seedsale: wei amount is less than min cap'
+          );
+        });
+
         it('cannot buy tokens with less than purchaser cap', async function () {
           await expectRevert(
             this.seedsale.buyTokens(purchaser[0], { value: lessThanBuyerCap }),
@@ -97,24 +110,21 @@ contract('Seedsale', function ([_, owner, wallet, ...purchaser]) {
           const beforeBalance = await balance.current(wallet);
           const beforeTokenAmount = await this.token.balanceOf(this.seedsale.address);
 
-          const value1 = ether('400');
-          const value2 = ether('100');
+          const value1 = ether('475');
+          const value2 = ether('425');
 
           await this.seedsale.addWhitelisted(purchaser[1], { from: owner });
           await this.seedsale.addWhitelisted(purchaser[2], { from: owner });
-          await this.seedsale.addWhitelisted(purchaser[3], { from: owner });
           await this.seedsale.setCap(purchaser[1], value1, { from: owner });
-          await this.seedsale.setCap(purchaser[2], value1, { from: owner });
-          await this.seedsale.setCap(purchaser[3], value2, { from: owner });
-          // 400 eth + 400 eth + 100 eth = 900 eth
+          await this.seedsale.setCap(purchaser[2], value2, { from: owner });
+          // 475 eth + 425 eth = 900 eth
           await this.seedsale.buyTokens(purchaser[1], { from: purchaser[1], value: value1 });
-          await this.seedsale.buyTokens(purchaser[2], { from: purchaser[2], value: value1 });
-          await this.seedsale.buyTokens(purchaser[3], { from: purchaser[3], value: value2 });
+          await this.seedsale.buyTokens(purchaser[2], { from: purchaser[2], value: value2 });
 
           const afterBalance = await balance.current(wallet);
           const afterTokenAmount = await this.token.balanceOf(this.seedsale.address);
           (afterBalance.sub(beforeBalance)).should.be.bignumber.equal(cap);
-          // The amount of tokens remaining is 1.
+          // The amount of tokens remaining is 1e0.
           (afterTokenAmount.sub(beforeTokenAmount)).should.be.bignumber.not.equal(new BN('0'));
         });
       });

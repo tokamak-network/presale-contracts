@@ -9,6 +9,7 @@ const Seedsale = artifacts.require('Seedsale');
 
 const numerator = new BN('100');
 const denominator = new BN('3');
+const minCap = ether('200');
 const cap = ether('900');
 const wallet = '0x1F13719AA52cF446327890D274eA4AF934a24510'; // temporary account
 const decimal = new BN('18');
@@ -40,6 +41,7 @@ module.exports = function (deployer, network, accounts) {
       wallet,
       token.address,
       cap,
+      minCap,
     ))
     .then(async () => {
       seedsale = await Seedsale.deployed();

@@ -10,16 +10,24 @@ contract Seedsale is IndividuallyCappedCrowdsale, CappedCrowdsale, WhitelistCrow
     uint256 private _numerator;
     uint256 private _denominator;
 
-    constructor (uint256 numerator, uint256 denominator, address payable wallet, IERC20 _token, uint256 _cap)
+    uint256 private _minCap;
+
+    constructor (uint256 numerator, uint256 denominator, address payable wallet, IERC20 token, uint256 cap, uint256 minCap)
         public
-        Crowdsale(1, wallet, _token)
-        CappedCrowdsale(_cap)
+        Crowdsale(1, wallet, token)
+        CappedCrowdsale(cap)
     {
         require(numerator != 0 && denominator != 0, "Seedsale: get zero value");
         require(numerator >= denominator, "Seedsale: denominator is more than numerator");
 
         _numerator = numerator;
         _denominator = denominator;
+
+        _minCap = minCap;
+    }
+
+    function minCap() public view returns (uint256) {
+        return _minCap;
     }
 
     /**
@@ -37,8 +45,9 @@ contract Seedsale is IndividuallyCappedCrowdsale, CappedCrowdsale, WhitelistCrow
      * @param weiAmount Amount of wei contributed
      */
     function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal view {
-        // solhint-disable-next-line max-line-length
-        require(getContribution(beneficiary).add(weiAmount) == getCap(beneficiary), "Seedsale: wei amount is not exact");
+        uint256 amount = getContribution(beneficiary).add(weiAmount);
+        require(amount >= _minCap, "Seedsale: wei amount is less than min cap");
+        require(amount == getCap(beneficiary), "Seedsale: wei amount is not exact");
 
         super._preValidatePurchase(beneficiary, weiAmount);
     }
