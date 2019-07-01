@@ -23,6 +23,7 @@ contract Seedsale is IndividuallyCappedCrowdsale, CappedCrowdsale, WhitelistCrow
         _numerator = numerator;
         _denominator = denominator;
 
+        require(minCap > 0, "Seedsale: min cap is 0");
         _minCap = minCap;
     }
 

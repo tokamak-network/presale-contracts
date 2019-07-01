@@ -47,6 +47,13 @@ contract('Seedsale', function ([_, owner, wallet, ...purchaser]) {
       );
     });
 
+    it('reverts with zero min cap', async function () {
+      await expectRevert(
+        Seedsale.new(numerator, denominator, wallet, this.token.address, cap, 0, { from: owner }),
+        'Seedsale: min cap is 0'
+      );
+    });
+
     context('once deployed', async function () {
       beforeEach(async function () {
         this.seedsale = await Seedsale.new(
