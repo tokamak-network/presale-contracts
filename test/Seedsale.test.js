@@ -9,8 +9,8 @@ require('chai')
   .should();
 
 contract('Seedsale', function ([_, owner, wallet, ...purchaser]) {
-  const numerator = new BN('30000');
-  const denominator = new BN('900');
+  const numerator = new BN('100');
+  const denominator = new BN('3');
   const cap = ether('900');
   const decimal = new BN('18');
   const totalSupply = new BN('10').pow(decimal).mul(new BN('30000'));
