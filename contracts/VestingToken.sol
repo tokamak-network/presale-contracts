@@ -27,6 +27,16 @@ contract VestingToken is MiniMeToken {
         // solhint-disable-previous-line no-empty-blocks
     }
 
+    modifier beforeInitiated() {
+        require(!_initiated, "VestingToken: cannot execute after initiation");
+        _;
+    }
+
+    modifier afterInitiated() {
+        require(_initiated, "VestingToken: cannot execute before initiation");
+        _;
+    }
+
     /**
      * @dev Returns true if the token can be released, and false otherwise.
      */
@@ -62,8 +72,6 @@ contract VestingToken is MiniMeToken {
      * @param duration duration in seconds of the period in which the tokens will vest
      */
     function initiate(uint256 start, uint256 cliffDuration, uint256 duration) public beforeInitiated onlyController {
-        require(!_initiated, "VestingToken: already initiated");
-
         _initiated = true;
 
         enableTransfers(false);
