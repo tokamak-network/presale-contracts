@@ -64,6 +64,14 @@ contract VestingToken is MiniMeToken {
     }
 
     /**
+     * @param beneficiary the beneficiary of the tokens.
+     * @return the amount of the token released.
+     */
+    function released(address beneficiary) public view returns (uint256) {
+        return _released[beneficiary];
+    }
+
+    /**
      * @notice Makes vested tokens releasable.
      * @param start the time (as Unix time) at which point vesting starts
      * @param cliffDuration duration in seconds of the cliff in which tokens will begin to vest
