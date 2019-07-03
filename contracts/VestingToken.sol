@@ -90,10 +90,10 @@ contract VestingToken is MiniMeToken {
     }
 
     /**
-     * @notice Transfers vested tokens to beneficiary.
+     * @notice Destroys releasable tokens.
      * @param beneficiary the beneficiary of the tokens.
      */
-    function release(address beneficiary) public returns (uint256) {
+    function destroyReleasableTokens(address beneficiary) public afterInitiated onlyController returns (uint256 unreleased) {
         return releaseAt(beneficiary, block.timestamp);
     }
 
