@@ -129,6 +129,10 @@ contract VestingToken is MiniMeToken {
      * @param timestamp the time related with releasable token amount.
      */
     function _vestedAmount(address beneficiary, uint256 timestamp) private view returns (uint256) {
+        if (!_initiated) {
+            return 0;
+        }
+
         uint256 currentVestedAmount = balanceOf(beneficiary);
         uint256 totalVestedAmount = currentVestedAmount.add(_released[beneficiary]);
 
