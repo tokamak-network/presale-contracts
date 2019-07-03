@@ -94,41 +94,28 @@ contract VestingToken is MiniMeToken {
      * @param beneficiary the beneficiary of the tokens.
      */
     function destroyReleasableTokens(address beneficiary) public afterInitiated onlyController returns (uint256 unreleased) {
-        return releaseAt(beneficiary, block.timestamp);
-    }
-
-    /**
-     * @notice Transfers vested tokens to beneficiary.
-     * @param beneficiary the beneficiary of the tokens.
-     * @param timestamp the time related with releasable token amount.
-     */
-    function releaseAt(address beneficiary, uint256 timestamp) public onlyPrimary returns (uint256 unreleased) {
-        require(timestamp <= block.timestamp, "VestingToken: invalid timestamp");
-
-        unreleased = _releasableAmount(beneficiary, timestamp);
+        unreleased = releasableAmount(beneficiary);
 
         require(unreleased > 0, "VestingToken: no tokens are due");
 
-        require(destroyTokens(beneficiary, unreleased), "VestingToken: failed to destroy tokens");
+        _released[beneficiary] = _released[beneficiary].add(unreleased);
 
-        emit TokensReleased(beneficiary, unreleased);
+        require(destroyTokens(beneficiary, unreleased), "VestingToken: failed to destroy tokens");
     }
 
     /**
      * @dev Calculates the amount that has already vested but hasn't been released yet.
      * @param beneficiary the beneficiary of the tokens.
-     * @param timestamp the time related with releasable token amount.
      */
     function releasableAmount(address beneficiary) public view returns (uint256) {
-        return _vestedAmount(beneficiary, timestamp).sub(_released[beneficiary]);
+        return _vestedAmount(beneficiary).sub(_released[beneficiary]);
     }
 
     /**
      * @dev Calculates the amount that has already vested.
      * @param beneficiary the beneficiary of the tokens.
-     * @param timestamp the time related with releasable token amount.
      */
-    function _vestedAmount(address beneficiary, uint256 timestamp) private view returns (uint256) {
+    function _vestedAmount(address beneficiary) private view returns (uint256) {
         if (!_initiated) {
             return 0;
         }
@@ -136,12 +123,12 @@ contract VestingToken is MiniMeToken {
         uint256 currentVestedAmount = balanceOf(beneficiary);
         uint256 totalVestedAmount = currentVestedAmount.add(_released[beneficiary]);
 
-        if (timestamp < _cliff) {
+        if (block.timestamp < _cliff) {
             return 0;
-        } else if (timestamp >= _start.add(_duration)) {
+        } else if (block.timestamp >= _start.add(_duration)) {
             return totalVestedAmount;
         } else {
-            return totalVestedAmount.mul(timestamp.sub(_start)).div(_duration);
+            return totalVestedAmount.mul(block.timestamp.sub(_start)).div(_duration);
         }
     }
 }
