@@ -6,8 +6,6 @@ import "./openzeppelin-solidity/math/SafeMath.sol";
 contract VestingToken is MiniMeToken {
     using SafeMath for uint256;
 
-    event TokensReleased(address beneficiary, uint256 amount);
-
     bool private _initiated;
 
     // Durations and timestamps are expressed in UNIX time, the same units as block.timestamp.
