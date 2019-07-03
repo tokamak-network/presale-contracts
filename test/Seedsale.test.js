@@ -2,7 +2,7 @@ const { BN, balance, constants, ether, expectEvent, expectRevert } = require('op
 const { ZERO_ADDRESS } = constants;
 
 const MiniMeTokenFactory = artifacts.require('MiniMeTokenFactory');
-const MiniMeToken = artifacts.require('MiniMeToken');
+const VestingToken = artifacts.require('VestingToken');
 const Seedsale = artifacts.require('Seedsale');
 
 require('chai')
@@ -22,7 +22,7 @@ contract('Seedsale', function ([_, owner, wallet, ...purchaser]) {
   context('with token', async function () {
     beforeEach(async function () {
       const tokenFactory = await MiniMeTokenFactory.new({ from: owner });
-      this.token = await MiniMeToken.new(
+      this.token = await VestingToken.new(
         tokenFactory.address, ZERO_ADDRESS, 0, 'MiniMe Test Token', 18, 'MMT', true, { from: owner }
       );
     });
