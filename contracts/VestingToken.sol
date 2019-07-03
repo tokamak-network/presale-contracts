@@ -2,9 +2,8 @@ pragma solidity ^0.5.0;
 
 import "./minime/MiniMeToken.sol";
 import "./openzeppelin-solidity/math/SafeMath.sol";
-import "./openzeppelin-solidity/ownership/Secondary.sol";
 
-contract VestingToken is MiniMeToken, Secondary {
+contract VestingToken is MiniMeToken {
     using SafeMath for uint256;
 
     event TokensReleased(address beneficiary, uint256 amount);
@@ -62,7 +61,7 @@ contract VestingToken is MiniMeToken, Secondary {
      * @param cliffDuration duration in seconds of the cliff in which tokens will begin to vest
      * @param duration duration in seconds of the period in which the tokens will vest
      */
-    function initiate(uint256 start, uint256 cliffDuration, uint256 duration) public onlyPrimary {
+    function initiate(uint256 start, uint256 cliffDuration, uint256 duration) public beforeInitiated onlyController {
         require(!_initiated, "VestingToken: already initiated");
 
         _initiated = true;
