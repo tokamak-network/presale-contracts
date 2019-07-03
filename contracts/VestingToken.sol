@@ -119,7 +119,7 @@ contract VestingToken is MiniMeToken {
      * @param beneficiary the beneficiary of the tokens.
      * @param timestamp the time related with releasable token amount.
      */
-    function _releasableAmount(address beneficiary, uint256 timestamp) private view returns (uint256) {
+    function releasableAmount(address beneficiary) public view returns (uint256) {
         return _vestedAmount(beneficiary, timestamp).sub(_released[beneficiary]);
     }
 
