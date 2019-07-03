@@ -66,6 +66,8 @@ contract VestingToken is MiniMeToken {
 
         _initiated = true;
 
+        enableTransfers(false);
+
         // solhint-disable-next-line max-line-length
         require(cliffDuration <= duration, "VestingToken: cliff is longer than duration");
         require(duration > 0, "VestingToken: duration is 0");
@@ -79,13 +81,11 @@ contract VestingToken is MiniMeToken {
 
     /**
      * @dev This is the actual transfer function in the token contract.
-     * @param _from The address holding the tokens being transferred
-     * @param _to The address of the recipient
-     * @param _amount The amount of tokens to be transferred
+     * @param from The address holding the tokens being transferred
+     * @param to The address of the recipient
+     * @param amount The amount of tokens to be transferred
      */
-    function doTransfer(address from, address to, uint amount) internal {
-        require(!_initiated, "VestingToken: impossible to transfer token after initiation");
-
+    function doTransfer(address from, address to, uint amount) internal beforeInitiated {
         super.doTransfer(from, to, amount);
     }
 
