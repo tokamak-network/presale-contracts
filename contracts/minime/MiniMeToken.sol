@@ -129,7 +129,7 @@ contract MiniMeToken is Controlled {
     /// @param _amount The amount of tokens to be transferred
     /// @return Whether the transfer was successful or not
     function transfer(address _to, uint256 _amount) public returns (bool success) {
-        require(transfersEnabled);
+        require(transfersEnabled, "MiniMeToken: transfer is not enable");
         doTransfer(msg.sender, _to, _amount);
         return true;
     }
@@ -148,7 +148,7 @@ contract MiniMeToken is Controlled {
         //  controller of this contract, which in most situations should be
         //  another open source smart contract or 0x0
         if (msg.sender != controller) {
-            require(transfersEnabled);
+            require(transfersEnabled, "MiniMeToken: transfer is not enable");
 
             // The standard ERC 20 transferFrom functionality
             require(allowed[_from][msg.sender] >= _amount);
@@ -216,7 +216,7 @@ contract MiniMeToken is Controlled {
     /// @param _amount The amount of tokens to be approved for transfer
     /// @return True if the approval was successful
     function approve(address _spender, uint256 _amount) public returns (bool success) {
-        require(transfersEnabled);
+        require(transfersEnabled, "MiniMeToken: transfer is not enable");
 
         // To change the approve amount you first have to reduce the addresses`
         //  allowance to zero by calling `approve(_spender,0)` if it is not
