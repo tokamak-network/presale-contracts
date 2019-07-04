@@ -136,6 +136,8 @@ contract('VestingToken', function ([_, controller, ...holders]) {
           const releaseTime = await time.latest();
           const releasedAmount = amount.mul(releaseTime.sub(this.start)).div(this.duration);
 
+          // releasedAmount value should be holderAmount.divn(2)
+          // (because cliffDuration is 1 years and duration is 2 years)
           (await this.token.balanceOf(holders[0])).should.be.bignumber.equal(holderAmount.sub(releasedAmount));
           (await this.token.released(holders[0])).should.be.bignumber.equal(releasedAmount);
         });
@@ -145,14 +147,12 @@ contract('VestingToken', function ([_, controller, ...holders]) {
           const checkpoints = 4;
 
           for (let i = 1; i <= checkpoints; i++) {
-            const holderAmount = await this.token.balanceOf(holders[0]);
-
             const now = this.start.add(this.cliffDuration).add((vestingPeriod.muln(i).divn(checkpoints)));
             await time.increaseTo(now);
 
             await this.token.destroyReleasableTokens(holders[0], { from: controller });
-            const willBeDestroyedTokenAmount = amount.mul(now.sub(this.start)).div(this.duration);
 
+            const willBeDestroyedTokenAmount = amount.mul(now.sub(this.start)).div(this.duration);
             (await this.token.released(holders[0])).should.be.bignumber.equal(willBeDestroyedTokenAmount);
           }
         });
