@@ -21,9 +21,8 @@ contract('Seedsale', function ([_, owner, wallet, ...purchaser]) {
 
   context('with token', async function () {
     beforeEach(async function () {
-      const tokenFactory = await MiniMeTokenFactory.new({ from: owner });
       this.token = await VestingToken.new(
-        tokenFactory.address, ZERO_ADDRESS, 0, 'MiniMe Test Token', 18, 'MMT', true, { from: owner }
+        ZERO_ADDRESS, ZERO_ADDRESS, 0, 'MiniMe Test Token', 18, 'MMT', true, { from: owner }
       );
     });
 
@@ -91,6 +90,8 @@ contract('Seedsale', function ([_, owner, wallet, ...purchaser]) {
         });
 
         it('can buy tokens', async function () {
+          const walletBalance = await balance.tracker(wallet);
+
           const { logs } = await this.seedsale.buyTokens(purchaser[0], { from: purchaser[0], value: purchaserCap });
           expectEvent.inLogs(logs, 'TokensPurchased', {
             purchaser: purchaser[0],
@@ -98,9 +99,16 @@ contract('Seedsale', function ([_, owner, wallet, ...purchaser]) {
             value: purchaserCap,
             amount: purchaserCap.mul(numerator).div(denominator),
           });
+
+          (await this.token.balanceOf(purchaser[0]))
+            .should.be.bignumber.equal(purchaserCap.mul(numerator).div(denominator));
+
+          (await walletBalance.delta()).should.be.bignumber.equal(purchaserCap);
         });
 
         it('can buy tokens as much as cap', async function () {
+          const walletBalance = await balance.tracker(wallet);
+
           await this.seedsale.setCap(purchaser[0], cap, { from: owner });
           const { logs } = await this.seedsale.buyTokens(purchaser[0], { from: purchaser[0], value: cap });
           expectEvent.inLogs(logs, 'TokensPurchased', {
@@ -109,6 +117,11 @@ contract('Seedsale', function ([_, owner, wallet, ...purchaser]) {
             value: cap,
             amount: cap.mul(numerator).div(denominator),
           });
+
+          (await this.token.balanceOf(purchaser[0]))
+            .should.be.bignumber.equal(cap.mul(numerator).div(denominator));
+
+          (await walletBalance.delta()).should.be.bignumber.equal(cap);
         });
 
         it('can exist remaining tokens after sale is over', async function () {
@@ -127,6 +140,11 @@ contract('Seedsale', function ([_, owner, wallet, ...purchaser]) {
           // 475 eth + 425 eth = 900 eth
           await this.seedsale.buyTokens(purchaser[1], { from: purchaser[1], value: value1 });
           await this.seedsale.buyTokens(purchaser[2], { from: purchaser[2], value: value2 });
+
+          (await this.token.balanceOf(purchaser[1]))
+            .should.be.bignumber.equal(value1.mul(numerator).div(denominator));
+          (await this.token.balanceOf(purchaser[2]))
+            .should.be.bignumber.equal(value2.mul(numerator).div(denominator));
 
           const afterBalance = await balance.current(wallet);
           const afterTokenAmount = await this.token.balanceOf(this.seedsale.address);

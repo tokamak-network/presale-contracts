@@ -30,6 +30,12 @@ contract Seedsale is IndividuallyCappedCrowdsale, CappedCrowdsale, WhitelistCrow
     function minCap() public view returns (uint256) {
         return _minCap;
     }
+    function numerator() public view returns (uint256) {
+        return _numerator;
+    }
+    function denominator() public view returns (uint256) {
+        return _denominator;
+    }
 
     /**
      * @dev Override to extend the way in which ether is converted to tokens.
