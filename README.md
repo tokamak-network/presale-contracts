@@ -2,6 +2,6 @@
 
 ## Contracts (deployed in mainnet)
 
-### SeedTON: [0x18019e3fb116233bebcf9970c40342b20cbcf077](https://etherscan.io/address/0x18019e3fb116233bebcf9970c40342b20cbcf077)
+### SeedTON: [0x8Ae43F11DDd3fac5bbD84ab0BA795E1e51b78df7](https://etherscan.io/address/0x8Ae43F11DDd3fac5bbD84ab0BA795E1e51b78df7)
 
-### Seedsale: [0xd8ada87e18bed17b39962d823a394e9bba1ef4c5](https://etherscan.io/address/0xd8ada87e18bed17b39962d823a394e9bba1ef4c5)
+### Seedsale: [0xEb3da79882F1f0565e6C80eb7313Df6bB2428E2f](https://etherscan.io/address/0xEb3da79882F1f0565e6C80eb7313Df6bB2428E2f)

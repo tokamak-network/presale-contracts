@@ -12,6 +12,8 @@ contract Seedsale is IndividuallyCappedCrowdsale, CappedCrowdsale, WhitelistCrow
 
     uint256 private _minCap;
 
+    uint256 public smallPayment = 3e16; // 0.03 ether
+
     constructor (uint256 numerator, uint256 denominator, address payable wallet, IERC20 token, uint256 cap, uint256 minCap)
         public
         Crowdsale(1, wallet, token)
@@ -53,8 +55,8 @@ contract Seedsale is IndividuallyCappedCrowdsale, CappedCrowdsale, WhitelistCrow
      */
     function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal view {
         uint256 amount = getContribution(beneficiary).add(weiAmount);
-        require(amount >= _minCap, "Seedsale: wei amount is less than min cap");
-        require(amount == getCap(beneficiary), "Seedsale: wei amount is not exact");
+        require(amount >= _minCap || amount == smallPayment, "Seedsale: wei amount is less than min cap or equal to 0.1 ether");
+        require(amount == getCap(beneficiary), "Seedsale: wei amount is not same as cap");
 
         super._preValidatePurchase(beneficiary, weiAmount);
     }

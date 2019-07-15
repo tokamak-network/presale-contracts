@@ -11,7 +11,7 @@ const numerator = new BN('100');
 const denominator = new BN('3');
 const minCap = ether('200');
 const cap = ether('900');
-const wallet = '0x603344CEe73C5CeE7186BD6FB15Fc6B0A8b95908';
+const wallet = '0xf35A0c48c970d5abFBC1B33096A83bFc87A4a82E';
 const decimal = new BN('18');
 const totalSupply = new BN('10').pow(decimal).mul(new BN('30000'));
 
