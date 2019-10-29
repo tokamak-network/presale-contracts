@@ -16,8 +16,13 @@ contract VestingToken is MiniMeToken {
     mapping (address => uint256) private _released;
 
     constructor (
-        address tokenFactory, address payable parentToken, uint parentSnapShotBlock,
-        string memory tokenName, uint8 decimalUnits, string memory tokenSymbol, bool transfersEnabled
+        address tokenFactory,
+        address payable parentToken,
+        uint parentSnapShotBlock,
+        string memory tokenName,
+        uint8 decimalUnits,
+        string memory tokenSymbol,
+        bool transfersEnabled
     )
         public
         MiniMeToken(tokenFactory, parentToken, parentSnapShotBlock, tokenName, decimalUnits, tokenSymbol, transfersEnabled)

@@ -14,13 +14,16 @@ contract IndividuallyCappedCrowdsale is Crowdsale, CapperRole {
     mapping(address => uint256) private _contributions;
     mapping(address => uint256) private _caps;
 
+    event CapSet(address indexed beneficiary, uint256 cap);
+
     /**
      * @dev Sets a specific beneficiary's maximum contribution.
      * @param beneficiary Address to be capped
      * @param cap Wei limit for individual contribution
      */
-    function setCap(address beneficiary, uint256 cap) external onlyCapper {
+    function setCap(address beneficiary, uint256 cap) public onlyCapper {
         _caps[beneficiary] = cap;
+        emit CapSet(beneficiary, cap);
     }
 
     /**
