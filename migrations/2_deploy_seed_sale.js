@@ -16,7 +16,8 @@ const decimal = new BN('18');
 const totalSupply = new BN('10').pow(decimal).mul(new BN('30000'));
 
 module.exports = function (deployer) {
-  // contract instance
+  if (!process.env.SEEDSALE) return;
+
   let seedToken, seedSale;
 
   deployer.deploy(VestingToken,
