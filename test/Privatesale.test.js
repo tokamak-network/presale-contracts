@@ -30,6 +30,47 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
     await this.token.generateTokens(this.sale.address, totalSupply, { from: owner });
   });
 
+  describe('permissions', function () {
+    const i = 0;
+
+    const purchaser = purchasers[i];
+    const numerator = numerators[i];
+    const denominator = denominators[i];
+    const cap = caps[i];
+
+    it('only owner can call setCapAndPrice', async function () {
+      await expectRevert.unspecified(
+        this.sale.setCapAndPrice(purchaser, cap, numerator, denominator, { from: purchaser }),
+        'WhitelistedRole: caller does not have the Whitelisted role'
+      );
+      await this.sale.setCapAndPrice(purchaser, cap, numerator, denominator, { from: owner });
+    });
+
+    it('only owner can call setCap', async function () {
+      await expectRevert.unspecified(
+        this.sale.setCap(purchaser, cap, { from: purchaser }),
+        'CapperRole: caller does not have the Capper role',
+      );
+      await this.sale.setCap(purchaser, cap, { from: owner });
+    });
+
+    it('only owner can call addWhitelisted', async function () {
+      await expectRevert.unspecified(
+        this.sale.addWhitelisted(purchaser, { from: purchaser }),
+        'WhitelistedRole: caller does not have the Whitelisted role'
+      );
+      await this.sale.addWhitelisted(purchaser, { from: owner });
+    });
+
+    it('only owner can call setPrice', async function () {
+      await expectRevert.unspecified(
+        this.sale.setPrice(purchaser, numerator, denominator, { from: purchaser }),
+        'CapperRole: caller does not have the Capper role',
+      );
+      await this.sale.setPrice(purchaser, numerator, denominator, { from: owner });
+    });
+  });
+
   describe('payment validation', function () {
     it('cannot buy tokens before whitelisted', async function () {
       const i = 0;
@@ -200,9 +241,9 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
     }
 
     for (const purchaser of purchasers) {
-      const numerator = web3.utils.toBN(Math.floor(Math.random() * 1000));
-      const denominator = web3.utils.toBN(Math.floor(Math.random() * 100));
-      const cap = web3.utils.toBN(Math.floor(Math.random() * 1000));
+      const numerator = web3.utils.toBN(Math.floor(Math.random() * 1000) || 1);
+      const denominator = web3.utils.toBN(Math.floor(Math.random() * 100) || 1);
+      const cap = web3.utils.toBN(Math.floor(Math.random() * 1000) || 1);
 
       it(`token amount must be well calculated with (numerator=${numerator}, denominator=${denominator})`, async function () {
         const ethAmount = cap;
