@@ -4,8 +4,21 @@ const { ZERO_ADDRESS } = constants;
 const VestingToken = artifacts.require('VestingToken');
 const Privatesale = artifacts.require('Privatesale');
 
-require('chai')
-  .should();
+const chai = require('chai');
+
+chai.should();
+
+const { toBN } = web3.utils;
+
+const payments = [
+  // 1st payment
+  {
+    numerator: toBN('664893617021277'),
+    denominator: toBN('10000000000000000'),
+    cap: ether('2127.65957446809'),
+    tokenAmount: ether('32000'),
+  },
+];
 
 contract('Privatesale', function ([owner, wallet, ...purchasers]) {
   const numerators = [new BN('104'), new BN('153')];
@@ -263,6 +276,91 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
         const tokens = await this.token.balanceOf(purchaser);
         tokens.should.be.bignumber.equal(tokenAmount);
       });
+    }
+  });
+
+  it.only('should accept payments', async function () {
+    purchasers.length.should.be.gt(payments.length, `use more than ${payments.length} accounts in testrpc`);
+
+    const totalSupply = await this.token.totalSupply();
+
+    let investedTokenAmount = new BN('0');
+
+    for (let i = 0; i < payments.length; i++) {
+      const payment = payments[i];
+
+      const numerator = toBN(payment.numerator);
+      const denominator = toBN(payment.denominator);
+      const cap = toBN(payment.cap);
+      const tokenAmount = toBN(payment.tokenAmount);
+
+      const ethAmount1 = smallPayment;
+      const ethAmount2 = cap.sub(ethAmount1);
+
+      const tokenAmount1 = ethAmount1.mul(numerator).div(denominator);
+      const tokenAmount2 = ethAmount2.mul(numerator).div(denominator);
+
+      console.log(`
+      ethAmount1          :  ${ethAmount1.toString(10)}
+      ethAmount2          :  ${ethAmount2.toString(10)}
+      ethAmount1+2        :  ${ethAmount1.add(ethAmount2).toString(10)}
+      cap                 :  ${cap.toString(10)}
+
+      tokenAmount1          :  ${tokenAmount1.toString(10)}
+      tokenAmount2          :  ${tokenAmount2.toString(10)}
+      tokenAmount1+2        :  ${tokenAmount1.add(tokenAmount2).toString(10)}
+      expected tokenAmount  :  ${tokenAmount.toString(10)}
+
+      ethAmount1      : ${ethAmount1.toString()}
+      numerator       : ${numerator.toString()}
+      denominator     : ${denominator.toString()}
+
+      ethAmount1.mul(numerator)                   : ${ethAmount1.mul(numerator).toString()}
+      ethAmount1.mul(numerator).div(denominator)  : ${ethAmount1.mul(numerator).div(denominator).toString()}
+
+      ethAmount2.mul(numerator)                   : ${ethAmount2.mul(numerator).toString()}
+      ethAmount2.mul(numerator).div(denominator)  : ${ethAmount2.mul(numerator).div(denominator).toString()}
+
+      cap.mul(numerator)                          : ${cap.mul(numerator).toString()}
+      cap.mul(numerator).div(denominator)         : ${cap.mul(numerator).div(denominator).toString()}
+      `);
+
+      // tokenAmount.should.be.bignumber.equal(
+      //   tokenAmount1.add(tokenAmount2),
+      //   'token amount mismatched. please check numerator, denominator, and cap',
+      // );
+
+      investedTokenAmount = investedTokenAmount.add(tokenAmount);
+
+      totalSupply.should.be.bignumber.gte(
+        investedTokenAmount,
+        `${i}th purchaser cannot buy tokens more than total supply`,
+      );
+
+      const purchaser = purchasers[i];
+
+      await this.sale.setCapAndPrice(purchaser, cap, numerator, denominator);
+
+      const { logs: logs1 } = await this.sale.buyTokens(purchaser, { from: purchaser, value: ethAmount1 });
+
+      expectEvent.inLogs(logs1, 'TokensPurchased', {
+        purchaser: purchaser,
+        beneficiary: purchaser,
+        value: ethAmount1,
+        amount: tokenAmount1,
+      });
+
+      const { logs: logs2 } = await this.sale.buyTokens(purchaser, { from: purchaser, value: ethAmount2 });
+
+      expectEvent.inLogs(logs2, 'TokensPurchased', {
+        purchaser: purchaser,
+        beneficiary: purchaser,
+        value: ethAmount2,
+        amount: tokenAmount2,
+      });
+
+      const purchaserBalance = await this.token.balanceOf(purchaser);
+      purchaserBalance.should.be.bignumber.equal(tokenAmount);
     }
   });
 });
