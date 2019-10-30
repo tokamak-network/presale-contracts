@@ -1,44 +1,38 @@
 pragma solidity ^0.5.0;
 
-import "../../math/SafeMath.sol";
+// import "../../math/SafeMath.sol";
 import "../Crowdsale.sol";
 import "../../access/roles/CapperRole.sol";
+import "../../../ds/ds-math.sol";
 
 /**
  * @title IndividuallyPricedCrowdsale
  * @dev Crowdsale with per-purchaser prices.
  */
-contract IndividuallyPricedCrowdsale is Crowdsale, CapperRole {
-    using SafeMath for uint256;
+contract IndividuallyPricedCrowdsale is Crowdsale, CapperRole, DSMath {
+    // using SafeMath for uint256;
 
-    mapping(address => uint256) private _numerators;
-    mapping(address => uint256) private _denominators;
+    // _prices should be a RAY value.
+    mapping(address => uint256) private _prices;
 
-    event PriceSet(address indexed purchaser, uint256 numerator, uint256 denominator);
+    event PriceSet(address indexed purchaser, uint256 price);
 
     /**
      * @dev Sets a specific purchaser's price parameters.
      * @param purchaser Address to be priced
-     * @param numerator A numerator for price parameter
-     * @param denominator A denominator for price parameter
+     * @param price Price value in RAY
      */
-    function setPrice(address purchaser, uint256 numerator, uint256 denominator) public onlyCapper {
-        require(_numerators[purchaser] == 0 && _denominators[purchaser] == 0, "IndividuallyPricedCrowdsale: price was already set");
-        require(numerator != 0, "IndividuallyPricedCrowdsale: numerator cannot be zero");
-        require(denominator != 0, "IndividuallyPricedCrowdsale: denominator cannot be zero");
+    function setPrice(address purchaser, uint256 price) public onlyCapper {
+        require(_prices[purchaser] == 0, "IndividuallyPricedCrowdsale: price was already set");
+        require(price != 0, "IndividuallyPricedCrowdsale: price cannot be zero");
 
-        _denominators[purchaser] = denominator;
-        _numerators[purchaser] = numerator;
+        _prices[purchaser] = price;
 
-        emit PriceSet(purchaser, denominator, numerator);
+        emit PriceSet(purchaser, price);
     }
 
-    function getNumerator(address purchaser) public view returns (uint256) {
-        return _numerators[purchaser];
-    }
-
-    function getDenominator(address purchaser) public view returns (uint256) {
-        return _denominators[purchaser];
+    function getPrice(address purchaser) public view returns (uint256) {
+        return _prices[purchaser];
     }
 
     /**
@@ -48,7 +42,7 @@ contract IndividuallyPricedCrowdsale is Crowdsale, CapperRole {
      */
     function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal view {
         // solhint-disable-next-line max-line-length
-        require(_numerators[msg.sender] != 0 && _denominators[msg.sender] != 0, "IndividuallyPricedCrowdsale: the price of purchaser must be set");
+        require(_prices[msg.sender] != 0, "IndividuallyPricedCrowdsale: the price of purchaser must be set");
 
         super._preValidatePurchase(beneficiary, weiAmount);
     }
@@ -59,7 +53,9 @@ contract IndividuallyPricedCrowdsale is Crowdsale, CapperRole {
      * @return Number of tokens that can be purchased with the specified _weiAmount
      */
     function _getTokenAmount(uint256 weiAmount) internal view returns (uint256) {
-        uint256 pricedWeiAmount = weiAmount.mul(_numerators[msg.sender]).div(_denominators[msg.sender]);
+        uint256 price = _prices[msg.sender];
+        uint256 pricedWeiAmount = wmul(price, weiAmount);
+        // uint256 pricedWeiAmount = ray2wad(rmul(price, wad2ray(weiAmount)));
         return super._getTokenAmount(pricedWeiAmount);
     }
 }

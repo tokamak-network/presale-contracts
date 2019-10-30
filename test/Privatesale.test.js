@@ -1,3 +1,6 @@
+const { table } = require('table');
+const { createCurrency, createCurrencyRatio } = require('@makerdao/currency');
+
 const { BN, balance, constants, ether, expectEvent, expectRevert, send } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
@@ -10,20 +13,31 @@ chai.should();
 
 const { toBN } = web3.utils;
 
+const PTON = createCurrency('PTON');
+const ETH = createCurrency('ETH');
+const PTON_ETH = createCurrencyRatio(PTON, ETH);
+
+// token amount calculation error
+const e = ether('0.0001');
+
 const payments = [
   // 1st payment
   {
-    numerator: toBN('664893617021277'),
-    denominator: toBN('10000000000000000'),
-    cap: ether('2127.65957446809'),
-    tokenAmount: ether('32000'),
+    _PTON_ETH: PTON_ETH('15.040000000000000000'),
+    _PTON: PTON('32000'),
+    _ETH: ETH('2127.65957446809'),
   },
 ];
 
 contract('Privatesale', function ([owner, wallet, ...purchasers]) {
-  const numerators = [new BN('104'), new BN('153')];
-  const denominators = [new BN('2'), new BN('3')];
-  const caps = [ether('300'), ether('600')];
+  const rates = [
+    PTON_ETH('10.15'),
+    PTON_ETH('20'),
+  ];
+  const caps = [
+    ETH('300'),
+    ETH('600'),
+  ];
 
   const totalSupply = ether('224000');
 
@@ -38,7 +52,7 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
       wallet, this.token.address, { from: owner }
     );
 
-    smallPayment = await this.sale.smallPayment();
+    smallPayment = ETH((await this.sale.smallPayment()).toString(10), 'wei');
 
     await this.token.generateTokens(this.sale.address, totalSupply, { from: owner });
   });
@@ -47,24 +61,23 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
     const i = 0;
 
     const purchaser = purchasers[i];
-    const numerator = numerators[i];
-    const denominator = denominators[i];
+    const rate = rates[i];
     const cap = caps[i];
 
     it('only owner can call setCapAndPrice', async function () {
       await expectRevert.unspecified(
-        this.sale.setCapAndPrice(purchaser, cap, numerator, denominator, { from: purchaser }),
+        this.sale.setCapAndPrice(purchaser, cap.toFixed('wei'), rate.toFixed('wei'), { from: purchaser }),
         'WhitelistedRole: caller does not have the Whitelisted role'
       );
-      await this.sale.setCapAndPrice(purchaser, cap, numerator, denominator, { from: owner });
+      await this.sale.setCapAndPrice(purchaser, cap.toFixed('wei'), rate.toFixed('wei'), { from: owner });
     });
 
     it('only owner can call setCap', async function () {
       await expectRevert.unspecified(
-        this.sale.setCap(purchaser, cap, { from: purchaser }),
+        this.sale.setCap(purchaser, cap.toFixed('wei'), { from: purchaser }),
         'CapperRole: caller does not have the Capper role',
       );
-      await this.sale.setCap(purchaser, cap, { from: owner });
+      await this.sale.setCap(purchaser, cap.toFixed('wei'), { from: owner });
     });
 
     it('only owner can call addWhitelisted', async function () {
@@ -77,10 +90,10 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
 
     it('only owner can call setPrice', async function () {
       await expectRevert.unspecified(
-        this.sale.setPrice(purchaser, numerator, denominator, { from: purchaser }),
+        this.sale.setPrice(purchaser, rate.toFixed('wei'), { from: purchaser }),
         'CapperRole: caller does not have the Capper role',
       );
-      await this.sale.setPrice(purchaser, numerator, denominator, { from: owner });
+      await this.sale.setPrice(purchaser, rate.toFixed('wei'), { from: owner });
     });
   });
 
@@ -89,30 +102,30 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
       const i = 0;
 
       const purchaser = purchasers[i];
-      const numerator = numerators[i];
-      const denominator = denominators[i];
+      const rate = rates[i];
+
       const cap = caps[i];
       const amount = cap;
 
-      await this.sale.setCap(purchaser, cap);
-      await this.sale.setPrice(purchaser, numerator, denominator);
+      await this.sale.setCap(purchaser, cap.toFixed('wei'));
+      await this.sale.setPrice(purchaser, rate.toFixed('wei'));
 
-      await expectRevert.unspecified(this.sale.buyTokens(purchaser, { from: purchaser, value: amount }));
+      await expectRevert.unspecified(this.sale.buyTokens(purchaser, { from: purchaser, value: amount.toFixed('wei') }));
     });
 
     it('cannot buy tokens before cap set', async function () {
       const i = 0;
 
       const purchaser = purchasers[i];
-      const numerator = numerators[i];
-      const denominator = denominators[i];
+      const rate = rates[i];
+
       const cap = caps[i];
       const amount = cap;
 
       await this.sale.addWhitelisted(purchaser);
-      await this.sale.setPrice(purchaser, numerator, denominator);
+      await this.sale.setPrice(purchaser, rate.toFixed('wei'));
 
-      await expectRevert.unspecified(this.sale.buyTokens(purchaser, { from: purchaser, value: amount }));
+      await expectRevert.unspecified(this.sale.buyTokens(purchaser, { from: purchaser, value: amount.toFixed('wei') }));
     });
 
     it('cannot buy tokens before price set', async function () {
@@ -123,10 +136,10 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
       const amount = cap;
 
       await this.sale.addWhitelisted(purchaser);
-      await this.sale.setCap(purchaser, cap);
+      await this.sale.setCap(purchaser, cap.toFixed('wei'));
 
       await expectRevert(
-        this.sale.buyTokens(purchaser, { from: purchaser, value: amount }),
+        this.sale.buyTokens(purchaser, { from: purchaser, value: amount.toFixed('wei') }),
         'IndividuallyPricedCrowdsale: the price of purchaser must be set',
       );
     });
@@ -135,21 +148,21 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
       const i = 0;
 
       const purchaser = purchasers[i];
-      const numerator = numerators[i];
-      const denominator = denominators[i];
+      const rate = rates[i];
+
       const cap = caps[i];
       const amount = cap;
-      const tokenAmount = amount.mul(numerator).div(denominator);
+      const tokenAmount = cap.times(rate);
 
-      await this.sale.setCapAndPrice(purchaser, cap, numerator, denominator);
+      await this.sale.setCapAndPrice(purchaser, cap.toFixed('wei'), rate.toFixed('wei'));
 
-      const { logs } = await this.sale.buyTokens(purchaser, { from: purchaser, value: amount });
+      const { logs } = await this.sale.buyTokens(purchaser, { from: purchaser, value: amount.toFixed('wei') });
 
       expectEvent.inLogs(logs, 'TokensPurchased', {
         purchaser: purchaser,
         beneficiary: purchaser,
-        value: amount,
-        amount: tokenAmount,
+        value: amount.toFixed('wei'),
+        amount: tokenAmount.toFixed('wei'),
       });
     });
 
@@ -157,15 +170,15 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
       const i = 0;
 
       const purchaser = purchasers[i];
-      const numerator = numerators[i];
-      const denominator = denominators[i];
-      const cap = caps[i];
-      const amount = cap.add(new BN('1'));
+      const rate = rates[i];
 
-      await this.sale.setCapAndPrice(purchaser, cap, numerator, denominator);
+      const cap = caps[i];
+      const amount = cap.plus(ETH('1'));
+
+      await this.sale.setCapAndPrice(purchaser, cap.toFixed('wei'), rate.toFixed('wei'));
 
       await expectRevert(
-        this.sale.buyTokens(purchaser, { from: purchaser, value: amount }),
+        this.sale.buyTokens(purchaser, { from: purchaser, value: amount.toFixed('wei') }),
         'IndividuallyCappedCrowdsale: beneficiary\'s cap exceeded',
       );
     });
@@ -174,15 +187,15 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
       const i = 0;
 
       const purchaser = purchasers[i];
-      const numerator = numerators[i];
-      const denominator = denominators[i];
-      const cap = caps[i];
-      const amount = cap.sub(new BN('1'));
+      const rate = rates[i];
 
-      await this.sale.setCapAndPrice(purchaser, cap, numerator, denominator);
+      const cap = caps[i];
+      const amount = cap.minus(ETH('1'));
+
+      await this.sale.setCapAndPrice(purchaser, cap.toFixed('wei'), rate.toFixed('wei'));
 
       await expectRevert(
-        this.sale.buyTokens(purchaser, { from: purchaser, value: amount }),
+        this.sale.buyTokens(purchaser, { from: purchaser, value: amount.toFixed('wei') }),
         'Privatesale: wei amount should be equal to purchaser cap or equal to 0.03 ether',
       );
     });
@@ -191,176 +204,216 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
       const i = 0;
 
       const purchaser = purchasers[i];
-      const numerator = numerators[i];
-      const denominator = denominators[i];
+      const rate = rates[i];
+
       const cap = caps[i];
       const ethAmount1 = smallPayment;
-      const ethAmount2 = cap.sub(smallPayment);
-      const tokenAmount1 = ethAmount1.mul(numerator).div(denominator);
-      const tokenAmount2 = ethAmount2.mul(numerator).div(denominator);
+      const ethAmount2 = cap.minus(smallPayment);
+      const tokenAmount1 = ethAmount1.times(rate);
+      const tokenAmount2 = ethAmount2.times(rate);
 
       const walletBalance = await balance.tracker(wallet);
 
-      await this.sale.setCapAndPrice(purchaser, cap, numerator, denominator);
+      await this.sale.setCapAndPrice(purchaser, cap.toFixed('wei'), rate.toFixed('wei'));
 
-      const { logs: logs1 } = await this.sale.buyTokens(purchaser, { from: purchaser, value: ethAmount1 });
+      const { logs: logs1 } = await this.sale.buyTokens(purchaser, { from: purchaser, value: ethAmount1.toFixed('wei') });
 
       expectEvent.inLogs(logs1, 'TokensPurchased', {
         purchaser: purchaser,
         beneficiary: purchaser,
-        value: ethAmount1,
-        amount: tokenAmount1,
+        value: ethAmount1.toFixed('wei'),
+        amount: tokenAmount1.toFixed('wei'),
       });
 
-      (await walletBalance.delta()).should.be.bignumber.equal(ethAmount1);
+      (await walletBalance.delta()).should.be.bignumber.equal(ethAmount1.toFixed('wei'));
 
-      const { logs: logs2 } = await this.sale.buyTokens(purchaser, { from: purchaser, value: ethAmount2 });
+      const { logs: logs2 } = await this.sale.buyTokens(purchaser, { from: purchaser, value: ethAmount2.toFixed('wei') });
 
       expectEvent.inLogs(logs2, 'TokensPurchased', {
         purchaser: purchaser,
         beneficiary: purchaser,
-        value: ethAmount2,
-        amount: tokenAmount2,
+        value: ethAmount2.toFixed('wei'),
+        amount: tokenAmount2.toFixed('wei'),
       });
 
-      (await walletBalance.delta()).should.be.bignumber.equal(ethAmount2);
+      (await walletBalance.delta()).should.be.bignumber.equal(ethAmount2.toFixed('wei'));
     });
   });
 
   describe('price precision', function () {
     for (let i = 0; i < caps.length; i++) {
-      it(`token amount must be well calculated with (numerator=${numerators[i]}, denominator=${denominators[i]})`, async function () {
-        const purchaser = purchasers[i];
-        const numerator = numerators[i];
-        const denominator = denominators[i];
-        const cap = caps[i];
+      const purchaser = purchasers[i];
+      const rate = rates[i];
+      const cap = caps[i];
+
+      it(`token amount must be well calculated with (rate=${rate.toFixed()}, cap=${cap.toFixed()})`, async function () {
         const ethAmount = cap;
-        const tokenAmount = ethAmount.mul(numerator).div(denominator);
+        const tokenAmount = ethAmount.times(rate); ;
 
-        await this.sale.setCapAndPrice(purchaser, cap, numerator, denominator);
+        await this.sale.setCapAndPrice(purchaser, cap.toFixed('wei'), rate.toFixed('wei'));
 
-        const { logs } = await this.sale.buyTokens(purchaser, { from: purchaser, value: ethAmount });
+        const { logs } = await this.sale.buyTokens(purchaser, { from: purchaser, value: ethAmount.toFixed('wei') });
 
         expectEvent.inLogs(logs, 'TokensPurchased', {
           purchaser: purchaser,
           beneficiary: purchaser,
-          value: ethAmount,
-          amount: tokenAmount,
+          value: ethAmount.toFixed('wei'),
+          amount: tokenAmount.toFixed('wei'),
         });
 
         const tokens = await this.token.balanceOf(purchaser);
-        tokens.should.be.bignumber.equal(tokenAmount);
+        tokens.should.be.bignumber.equal(tokenAmount.toFixed('wei'));
       });
     }
 
     for (const purchaser of purchasers) {
-      const numerator = web3.utils.toBN(Math.floor(Math.random() * 1000) || 1);
-      const denominator = web3.utils.toBN(Math.floor(Math.random() * 100) || 1);
-      const cap = web3.utils.toBN(Math.floor(Math.random() * 1000) || 1);
+      const rate = PTON_ETH(Math.floor(Math.random() * 100) || 1);
+      const cap = ETH(Math.floor(Math.random() * 1000) || 1);
 
-      it(`token amount must be well calculated with (numerator=${numerator}, denominator=${denominator})`, async function () {
+      it(`token amount must be well calculated with (rate=${rate.toFixed()}, cap=${cap.toFixed()})`, async function () {
         const ethAmount = cap;
-        const tokenAmount = ethAmount.mul(numerator).div(denominator);
+        const tokenAmount = ethAmount.times(rate);
 
-        await this.sale.setCapAndPrice(purchaser, cap, numerator, denominator);
+        await this.sale.setCapAndPrice(purchaser, cap.toFixed('wei'), rate.toFixed('wei'));
 
-        const { logs } = await this.sale.buyTokens(purchaser, { from: purchaser, value: ethAmount });
+        const { logs } = await this.sale.buyTokens(purchaser, { from: purchaser, value: ethAmount.toFixed('wei') });
 
         expectEvent.inLogs(logs, 'TokensPurchased', {
           purchaser: purchaser,
           beneficiary: purchaser,
-          value: ethAmount,
-          amount: tokenAmount,
+          value: ethAmount.toFixed('wei'),
+          amount: tokenAmount.toFixed('wei'),
         });
 
         const tokens = await this.token.balanceOf(purchaser);
-        tokens.should.be.bignumber.equal(tokenAmount);
+        tokens.should.be.bignumber.equal(tokenAmount.toFixed('wei'));
       });
     }
   });
 
-  it.only('should accept payments', async function () {
+  it('should accept payments', async function () {
     purchasers.length.should.be.gt(payments.length, `use more than ${payments.length} accounts in testrpc`);
 
     const totalSupply = await this.token.totalSupply();
 
-    let investedTokenAmount = new BN('0');
+    let totalFundedETH = ETH('0');
+    let totalTransferedPTON = PTON('0');
+
+    const config = {
+      columns: {
+        0: {
+          width: 25,
+        },
+        1: {
+          width: 40,
+          alignment: 'right',
+        },
+      },
+    };
 
     for (let i = 0; i < payments.length; i++) {
       const payment = payments[i];
 
-      const numerator = toBN(payment.numerator);
-      const denominator = toBN(payment.denominator);
-      const cap = toBN(payment.cap);
-      const tokenAmount = toBN(payment.tokenAmount);
+      const {
+        _ETH,
+        _PTON_ETH,
+        _PTON,
+      } = payment;
 
-      const ethAmount1 = smallPayment;
-      const ethAmount2 = cap.sub(ethAmount1);
+      const _ETH1 = ETH('0.03'); // small payment
+      const _ETH2 = _ETH.minus(_ETH1);
 
-      const tokenAmount1 = ethAmount1.mul(numerator).div(denominator);
-      const tokenAmount2 = ethAmount2.mul(numerator).div(denominator);
+      const _PTON1 = _ETH1.times(_PTON_ETH);
+      const _PTON2 = _ETH2.times(_PTON_ETH);
 
-      console.log(`
-      ethAmount1          :  ${ethAmount1.toString(10)}
-      ethAmount2          :  ${ethAmount2.toString(10)}
-      ethAmount1+2        :  ${ethAmount1.add(ethAmount2).toString(10)}
-      cap                 :  ${cap.toString(10)}
+      const dataInWei = [
+        ['NAME', 'WEI'],
+        ['rate', _PTON_ETH.toFixed('wei')],
+        ['', ''],
+        ['small payment', _ETH1.toFixed('wei')],
+        ['rest of cap', _ETH2.toFixed('wei')],
+        ['cap', _ETH.toFixed('wei')],
+        ['', ''],
+        ['PTON for small payment', _PTON1.toFixed('wei')],
+        ['PTON for rest of cap', _PTON2.toFixed('wei')],
+        ['PTON for cap', _PTON.toFixed('wei')],
+      ];
 
-      tokenAmount1          :  ${tokenAmount1.toString(10)}
-      tokenAmount2          :  ${tokenAmount2.toString(10)}
-      tokenAmount1+2        :  ${tokenAmount1.add(tokenAmount2).toString(10)}
-      expected tokenAmount  :  ${tokenAmount.toString(10)}
+      const dataInSymbol = [
+        ['NAME', 'SYMBOL'],
+        ['rate', _PTON_ETH.toString(10)],
+        ['', ''],
+        ['small payment', _ETH1.toString(10)],
+        ['rest of cap', _ETH2.toString(10)],
+        ['cap', _ETH.toString(10)],
+        ['', ''],
+        ['PTON for small payment', _PTON1.toString(10)],
+        ['PTON for rest of cap', _PTON2.toString(10)],
+        ['PTON for cap', _PTON.toString(10)],
+      ];
 
-      ethAmount1      : ${ethAmount1.toString()}
-      numerator       : ${numerator.toString()}
-      denominator     : ${denominator.toString()}
+      console.log('');
+      console.log('Payment#1');
+      console.log('-'.repeat(67));
+      console.log(table(dataInWei, config));
+      console.log('-'.repeat(67));
+      console.log(table(dataInSymbol, config));
 
-      ethAmount1.mul(numerator)                   : ${ethAmount1.mul(numerator).toString()}
-      ethAmount1.mul(numerator).div(denominator)  : ${ethAmount1.mul(numerator).div(denominator).toString()}
-
-      ethAmount2.mul(numerator)                   : ${ethAmount2.mul(numerator).toString()}
-      ethAmount2.mul(numerator).div(denominator)  : ${ethAmount2.mul(numerator).div(denominator).toString()}
-
-      cap.mul(numerator)                          : ${cap.mul(numerator).toString()}
-      cap.mul(numerator).div(denominator)         : ${cap.mul(numerator).div(denominator).toString()}
-      `);
-
-      // tokenAmount.should.be.bignumber.equal(
-      //   tokenAmount1.add(tokenAmount2),
-      //   'token amount mismatched. please check numerator, denominator, and cap',
-      // );
-
-      investedTokenAmount = investedTokenAmount.add(tokenAmount);
+      // check expected PTON amount
+      (_PTON.toFixed()).should.be.equal(_ETH.times(_PTON_ETH).toFixed());
 
       totalSupply.should.be.bignumber.gte(
-        investedTokenAmount,
+        totalTransferedPTON.toFixed('wei'),
         `${i}th purchaser cannot buy tokens more than total supply`,
       );
 
       const purchaser = purchasers[i];
 
-      await this.sale.setCapAndPrice(purchaser, cap, numerator, denominator);
+      await this.sale.setCapAndPrice(purchaser, _ETH.toFixed('wei'), _PTON_ETH.toFixed('wei'));
 
-      const { logs: logs1 } = await this.sale.buyTokens(purchaser, { from: purchaser, value: ethAmount1 });
+      const { logs: logs1 } = await this.sale.buyTokens(purchaser, { from: purchaser, value: _ETH1.toFixed('wei') });
 
       expectEvent.inLogs(logs1, 'TokensPurchased', {
         purchaser: purchaser,
         beneficiary: purchaser,
-        value: ethAmount1,
-        amount: tokenAmount1,
+        value: _ETH1.toFixed('wei'),
       });
 
-      const { logs: logs2 } = await this.sale.buyTokens(purchaser, { from: purchaser, value: ethAmount2 });
+      (await this.token.balanceOf(purchaser)).sub(toBN(_PTON1.toFixed('wei'))).abs()
+        .should.be.bignumber.lte(e);
+
+      const { logs: logs2 } = await this.sale.buyTokens(purchaser, { from: purchaser, value: _ETH2.toFixed('wei') });
 
       expectEvent.inLogs(logs2, 'TokensPurchased', {
         purchaser: purchaser,
         beneficiary: purchaser,
-        value: ethAmount2,
-        amount: tokenAmount2,
+        value: _ETH2.toFixed('wei'),
       });
 
-      const purchaserBalance = await this.token.balanceOf(purchaser);
-      purchaserBalance.should.be.bignumber.equal(tokenAmount);
+      const purchserBalance = await this.token.balanceOf(purchaser);
+
+      purchserBalance.sub(toBN(_PTON.toFixed('wei'))).abs()
+        .should.be.bignumber.lte(e);
+
+      const result = [
+        ['Funded ETH', _ETH.toString(10)],
+        ['Trasnered PTON', PTON(purchserBalance.toString(10), 'wei').toString(10)],
+      ];
+
+      console.log(table(result, config));
+
+      totalFundedETH = totalFundedETH.plus(_ETH);
+      totalTransferedPTON = totalTransferedPTON.plus(PTON(purchserBalance.toString(10), 'wei'));
     }
+
+    console.log('Payments Summary');
+    console.log('-'.repeat(67));
+
+    const summary = [
+      ['Funded ETH', totalFundedETH.toString(10)],
+      ['Trasnered PTON', totalTransferedPTON.toString(10)],
+    ];
+
+    console.log(table(summary, config));
   });
 });

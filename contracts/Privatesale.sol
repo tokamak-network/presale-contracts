@@ -17,12 +17,11 @@ contract Privatesale is WhitelistCrowdsale, IndividuallyCappedCrowdsale, Individ
     function setCapAndPrice(
         address purchaser,
         uint256 cap,
-        uint256 numerator,
-        uint256 denominator
+        uint256 price
     ) public {
         addWhitelisted(purchaser);
         setCap(purchaser, cap);
-        setPrice(purchaser, numerator, denominator);
+        setPrice(purchaser, price);
     }
 
     /**
