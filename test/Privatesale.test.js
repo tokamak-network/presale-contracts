@@ -39,7 +39,7 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
     ETH('600'),
   ];
 
-  const totalSupply = ether('224000');
+  const totalSupply = ether('224000.1');
 
   let smallPayment;
 
