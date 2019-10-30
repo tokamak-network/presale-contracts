@@ -24,4 +24,7 @@ module.exports = {
       gasPrice: 0x01,
     },
   },
+  mocha: {
+    bail: true,
+  },
 };
