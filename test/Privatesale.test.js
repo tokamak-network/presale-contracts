@@ -27,6 +27,12 @@ const payments = [
     _PTON: PTON('32000'),
     _ETH: ETH('2127.65957446809'),
   },
+  // 2nd payment
+  {
+    _PTON_ETH: PTON_ETH('15.1369600'),
+    _PTON: PTON('16000'),
+    _ETH: ETH('1057.01541128470'),
+  },
 ];
 
 contract('Privatesale', function ([owner, wallet, ...purchasers]) {
@@ -246,7 +252,7 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
       const rate = rates[i];
       const cap = caps[i];
 
-      it(`token amount must be well calculated with (rate=${rate.toFixed()}, cap=${cap.toFixed()})`, async function () {
+      it(`token amount must be well calculated with (rate=${rate.toString(10)}, cap=${cap.toString(10)})`, async function () {
         const ethAmount = cap;
         const tokenAmount = ethAmount.times(rate); ;
 
@@ -270,7 +276,7 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
       const rate = PTON_ETH(Math.floor(Math.random() * 100) || 1);
       const cap = ETH(Math.floor(Math.random() * 1000) || 1);
 
-      it(`token amount must be well calculated with (rate=${rate.toFixed()}, cap=${cap.toFixed()})`, async function () {
+      it(`token amount must be well calculated with (rate=${rate.toString(10)}, cap=${cap.toString(10)})`, async function () {
         const ethAmount = cap;
         const tokenAmount = ethAmount.times(rate);
 
@@ -296,10 +302,27 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
 
     const totalSupply = await this.token.totalSupply();
 
+    const totalSupplyPTON = PTON(totalSupply.toString(10), 'wei');
     let totalFundedETH = ETH('0');
     let totalTransferedPTON = PTON('0');
 
-    const config = {
+    const paymentConfig = {
+      columns: {
+        0: {
+          width: 25,
+        },
+        1: {
+          width: 40,
+          alignment: 'right',
+        },
+        2: {
+          width: 40,
+          alignment: 'right',
+        },
+      },
+    };
+
+    const summaryConfig = {
       columns: {
         0: {
           width: 25,
@@ -326,38 +349,23 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
       const _PTON1 = _ETH1.times(_PTON_ETH);
       const _PTON2 = _ETH2.times(_PTON_ETH);
 
-      const dataInWei = [
-        ['NAME', 'WEI'],
-        ['rate', _PTON_ETH.toFixed('wei')],
-        ['', ''],
-        ['small payment', _ETH1.toFixed('wei')],
-        ['rest of cap', _ETH2.toFixed('wei')],
-        ['cap', _ETH.toFixed('wei')],
-        ['', ''],
-        ['PTON for small payment', _PTON1.toFixed('wei')],
-        ['PTON for rest of cap', _PTON2.toFixed('wei')],
-        ['PTON for cap', _PTON.toFixed('wei')],
-      ];
-
-      const dataInSymbol = [
-        ['NAME', 'SYMBOL'],
-        ['rate', _PTON_ETH.toString(10)],
-        ['', ''],
-        ['small payment', _ETH1.toString(10)],
-        ['rest of cap', _ETH2.toString(10)],
-        ['cap', _ETH.toString(10)],
-        ['', ''],
-        ['PTON for small payment', _PTON1.toString(10)],
-        ['PTON for rest of cap', _PTON2.toString(10)],
-        ['PTON for cap', _PTON.toString(10)],
+      const data = [
+        ['NAME', 'WEI', 'SYMBOL'],
+        ['rate', _PTON_ETH.toFixed('wei'), _PTON_ETH.toString(10)],
+        ['', '', ''],
+        ['small payment', _ETH1.toFixed('wei'), _ETH1.toString(10)],
+        ['rest of cap', _ETH2.toFixed('wei'), _ETH2.toString(10)],
+        ['cap', _ETH.toFixed('wei'), _ETH.toString(10)],
+        ['', '', ''],
+        ['PTON for small payment', _PTON1.toFixed('wei'), _PTON1.toString(10)],
+        ['PTON for rest of cap', _PTON2.toFixed('wei'), _PTON2.toString(10)],
+        ['PTON for cap', _PTON.toFixed('wei'), _PTON.toString(10)],
       ];
 
       console.log('');
-      console.log('Payment#1');
-      console.log('-'.repeat(67));
-      console.log(table(dataInWei, config));
-      console.log('-'.repeat(67));
-      console.log(table(dataInSymbol, config));
+      console.log(`Payment#${i + 1}`);
+      console.log('-'.repeat(115));
+      console.log(table(data, paymentConfig));
 
       // check expected PTON amount
       (_PTON.toFixed()).should.be.equal(_ETH.times(_PTON_ETH).toFixed());
@@ -377,6 +385,7 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
         purchaser: purchaser,
         beneficiary: purchaser,
         value: _ETH1.toFixed('wei'),
+        amount: _PTON1.toFixed('wei'),
       });
 
       (await this.token.balanceOf(purchaser)).sub(toBN(_PTON1.toFixed('wei'))).abs()
@@ -388,6 +397,7 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
         purchaser: purchaser,
         beneficiary: purchaser,
         value: _ETH2.toFixed('wei'),
+        amount: _PTON2.toFixed('wei'),
       });
 
       const purchserBalance = await this.token.balanceOf(purchaser);
@@ -400,20 +410,21 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
         ['Trasnered PTON', PTON(purchserBalance.toString(10), 'wei').toString(10)],
       ];
 
-      console.log(table(result, config));
+      console.log(table(result, summaryConfig));
 
       totalFundedETH = totalFundedETH.plus(_ETH);
       totalTransferedPTON = totalTransferedPTON.plus(PTON(purchserBalance.toString(10), 'wei'));
     }
 
     console.log('Payments Summary');
-    console.log('-'.repeat(67));
+    console.log('-'.repeat(115));
 
     const summary = [
       ['Funded ETH', totalFundedETH.toString(10)],
       ['Trasnered PTON', totalTransferedPTON.toString(10)],
+      ['Trasnered PTON (%)', (totalTransferedPTON.div(totalSupplyPTON).times(PTON('100'))).toFixed() + '%'],
     ];
 
-    console.log(table(summary, config));
+    console.log(table(summary, summaryConfig));
   });
 });
