@@ -13,7 +13,8 @@ module.exports = {
         console.log('Connecting ' + process.env.MAINNET_JSONRPC);
         return new PrivateKeyProvider(process.env.MAINNET_PRIVATE_KEY, process.env.MAINNET_JSONRPC);
       },
-      network_id: '*', // eslint-disable-line camelcase
+      network_id: 1, // eslint-disable-line camelcase
+      gasPrice: 2e9,
       skipDryRun: true,
     },
     coverage: {
