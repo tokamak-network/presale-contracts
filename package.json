@@ -10,6 +10,7 @@
     "coverage": "scripts/coverage.sh",
     "deploy:seedsale": "SEEDSALE=true truffle deploy",
     "deploy:privatesale": "PRIVATESALE=true truffle deploy",
+    "whitlist:privatesale": "truffle exec scripts/privatesale-kyc.js",
     "lint:js": "eslint .",
     "lint:js:fix": "eslint . --fix",
     "lint:sol": "solium -d .",
