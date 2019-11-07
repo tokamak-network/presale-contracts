@@ -21,18 +21,55 @@ const PTON_ETH = createCurrencyRatio(PTON, ETH);
 const e = ether('0.0001');
 
 const payments = [
-  // 1st payment
   {
-    _PTON_ETH: PTON_ETH('15.040000000000000000'),
-    _PTON: PTON('32000'),
-    _ETH: ETH('2127.65957446809'),
+    purchaser: '0x1c0a5Dbec8A67490013e96eDbcc18fAcd90dcDa7',
+    _ETH: ETH('600.00000000000'),
+    _PTON: PTON(9024.000000),
+    _PTON_ETH: PTON_ETH(15.040000),
   },
-  // 2nd payment
+
   {
-    _PTON_ETH: PTON_ETH('15.1369600'),
-    _PTON: PTON('16000'),
-    _ETH: ETH('1057.01541128470'),
+    purchaser: '0x32C5cc35c5696953162004b666712d28BF89a125',
+    _ETH: ETH('717.38000000000'),
+    _PTON: PTON(10789.395200),
+    _PTON_ETH: PTON_ETH(15.040000),
   },
+
+  {
+    purchaser: '0x5D76EA2Fca6e00CfF91588eabF4DE37bAfd73469',
+    _ETH: ETH('500.00000000000'),
+    _PTON: PTON(7520.000000),
+    _PTON_ETH: PTON_ETH(15.040000),
+  },
+
+  {
+    purchaser: '0x3F17EdC8Cf0Eb20f011C7ecE6C1c4C1fC84eCF00',
+    _ETH: ETH('500.00000000000'),
+    _PTON: PTON(7520.000000),
+    _PTON_ETH: PTON_ETH(15.040000),
+  },
+
+  {
+    purchaser: '0x72cCC4BEDE1a7d09aa20d97355543d0640c661F1',
+    _ETH: ETH('342.20000000000'),
+    _PTON: PTON(5146.688000),
+    _PTON_ETH: PTON_ETH(15.040000),
+  },
+  // Mr. Jeon
+  {
+    purchaser: '0x443a8e36753ccd89108f1b0fc92f24eea7c7fdbc',
+    _ETH: ETH('783.33072223092600'),
+    _PTON: PTON('12000.000000'),
+    _PTON_ETH: PTON_ETH(15.319200),
+  },
+  // GLP
+  {
+    purchaser: '????',
+    _ETH: ETH('1057.75333192300000'),
+    _PTON: PTON('16000.000000'),
+    _PTON_ETH: PTON_ETH('15.126400'),
+  },
+
 ];
 
 contract('Privatesale', function ([owner, wallet, ...purchasers]) {
@@ -76,6 +113,9 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
         'WhitelistedRole: caller does not have the Whitelisted role'
       );
       await this.sale.setCapAndPrice(purchaser, cap.toFixed('wei'), rate.toFixed('wei'), { from: owner });
+
+      (await this.sale.getCap(purchaser)).should.be.bignumber.equal(cap.toFixed('wei'));
+      (await this.sale.getPrice(purchaser)).should.be.bignumber.equal(rate.toFixed('wei'));
     });
 
     it('only owner can call setCap', async function () {
@@ -309,14 +349,14 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
     const paymentConfig = {
       columns: {
         0: {
-          width: 25,
+          width: 35,
         },
         1: {
-          width: 40,
+          width: 30,
           alignment: 'right',
         },
         2: {
-          width: 40,
+          width: 30,
           alignment: 'right',
         },
       },
@@ -343,7 +383,7 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
         _PTON,
       } = payment;
 
-      const _ETH1 = ETH('0.03'); // small payment
+      const _ETH1 = ETH('0.03'); // test payment (0.03 ETH)
       const _ETH2 = _ETH.minus(_ETH1);
 
       const _PTON1 = _ETH1.times(_PTON_ETH);
@@ -353,17 +393,17 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
         ['NAME', 'WEI', 'SYMBOL'],
         ['rate', _PTON_ETH.toFixed('wei'), _PTON_ETH.toString(10)],
         ['', '', ''],
-        ['small payment', _ETH1.toFixed('wei'), _ETH1.toString(10)],
+        ['test payment (0.03 ETH)', _ETH1.toFixed('wei'), _ETH1.toString(10)],
         ['rest of cap', _ETH2.toFixed('wei'), _ETH2.toString(10)],
         ['cap', _ETH.toFixed('wei'), _ETH.toString(10)],
         ['', '', ''],
-        ['PTON for small payment', _PTON1.toFixed('wei'), _PTON1.toString(10)],
+        ['PTON for test payment (0.03 ETH)', _PTON1.toFixed('wei'), _PTON1.toString(10)],
         ['PTON for rest of cap', _PTON2.toFixed('wei'), _PTON2.toString(10)],
         ['PTON for cap', _PTON.toFixed('wei'), _PTON.toString(10)],
       ];
 
       console.log('');
-      console.log(`Payment#${i + 1}`);
+      console.log(`Payment#${i}`);
       console.log('-'.repeat(115));
       console.log(table(data, paymentConfig));
 
