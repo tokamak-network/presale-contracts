@@ -62,12 +62,26 @@ const payments = [
     _PTON: PTON('12000.000000'),
     _PTON_ETH: PTON_ETH(15.319200),
   },
-  // GLP
+  // GTR (1/2)
   {
-    purchaser: '????',
-    _ETH: ETH('1057.75333192300000'),
-    _PTON: PTON('16000.000000'),
+    purchaser: '0x6765715Ed59CCBa57204704Cdb0A442f7f643041',
+    _ETH: ETH('317.32333192300'),
+    _PTON: PTON('4799.95964800'),
     _PTON_ETH: PTON_ETH('15.126400'),
+  },
+  // GTR (2/2)
+  {
+    purchaser: '0x9f42C2886BF25fe99D5dF51eE0a653903C92131F',
+    _ETH: ETH('740.43000000000'),
+    _PTON: PTON('11200.04035200'),
+    _PTON_ETH: PTON_ETH('15.126400'),
+  },
+  // 블로코어
+  {
+    purchaser: '0x2818824255db21f1451D359D1eEE282b3d1818D9',
+    _ETH: ETH('675.33418586663500000'),
+    _PTON: PTON('8000.00000000'),
+    _PTON_ETH: PTON_ETH('11.845987020091200'),
   },
 
 ];
@@ -403,7 +417,7 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
       ];
 
       console.log('');
-      console.log(`Payment#${i}`);
+      console.log(`Test Payment#${i}`);
       console.log('-'.repeat(115));
       console.log(table(data, paymentConfig));
 
@@ -425,7 +439,7 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
         purchaser: purchaser,
         beneficiary: purchaser,
         value: _ETH1.toFixed('wei'),
-        amount: _PTON1.toFixed('wei'),
+        // amount: _PTON1.toFixed('wei'),
       });
 
       (await this.token.balanceOf(purchaser)).sub(toBN(_PTON1.toFixed('wei'))).abs()
@@ -437,7 +451,7 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
         purchaser: purchaser,
         beneficiary: purchaser,
         value: _ETH2.toFixed('wei'),
-        amount: _PTON2.toFixed('wei'),
+        // amount: _PTON2.toFixed('wei'),
       });
 
       const purchserBalance = await this.token.balanceOf(purchaser);
