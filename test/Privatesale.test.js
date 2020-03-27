@@ -83,7 +83,27 @@ const payments = [
     _PTON: PTON('8000.00000000'),
     _PTON_ETH: PTON_ETH('11.845987020091200'),
   },
-
+  // GTR 추가
+  {
+    purchaser: '0x9f42C2886BF25fe99D5dF51eE0a653903C92131F',
+    _ETH: ETH('328.34252692408700000'),
+    _PTON: PTON('4000.00000000'),
+    _PTON_ETH: PTON_ETH('12.18240001'),
+  },
+  // 스카이테일
+  {
+    purchaser: '0x9f42c2886bf25fe99d5df51ee0a653903c92131d',
+    _ETH: ETH('697.44734272562400000'),
+    _PTON: PTON('8000.00000697'),
+    _PTON_ETH: PTON_ETH('11.470400010000'),
+  },
+  // Mr Jeon (2)
+  {
+    purchaser: '0x9f42c2886bf25fe99d5df51ee0a653903c92131a',
+    _ETH: ETH('301.98707495319200000'),
+    _PTON: PTON('4000.00000301987000'),
+    _PTON_ETH: PTON_ETH('13.245600000000'),
+  },
 ];
 
 contract('Privatesale', function ([owner, wallet, ...purchasers]) {
@@ -403,6 +423,8 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
       const _PTON1 = _ETH1.times(_PTON_ETH);
       const _PTON2 = _ETH2.times(_PTON_ETH);
 
+      const expectedPTON = _ETH.times(_PTON_ETH);
+
       const data = [
         ['NAME', 'WEI', 'SYMBOL'],
         ['rate', _PTON_ETH.toFixed('wei'), _PTON_ETH.toString(10)],
@@ -414,6 +436,8 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
         ['PTON for test payment (0.03 ETH)', _PTON1.toFixed('wei'), _PTON1.toString(10)],
         ['PTON for rest of cap', _PTON2.toFixed('wei'), _PTON2.toString(10)],
         ['PTON for cap', _PTON.toFixed('wei'), _PTON.toString(10)],
+        ['', '', ''],
+        ['Expected PTON', expectedPTON.toFixed('wei'), expectedPTON.toString(10)],
       ];
 
       console.log('');
@@ -422,7 +446,10 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
       console.log(table(data, paymentConfig));
 
       // check expected PTON amount
-      (_PTON.toFixed()).should.be.equal(_ETH.times(_PTON_ETH).toFixed());
+      // (_PTON.toFixed('wei')).should.be.equal(_ETH.times(_PTON_ETH).toFixed('wei'));
+
+      toBN(_PTON.toFixed('wei')).sub(toBN(expectedPTON.toFixed('wei'))).abs()
+        .should.be.bignumber.lte(e);
 
       totalSupply.should.be.bignumber.gte(
         totalTransferedPTON.toFixed('wei'),
