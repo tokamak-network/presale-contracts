@@ -49,11 +49,17 @@ const list = [
     _PTON: PTON('12000.000000'),
     _PTON_ETH: PTON_ETH('15.319200'),
   },
-  // GLP
+  // GLP: 2 payments
   {
-    purchaser: '0x443a8e36753ccd89108f1b0fc92f24eea7c7fdb2',
-    _ETH: ETH('1057.75333192300000'),
-    _PTON: PTON('16000.000000'),
+    purchaser: '0x6765715Ed59CCBa57204704Cdb0A442f7f643041',
+    _ETH: ETH('317.32333192300'),
+    _PTON: PTON('4799.95964800'),
+    _PTON_ETH: PTON_ETH('15.126400'),
+  },
+  {
+    purchaser: '0x9f42C2886BF25fe99D5dF51eE0a653903C92131F',
+    _ETH: ETH('740.43'),
+    _PTON: PTON('11200.04035200'),
     _PTON_ETH: PTON_ETH('15.126400'),
   },
 ];

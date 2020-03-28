@@ -21,6 +21,7 @@ const PTON_ETH = createCurrencyRatio(PTON, ETH);
 const e = ether('0.0001');
 
 const payments = [
+  // 100&100: 5 payments
   {
     purchaser: '0x1c0a5Dbec8A67490013e96eDbcc18fAcd90dcDa7',
     _ETH: ETH('600.00000000000'),
@@ -62,11 +63,16 @@ const payments = [
     _PTON: PTON('12000.000000'),
     _PTON_ETH: PTON_ETH(15.319200),
   },
+<<<<<<< Updated upstream
   // GTR (1/2)
+=======
+  // GLP: 2 payments
+>>>>>>> Stashed changes
   {
     purchaser: '0x6765715Ed59CCBa57204704Cdb0A442f7f643041',
     _ETH: ETH('317.32333192300'),
     _PTON: PTON('4799.95964800'),
+<<<<<<< Updated upstream
     _PTON_ETH: PTON_ETH('15.126400'),
   },
   // GTR (2/2)
@@ -104,6 +110,16 @@ const payments = [
     _PTON: PTON('4000.00000301987000'),
     _PTON_ETH: PTON_ETH('13.245600000000'),
   },
+=======
+    _PTON_ETH: PTON_ETH('15.126400'),
+  },
+  {
+    purchaser: '0x9f42C2886BF25fe99D5dF51eE0a653903C92131F',
+    _ETH: ETH('740.43'),
+    _PTON: PTON('11200.04035200'),
+    _PTON_ETH: PTON_ETH('15.126400'),
+  },
+>>>>>>> Stashed changes
 ];
 
 contract('Privatesale', function ([owner, wallet, ...purchasers]) {
@@ -372,7 +388,7 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
   });
 
   it('should accept payments', async function () {
-    purchasers.length.should.be.gt(payments.length, `use more than ${payments.length} accounts in testrpc`);
+    purchasers.length.should.be.gte(payments.length, `use more than ${payments.length} accounts in testrpc`);
 
     const totalSupply = await this.token.totalSupply();
 

@@ -9,27 +9,27 @@ const decimal = new BN('18');
 const totalSupply = new BN('10').pow(decimal).mul(new BN('224000.1'));
 
 module.exports = function (deployer) {
-  if (!process.env.PRIVATESALE) return;
+  // let token, sale;
 
-  let token, sale;
-
-  deployer.deploy(VestingToken,
-    ZERO_ADDRESS,
-    ZERO_ADDRESS,
-    0,
-    'Privatesale Tokamak Network Token',
-    18,
-    'PrivateTON',
-    true,
-  ).then(async () => { token = await VestingToken.deployed(); })
-    .then(() => deployer.deploy(Privatesale,
-      wallet,
-      token.address,
-    ))
-    .then(async () => { sale = await Privatesale.deployed(); })
-    .then(() => token.generateTokens(sale.address, totalSupply))
-    .catch((e) => {
-      console.error(e);
-      throw e;
-    });
+  // if (process.env.PRIVATESALE) {
+  //   deployer.deploy(VestingToken,
+  //     ZERO_ADDRESS,
+  //     ZERO_ADDRESS,
+  //     0,
+  //     'Privatesale Tokamak Network Token',
+  //     18,
+  //     'PrivateTON',
+  //     true,
+  //   ).then(async () => { token = await VestingToken.deployed(); })
+  //     .then(() => deployer.deploy(Privatesale,
+  //       wallet,
+  //       token.address,
+  //     ))
+  //     .then(async () => { sale = await Privatesale.deployed(); })
+  //     .then(() => token.generateTokens(sale.address, totalSupply))
+  //     .catch((e) => {
+  //       console.error(e);
+  //       throw e;
+  //     });
+  // }
 };
