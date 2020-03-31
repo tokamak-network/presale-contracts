@@ -1,7 +1,7 @@
 const { table } = require('table');
-const { ETH, STON, STON_ETH } = require('../payments');
+const { ETH, PTON2, PTON2_ETH } = require('../payments');
 
-const payments = require('../payments/Strategic');
+const payments = require('../payments/Private2');
 
 const { BN, balance, constants, ether, expectEvent, expectRevert, send } = require('openzeppelin-test-helpers');
 
@@ -16,7 +16,7 @@ chai.should();
 
 const { toBN } = web3.utils;
 
-const totalSupply = ether('20000.1');
+const totalSupply = ether('61000.1');
 const e = ether('0.01');
 
 const paymentConfig = {
@@ -49,8 +49,8 @@ const summaryConfig = {
 
 contract('Strategicsale', function ([owner, wallet, ...purchasers]) {
   const rates = [
-    STON_ETH('10.15'),
-    STON_ETH('20'),
+    PTON2_ETH('10.15'),
+    PTON2_ETH('20'),
   ];
   const caps = [
     ETH('300'),
@@ -61,7 +61,7 @@ contract('Strategicsale', function ([owner, wallet, ...purchasers]) {
 
   beforeEach(async function () {
     this.token = await VestingToken.new(
-      ZERO_ADDRESS, ZERO_ADDRESS, 0, 'STON test token', 18, 'STON-test', true, { from: owner }
+      ZERO_ADDRESS, ZERO_ADDRESS, 0, 'PTON2 test token', 18, 'PTON2-test', true, { from: owner }
     );
 
     this.sale = await Strategicsale.new(
@@ -286,7 +286,7 @@ contract('Strategicsale', function ([owner, wallet, ...purchasers]) {
     }
 
     for (const purchaser of purchasers) {
-      const rate = STON_ETH(Math.floor(Math.random() * 100) || 1);
+      const rate = PTON2_ETH(Math.floor(Math.random() * 100) || 1);
       const cap = ETH(Math.floor(Math.random() * 100) || 1);
 
       it(`token amount must be well calculated with (rate=${rate.toString(10)}, cap=${cap.toString(10)})`, async function () {
@@ -315,9 +315,9 @@ contract('Strategicsale', function ([owner, wallet, ...purchasers]) {
 
     const totalSupply = await this.token.totalSupply();
 
-    const totalSupplySTON = STON(totalSupply.toString(10), 'wei');
+    const totalSupplyPTON2 = PTON2(totalSupply.toString(10), 'wei');
     let totalFundedETH = ETH('0');
-    let totalTransferedSTON = STON('0');
+    let totalTransferedPTON2 = PTON2('0');
 
     for (let i = 0; i < payments.length; i++) {
       const payment = payments[i];
@@ -332,10 +332,10 @@ contract('Strategicsale', function ([owner, wallet, ...purchasers]) {
       const _ETH1 = ETH('0.03'); // test payment (0.03 ETH)
       const _ETH2 = ethAmount.minus(_ETH1);
 
-      const _STON1 = _ETH1.times(rate);
-      const _STON2 = _ETH2.times(rate);
+      const _PTON21 = _ETH1.times(rate);
+      const _PTON22 = _ETH2.times(rate);
 
-      const expectedSTON = ethAmount.times(rate);
+      const expectedPTON2 = ethAmount.times(rate);
 
       const data = [
         ['NAME', 'WEI', 'SYMBOL'],
@@ -345,11 +345,11 @@ contract('Strategicsale', function ([owner, wallet, ...purchasers]) {
         ['rest of cap', _ETH2.toFixed('wei'), _ETH2.toString(10)],
         ['cap', ethAmount.toFixed('wei'), ethAmount.toString(10)],
         ['', '', ''],
-        ['STON for test payment (0.03 ETH)', _STON1.toFixed('wei'), _STON1.toString(10)],
-        ['STON for rest of cap', _STON2.toFixed('wei'), _STON2.toString(10)],
-        ['STON for cap', tokenAmount.toFixed('wei'), tokenAmount.toString(10)],
+        ['PTON2 for test payment (0.03 ETH)', _PTON21.toFixed('wei'), _PTON21.toString(10)],
+        ['PTON2 for rest of cap', _PTON22.toFixed('wei'), _PTON22.toString(10)],
+        ['PTON2 for cap', tokenAmount.toFixed('wei'), tokenAmount.toString(10)],
         ['', '', ''],
-        ['Expected STON', expectedSTON.toFixed('wei'), expectedSTON.toString(10)],
+        ['Expected PTON2', expectedPTON2.toFixed('wei'), expectedPTON2.toString(10)],
       ];
 
       console.log('');
@@ -357,11 +357,11 @@ contract('Strategicsale', function ([owner, wallet, ...purchasers]) {
       console.log('-'.repeat(115));
       console.log(table(data, paymentConfig));
 
-      toBN(tokenAmount.toFixed('wei')).sub(toBN(expectedSTON.toFixed('wei'))).abs()
+      toBN(tokenAmount.toFixed('wei')).sub(toBN(expectedPTON2.toFixed('wei'))).abs()
         .should.be.bignumber.lte(e);
 
       totalSupply.should.be.bignumber.gte(
-        totalTransferedSTON.toFixed('wei'),
+        totalTransferedPTON2.toFixed('wei'),
         `${i}th purchaser cannot buy tokens more than total supply`,
       );
 
@@ -375,10 +375,10 @@ contract('Strategicsale', function ([owner, wallet, ...purchasers]) {
         purchaser: purchaser,
         beneficiary: purchaser,
         value: _ETH1.toFixed('wei'),
-        amount: _STON1.toFixed('wei'),
+        amount: _PTON21.toFixed('wei'),
       });
 
-      (await this.token.balanceOf(purchaser)).sub(toBN(_STON1.toFixed('wei'))).abs()
+      (await this.token.balanceOf(purchaser)).sub(toBN(_PTON21.toFixed('wei'))).abs()
         .should.be.bignumber.lte(e);
 
       const { logs: logs2 } = await this.sale.buyTokens(purchaser, { from: purchaser, value: _ETH2.toFixed('wei') });
@@ -387,7 +387,7 @@ contract('Strategicsale', function ([owner, wallet, ...purchasers]) {
         purchaser: purchaser,
         beneficiary: purchaser,
         value: _ETH2.toFixed('wei'),
-        // amount: _STON2.toFixed('wei'),
+        // amount: _PTON22.toFixed('wei'),
       });
 
       const purchserBalance = await this.token.balanceOf(purchaser);
@@ -397,7 +397,7 @@ contract('Strategicsale', function ([owner, wallet, ...purchasers]) {
 
       const result = [
         ['Funded ETH', ethAmount.toString(10)],
-        ['Trasnered STON', STON(purchserBalance.toString(10), 'wei').toString(10)],
+        ['Trasnered PTON2', PTON2(purchserBalance.toString(10), 'wei').toString(10)],
       ];
 
       console.log(table(result, summaryConfig));
@@ -405,7 +405,7 @@ contract('Strategicsale', function ([owner, wallet, ...purchasers]) {
       console.log();
 
       totalFundedETH = totalFundedETH.plus(ethAmount);
-      totalTransferedSTON = totalTransferedSTON.plus(STON(purchserBalance.toString(10), 'wei'));
+      totalTransferedPTON2 = totalTransferedPTON2.plus(PTON2(purchserBalance.toString(10), 'wei'));
     }
 
     console.log('Payments Summary');
@@ -413,8 +413,8 @@ contract('Strategicsale', function ([owner, wallet, ...purchasers]) {
 
     const summary = [
       ['Funded ETH', totalFundedETH.toString(10)],
-      ['Trasnered STON', totalTransferedSTON.toString(10)],
-      ['Trasnered STON (%)', (totalTransferedSTON.div(totalSupplySTON).times(STON('100'))).toFixed() + '%'],
+      ['Trasnered PTON2', totalTransferedPTON2.toString(10)],
+      ['Trasnered PTON2 (%)', (totalTransferedPTON2.div(totalSupplyPTON2).times(PTON2('100'))).toFixed() + '%'],
     ];
 
     console.log(table(summary, summaryConfig));

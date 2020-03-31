@@ -33,7 +33,6 @@ class Payment {
    * @param {String} caption
    */
   constructor (purchaser, ethAmount, tokenAmount, rate, caption = '') {
-    console.log(arguments);
     if (!isAddress(purchaser)) {
       throw new Error(`invalid purchaser address: ${purchaser}`);
     }
