@@ -13,7 +13,7 @@ const minCap = ether('200');
 const cap = ether('900');
 const wallet = '0xf35A0c48c970d5abFBC1B33096A83bFc87A4a82E';
 const decimal = new BN('18');
-const totalSupply = new BN('10').pow(decimal).mul(new BN('30000'));
+const totalSupply = ether('30000');
 
 module.exports = function (deployer) {
   if (!process.env.SEEDSALE) return;

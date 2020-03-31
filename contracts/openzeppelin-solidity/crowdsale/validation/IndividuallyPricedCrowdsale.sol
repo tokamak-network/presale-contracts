@@ -12,7 +12,7 @@ import "../../../ds/ds-math.sol";
 contract IndividuallyPricedCrowdsale is Crowdsale, CapperRole, DSMath {
     // using SafeMath for uint256;
 
-    // _prices should be a RAY value.
+    // _prices should be a WAD value.
     mapping(address => uint256) private _prices;
 
     event PriceSet(address indexed purchaser, uint256 price);
@@ -20,7 +20,7 @@ contract IndividuallyPricedCrowdsale is Crowdsale, CapperRole, DSMath {
     /**
      * @dev Sets a specific purchaser's price parameters.
      * @param purchaser Address to be priced
-     * @param price Price value in RAY
+     * @param price Price value in WAD
      */
     function setPrice(address purchaser, uint256 price) public onlyCapper {
         require(_prices[purchaser] == 0, "IndividuallyPricedCrowdsale: price was already set");
@@ -55,7 +55,6 @@ contract IndividuallyPricedCrowdsale is Crowdsale, CapperRole, DSMath {
     function _getTokenAmount(uint256 weiAmount) internal view returns (uint256) {
         uint256 price = _prices[msg.sender];
         uint256 pricedWeiAmount = wmul(price, weiAmount);
-        // uint256 pricedWeiAmount = ray2wad(rmul(price, wad2ray(weiAmount)));
         return super._getTokenAmount(pricedWeiAmount);
     }
 }
