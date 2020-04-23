@@ -1,5 +1,7 @@
-const Migrations = artifacts.require('Migrations');
+require('openzeppelin-test-helpers/configure')({ web3 });
 
-module.exports = function (deployer) {
-  deployer.deploy(Migrations);
+const Migrations = artifacts.require('./Migrations.sol');
+
+module.exports = function (deployer, network, accounts) {
+
 };

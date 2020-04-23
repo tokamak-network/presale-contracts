@@ -1,5 +1,5 @@
-const PrivateKeyProvider = require('truffle-privatekey-provider');
 require('dotenv').config();
+const PrivateKeyProvider = require('truffle-privatekey-provider');
 
 module.exports = {
   networks: {
@@ -14,8 +14,8 @@ module.exports = {
         return new PrivateKeyProvider(process.env.MAINNET_PRIVATE_KEY, process.env.MAINNET_JSONRPC);
       },
       network_id: 1, // eslint-disable-line camelcase
-      gasPrice: 15e9,
-      skipDryRun: true,
+      gasPrice: 8e9,
+      production: true,
     },
     coverage: {
       host: 'localhost',

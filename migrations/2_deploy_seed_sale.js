@@ -1,5 +1,3 @@
-require('openzeppelin-test-helpers/configure')({ web3 });
-
 const { BN, constants, ether } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
@@ -15,7 +13,7 @@ const wallet = '0xf35A0c48c970d5abFBC1B33096A83bFc87A4a82E';
 const decimal = new BN('18');
 const totalSupply = ether('30000');
 
-module.exports = function (deployer) {
+module.exports = async function (deployer) {
   if (!process.env.SEEDSALE) return;
 
   let seedToken, seedSale;

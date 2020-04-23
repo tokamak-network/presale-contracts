@@ -8,10 +8,10 @@
   },
   "scripts": {
     "coverage": "scripts/coverage.sh",
-    "deploy:seedsale": "SEEDSALE=true truffle deploy",
-    "deploy:privatesale": "PRIVATESALE=true truffle deploy",
-    "deploy:private2sale": "PRIVATE2SALE=true truffle deploy",
-    "deploy:Strategicsale": "STRATEGICSALE=true truffle deploy",
+    "deploy:seedsale": "SEEDSALE=true truffle migrate",
+    "deploy:privatesale": "PRIVATESALE=true truffle migrate",
+    "deploy:private2sale": "PRIVATE2SALE=true truffle migrate",
+    "deploy:Strategicsale": "STRATEGICSALE=true truffle migrate",
     "whitlist:privatesale": "truffle exec scripts/privatesale-kyc.js",
     "lint:js": "eslint .",
     "lint:js:fix": "eslint . --fix",
@@ -42,7 +42,7 @@
     "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
     "solium": "^1.2.4",
     "table": "^5.4.6",
-    "truffle": "^5.0.42",
+    "truffle": "^5.1.22",
     "truffle-privatekey-provider": "^1.3.0"
   }
 }

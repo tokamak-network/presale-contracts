@@ -8,7 +8,7 @@ const wallet = '0xf35A0c48c970d5abFBC1B33096A83bFc87A4a82E';
 const decimal = new BN('18');
 const totalSupply = ether('224000.1');
 
-module.exports = function (deployer) {
+module.exports = async function (deployer) {
   if (!process.env.PRIVATESALE) return;
 
   let token, sale;
