@@ -99,10 +99,43 @@ const payments = [
   },
   // Mr Jeon (2)
   {
+    name: 'Mr Jeon (2)',
     purchaser: '0x9f42c2886bf25fe99d5df51ee0a653903c92131a',
     _ETH: ETH('301.98707495319200000'),
     _PTON: PTON('4000.00000301987000'),
     _PTON_ETH: PTON_ETH('13.245600000000'),
+  },
+  // 100&100(추가)
+  {
+    name: '100&100(추가)',
+    purchaser: '0xe300edA0ED3E6D1C89B1568d47b8D5377FD21327',
+    _ETH: ETH('529.85746834101600000'),
+    _PTON: PTON('8000.00000000000000'),
+    _PTON_ETH: PTON_ETH('15.098400000010'),
+  },
+  // GTR(추가1)
+  {
+    name: 'GTR(추가1)',
+    purchaser: '0x1e648B44697351a3dCBdE89D41Bc21E3497Aa04E',
+    _ETH: ETH('100.67291898479300000'),
+    _PTON: PTON('1520.00000000000000'),
+    _PTON_ETH: PTON_ETH('15.098400000010'),
+  },
+  // GTR(추가2)
+  {
+    name: 'GTR(추가2)',
+    purchaser: '0xBA928D5ABD577E3024880b1F00fca3033BCa89C4',
+    _ETH: ETH('164.25581518571500000'),
+    _PTON: PTON('2480.00000000000000'),
+    _PTON_ETH: PTON_ETH('15.098400000010'),
+  },
+  // 블로코어(추가)
+  {
+    name: '블로코어(추가)',
+    purchaser: '0x56Df45D0c4aE9d11aD48A51921398675ca82e355',
+    _ETH: ETH('105.97149366820300000'),
+    _PTON: PTON('1600.00000000000000'),
+    _PTON_ETH: PTON_ETH('15.098400000010'),
   },
 ];
 
@@ -412,9 +445,11 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
       const payment = payments[i];
 
       const {
+        purchaser: originalPurchaser,
         _ETH,
         _PTON_ETH,
         _PTON,
+        name = '',
       } = payment;
 
       const _ETH1 = ETH('0.03'); // test payment (0.03 ETH)
@@ -441,9 +476,11 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
       ];
 
       console.log('');
-      console.log(`Test Payment#${i}`);
+      console.log(`Test Payment#${i} ${name}`);
       console.log('-'.repeat(115));
       console.log(table(data, paymentConfig));
+      console.log(`${name}: setCapAndPrice("${originalPurchaser}", ${_ETH.toFixed('wei')}, ${_PTON_ETH.toFixed('wei')})`);
+      console.log();
 
       // check expected PTON amount
       // (_PTON.toFixed('wei')).should.be.equal(_ETH.times(_PTON_ETH).toFixed('wei'));
@@ -500,9 +537,12 @@ contract('Privatesale', function ([owner, wallet, ...purchasers]) {
     console.log('Payments Summary');
     console.log('-'.repeat(115));
 
+    const remains = PTON(await this.token.balanceOf(this.sale.address), 'wei');
+
     const summary = [
       ['Funded ETH', totalFundedETH.toString(10)],
       ['Trasnered PTON', totalTransferedPTON.toString(10)],
+      ['Remained PTON', remains.toString(10)],
       ['Trasnered PTON (%)', (totalTransferedPTON.div(totalSupplyPTON).times(PTON('100'))).toFixed() + '%'],
     ];
 
