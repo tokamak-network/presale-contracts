@@ -137,6 +137,62 @@ const payments = [
     _PTON: PTON('1600.00000000000000'),
     _PTON_ETH: PTON_ETH('15.098400000010'),
   },
+  // A님
+  {
+    name: 'A님',
+    purchaser: '0x5b2373710F9223b6DB69eb934EA1e90cc41cf650',
+    _ETH: ETH('34.16449951557800000'),
+    _PTON: PTON('536.000000000000000'),
+    _PTON_ETH: PTON_ETH('15.688800100000'),
+  },
+  // B님
+  {
+    name: 'B님',
+    purchaser: '0x986D9bB496AbD602ffbab9291a2621834f0f03a3',
+    _ETH: ETH('34.16449951557800000'),
+    _PTON: PTON('536.000000000000000'),
+    _PTON_ETH: PTON_ETH('15.688800100000'),
+  },
+  // C님
+  {
+    name: 'C님',
+    purchaser: '0x3d827286780dBc00ACE4ee416aD8a4C5dAAC972C',
+    _ETH: ETH('34.16449951557800000'),
+    _PTON: PTON('536.000000000000000'),
+    _PTON_ETH: PTON_ETH('15.688800100000'),
+  },
+  // D님
+  {
+    name: 'D님',
+    purchaser: '0x85697B276dcD09e3781e1A75b1057E1296773Dd9',
+    _ETH: ETH('34.16449951557800000'),
+    _PTON: PTON('536.000000000000000'),
+    _PTON_ETH: PTON_ETH('15.688800100000'),
+  },
+  // E님
+  {
+    name: 'E님',
+    purchaser: '0x6a4b25C58173976c4a2BD2151028C3759A1EaDD3',
+    _ETH: ETH('22.43638774157360000'),
+    _PTON: PTON('352.00000000000000'),
+    _PTON_ETH: PTON_ETH('15.688800100000'),
+  },
+  // F님
+  {
+    name: 'F님',
+    purchaser: '0x6855B8EcF02F27EcdeFf72f409C9CCB631009CB8',
+    _ETH: ETH('22.43638774157360000'),
+    _PTON: PTON('352.00000000000000'),
+    _PTON_ETH: PTON_ETH('15.688800100000'),
+  },
+  // G님
+  {
+    name: 'G님',
+    purchaser: '0x4291E67a9746dC7805622a10176635d3790AcDD1',
+    _ETH: ETH('22.43638774157360000'),
+    _PTON: PTON('352.00000000000000'),
+    _PTON_ETH: PTON_ETH('15.688800100000'),
+  },
 ];
 
 contract('Privatesale', function ([owner, wallet, ...purchasers]) {
