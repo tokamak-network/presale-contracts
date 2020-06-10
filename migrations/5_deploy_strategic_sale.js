@@ -6,7 +6,7 @@ const Strategicsale = artifacts.require('Strategicsale');
 
 const wallet = '0xf35A0c48c970d5abFBC1B33096A83bFc87A4a82E';
 const decimal = new BN('18');
-const totalSupply = ether('20000.1');
+const totalSupply = ether('84000.1');
 
 module.exports = async function (deployer) {
   if (!process.env.STRATEGICSALE) return;
