@@ -1,11 +1,12 @@
-const { BN, constants, ether } = require('openzeppelin-test-helpers');
-const { ZERO_ADDRESS } = constants;
+const { BN, toWei } = require('web3-utils');
 
 const VestingToken = artifacts.require('VestingToken');
 const Strategicsale = artifacts.require('Strategicsale');
 
+const ether = n => new BN(toWei(n, 'ether'));
+
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 const wallet = '0xf35A0c48c970d5abFBC1B33096A83bFc87A4a82E';
-const decimal = new BN('18');
 const totalSupply = ether('84000.1');
 
 module.exports = async function (deployer) {
