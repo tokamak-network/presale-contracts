@@ -9,12 +9,9 @@ module.exports = {
       network_id: '*', // eslint-disable-line camelcase
     },
     mainnet: {
-      provider: () => {
-        console.log('Connecting ' + process.env.MAINNET_JSONRPC);
-        return new PrivateKeyProvider(process.env.MAINNET_PRIVATE_KEY, process.env.MAINNET_JSONRPC);
-      },
+      provider: () => new PrivateKeyProvider(process.env.MAINNET_PRIVATE_KEY, process.env.MAINNET_JSONRPC),
       network_id: 1, // eslint-disable-line camelcase
-      gasPrice: 8e9,
+      gasPrice: 30e9,
       production: true,
     },
     coverage: {
