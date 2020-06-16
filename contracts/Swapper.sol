@@ -2,9 +2,10 @@ pragma solidity ^0.5.0;
 
 import "./openzeppelin-solidity/token/ERC20/ERC20Mintable.sol";
 import "./openzeppelin-solidity/math/SafeMath.sol";
+import "./openzeppelin-solidity/ownership/Secondary.sol";
 import "./VestingToken.sol";
 
-contract Swapper {
+contract Swapper is Secondary {
     using SafeMath for uint256;
 
     uint256 constant public SEED_RATE = 1;
@@ -21,7 +22,7 @@ contract Swapper {
 
     ERC20Mintable public _token;
 
-    event Swapped(address account, uint256 unreleased, uint256 minted);
+    event Swapped(address account, uint256 unreleased, uint256 transferred);
 
     constructor (ERC20Mintable token, address seedTON, address privateTON, address strategicTON) public {
         _token = token;
@@ -31,32 +32,36 @@ contract Swapper {
         STRATEGIC_TON = strategicTON;
     }
 
-    function swap (VestingToken saleToken) external returns (bool) {
+    function swap (VestingToken vestingToken) external returns (bool) {
         require(
-            address(saleToken) == SEED_TON ||
-            address(saleToken) == PRIVATE_TON ||
-            address(saleToken) == STRATEGIC_TON,
+            address(vestingToken) == SEED_TON ||
+            address(vestingToken) == PRIVATE_TON ||
+            address(vestingToken) == STRATEGIC_TON,
             "Swapper: not valid sale token address"
         );
 
-        uint256 rate = rate(address(saleToken));
-        uint256 unreleased = saleToken.destroyReleasableTokens(msg.sender);
+        uint256 rate = rate(address(vestingToken));
+        uint256 unreleased = vestingToken.destroyReleasableTokens(msg.sender);
 
-        uint256 mintAmount = unreleased.mul(rate);
-        _token.mint(msg.sender, mintAmount);
+        uint256 amount = unreleased.mul(rate);
+        _token.transfer(msg.sender, amount);
 
-        emit Swapped(msg.sender, unreleased, mintAmount);
+        emit Swapped(msg.sender, unreleased, amount);
         return true;
     }
 
-    function rate (address saleToken) public view returns (uint256) {
-        if (saleToken == SEED_TON) return SEED_RATE;
-        else if (saleToken == PRIVATE_TON) return PRIVATE_RATE;
-        else if (saleToken == STRATEGIC_TON) return STRATEGIC_RATE;
+    function rate (address vestingToken) public view returns (uint256) {
+        if (vestingToken == SEED_TON) return SEED_RATE;
+        else if (vestingToken == PRIVATE_TON) return PRIVATE_RATE;
+        else if (vestingToken == STRATEGIC_TON) return STRATEGIC_RATE;
         else return 0;
     }
 
-    function changeController (VestingToken saleToken, address payable newController) external {
-        saleToken.changeController(newController);
+    function releasableAmount(VestingToken vestingToken, address beneficiary) external view returns (uint256) {
+        return vestingToken.releasableAmount(beneficiary);
+    }
+
+    function changeController (VestingToken vestingToken, address payable newController) external onlyPrimary {
+        vestingToken.changeController(newController);
     }
 }
