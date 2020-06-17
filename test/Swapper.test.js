@@ -49,8 +49,6 @@ contract('Swapper', function ([controller, owner, investor, ...others]) {
     await seedTON.changeController(swapper.address);
     await privateTON.changeController(swapper.address);
     await strategicTON.changeController(swapper.address);
-
-    await time.increaseTo(start.add(cliffDuration));
   });
 
   describe('unrelated with swap', function () {
