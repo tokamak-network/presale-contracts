@@ -41,7 +41,7 @@ contract('VestingToken', function ([_, controller, ...holders]) {
     it('should be releasable token amount is 0', async function () {
       await this.token.generateTokens(holders[0], amount, { from: controller });
       (await this.token.balanceOf(holders[0])).should.be.bignumber.equal(amount);
-      (await this.token.releasableAmount(holders[0], amount, { from: holders[0] }))
+      (await this.token.releasableAmount(holders[0], { from: holders[0] }))
         .should.be.bignumber.equal(new BN('0'));
     });
 
