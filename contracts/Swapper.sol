@@ -23,6 +23,7 @@ contract Swapper is Secondary {
     ERC20Mintable public _token;
 
     event Swapped(address account, uint256 unreleased, uint256 transferred);
+    event Withdrew(address recipient, uint256 amount);
 
     constructor (ERC20Mintable token, address seedTON, address privateTON, address strategicTON) public {
         _token = token;
@@ -63,5 +64,10 @@ contract Swapper is Secondary {
 
     function changeController (VestingToken vestingToken, address payable newController) external onlyPrimary {
         vestingToken.changeController(newController);
+    }
+
+    function withdraw(address payable recipient, uint amount256) external onlyPrimary {
+        _token.transfer(recipient, amount256);
+        emit Withdrew(recipient, amount256);
     }
 }
