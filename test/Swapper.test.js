@@ -18,7 +18,7 @@ const strategicRate = new BN('3');
 let swapper, token, seedTON, privateTON, strategicTON; // contract instance
 let start, cliffDuration, duration;
 
-contract('Swapper', function ([controller, owner, investor, ...others]) {
+contract('Swapper basis', function ([controller, owner, investor, ...others]) {
   beforeEach(async function () {
     seedTON = await VestingToken.new(
       ZERO_ADDRESS, ZERO_ADDRESS, 0, 'SEED TON', 18, 'STON', true, { from: controller }
@@ -149,6 +149,7 @@ contract('Swapper', function ([controller, owner, investor, ...others]) {
         transferred: expectedTransferred,
       });
       (await token.balanceOf(investor)).should.be.bignumber.equal(expectedTransferred);
+      (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(new BN('0'));
     });
 
     it('can swap with private ton', async function () {
@@ -163,6 +164,7 @@ contract('Swapper', function ([controller, owner, investor, ...others]) {
         transferred: expectedTransferred,
       });
       (await token.balanceOf(investor)).should.be.bignumber.equal(expectedTransferred);
+      (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(new BN('0'));
     });
 
     it('can swap with strategic ton', async function () {
@@ -199,6 +201,164 @@ contract('Swapper', function ([controller, owner, investor, ...others]) {
 
       (await token.balanceOf(investor)).should.be.bignumber.equal(new BN('0'));
       (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(before);
+    });
+  });
+});
+contract('Swapper scenario', function ([controller, owner, investor, ...others]) {
+  beforeEach(async function () {
+    seedTON = await VestingToken.new(
+      ZERO_ADDRESS, ZERO_ADDRESS, 0, 'SEED TON', 18, 'STON', true, { from: controller }
+    );
+    privateTON = await VestingToken.new(
+      ZERO_ADDRESS, ZERO_ADDRESS, 0, 'PRIVATE TON', 18, 'PTON', true, { from: controller }
+    );
+    strategicTON = await VestingToken.new(
+      ZERO_ADDRESS, ZERO_ADDRESS, 0, 'STRATEGIC TON', 18, 'STTON', true, { from: controller }
+    );
+    token = await TON.new('Tokamak Network Token', 'TON', 18, { from: owner });
+    swapper =
+      await Swapper.new(token.address, { from: owner });
+    await swapper.updateRate(seedTON.address, seedRate, {from: owner});
+    await swapper.updateRate(privateTON.address, privateRate, {from: owner});
+    await swapper.updateRate(strategicTON.address, strategicRate, {from: owner});
+
+    await seedTON.generateTokens(investor, amount);
+    await privateTON.generateTokens(investor, amount);
+    await strategicTON.generateTokens(investor, amount);
+    await token.mint(swapper.address, totalSupply);
+
+    (await seedTON.initiated()).should.be.equal(false);
+    (await privateTON.initiated()).should.be.equal(false);
+    (await strategicTON.initiated()).should.be.equal(false);
+  });
+
+  describe('before initiation', function () {
+    it('should get zero releasable amount', async function () {
+      (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(new BN(0));
+      (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(new BN(0));
+      (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(new BN(0));
+    });
+    it('cannot initiate by others', async function () {
+      start = (await time.latest()).add(time.duration.days(1));
+      cliffDuration = time.duration.years(1);
+      duration = time.duration.years(2);
+
+      await expectRevert(
+        seedTON.initiate(start, cliffDuration, duration, {from: others[0]}),
+        "Controlled: caller is not the controller"
+      );
+      await expectRevert(
+        privateTON.initiate(start, cliffDuration, duration, {from: others[0]}),
+        "Controlled: caller is not the controller"
+      );
+      await expectRevert(
+        strategicTON.initiate(start, cliffDuration, duration, {from: others[0]}),
+        "Controlled: caller is not the controller"
+      );
+    });
+    it('should fail swapping', async function () {
+      await expectRevert(
+        swapper.swap(seedTON.address, { from: investor }),
+        "VestingToken: cannot execute before initiation"
+      );
+      await expectRevert(
+        swapper.swap(privateTON.address, { from: investor }),
+        "VestingToken: cannot execute before initiation"
+      );
+      await expectRevert(
+        swapper.swap(strategicTON.address, { from: investor }),
+        "VestingToken: cannot execute before initiation"
+      );
+    });
+  });
+  describe('after calling initiation, before start', function () {
+    beforeEach(async function () {
+      start = (await time.latest()).add(time.duration.days(1));
+      cliffDuration = time.duration.years(1);
+      duration = time.duration.years(2);
+
+      await seedTON.initiate(start, cliffDuration, duration);
+      await privateTON.initiate(start, cliffDuration, duration);
+      await strategicTON.initiate(start, cliffDuration, duration);
+
+      await seedTON.changeController(swapper.address);
+      await privateTON.changeController(swapper.address);
+      await strategicTON.changeController(swapper.address);
+
+    });
+    it('should get initiated status', async function () {
+      (await seedTON.initiated()).should.be.equal(true);
+      (await privateTON.initiated()).should.be.equal(true);
+      (await strategicTON.initiated()).should.be.equal(true);
+    });
+    it('should get zero releasable amount', async function () {
+      (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(new BN(0));
+      (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(new BN(0));
+      (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(new BN(0));
+    });
+    it('should fail swapping', async function () {
+      await expectRevert(
+        swapper.swap(seedTON.address, { from: investor }),
+        "VestingToken: no tokens are due"
+      );
+      await expectRevert(
+        swapper.swap(privateTON.address, { from: investor }),
+        "VestingToken: no tokens are due"
+      );
+      await expectRevert(
+        swapper.swap(strategicTON.address, { from: investor }),
+        "VestingToken: no tokens are due"
+      );
+    });
+    context('after start, before cliff', function () {
+      beforeEach(async function () {
+        currentTime = start.add(cliffDuration).sub(time.duration.days(1))
+        await time.increaseTo(currentTime);
+      });
+      it('should get zero releasable amount', async function () {
+        (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(new BN(0));
+        (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(new BN(0));
+        (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(new BN(0));
+      });
+      it('should fail swapping', async function () {
+        await expectRevert(
+          swapper.swap(seedTON.address, { from: investor }),
+          "VestingToken: no tokens are due"
+        );
+        await expectRevert(
+          swapper.swap(privateTON.address, { from: investor }),
+          "VestingToken: no tokens are due"
+        );
+        await expectRevert(
+        swapper.swap(strategicTON.address, { from: investor }),
+            "VestingToken: no tokens are due"
+        );
+      });
+      context('after cliff, before end', function () {
+        beforeEach(async function () {
+          currentTime = currentTime.add(time.duration.days(2));
+          await time.increaseTo(currentTime);
+        });
+        it('should get releasable amount', async function () {
+          gotSeedRate = await swapper.rate(seedTON.address);
+          gotPrivateRate = await swapper.rate(privateTON.address);
+          gotStrategicRate = await swapper.rate(strategicTON.address);
+
+          expected1 = amount.mul(currentTime.sub(start)).div(duration);
+          (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(expected1);
+          (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(expected1);
+          (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(expected1);
+
+          currentTime = currentTime.add(time.duration.days(30));
+          await time.increaseTo(currentTime);
+          
+          expected2 = amount.mul(currentTime.sub(start)).div(duration);
+          expected2.should.be.bignumber.not.equal(expected1);
+          (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(expected2);
+          (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(expected2);
+          (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(expected2);
+        });
+      });
     });
   });
 });
