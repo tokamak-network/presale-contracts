@@ -31,7 +31,10 @@ contract('Swapper', function ([controller, owner, investor, ...others]) {
     );
     token = await TON.new('Tokamak Network Token', 'TON', 18, { from: owner });
     swapper =
-      await Swapper.new(token.address, seedTON.address, privateTON.address, strategicTON.address, { from: owner });
+      await Swapper.new(token.address, { from: owner });
+    await swapper.updateRate(seedTON.address, seedRate, {from: owner});
+    await swapper.updateRate(privateTON.address, privateRate, {from: owner});
+    await swapper.updateRate(strategicTON.address, strategicRate, {from: owner});
 
     await seedTON.generateTokens(investor, amount);
     await privateTON.generateTokens(investor, amount);
@@ -49,6 +52,20 @@ contract('Swapper', function ([controller, owner, investor, ...others]) {
     await seedTON.changeController(swapper.address);
     await privateTON.changeController(swapper.address);
     await strategicTON.changeController(swapper.address);
+  });
+
+  describe('related with rate', function () {
+    it('should be correct rate', async function () {
+      (await swapper.rate(seedTON.address)).should.be.bignumber.equal(new BN(seedRate));
+      (await swapper.rate(privateTON.address)).should.be.bignumber.equal(new BN(privateRate));
+      (await swapper.rate(strategicTON.address)).should.be.bignumber.equal(new BN(strategicRate));
+    });
+    it('should fail updating rate', async function () {
+      await expectRevert(
+        swapper.updateRate(seedTON.address, seedRate, {from: others[0]}),
+        'Secondary: caller is not the primary account'
+      );
+    });
   });
 
   describe('unrelated with swap', function () {
@@ -161,6 +178,15 @@ contract('Swapper', function ([controller, owner, investor, ...others]) {
       });
       (await token.balanceOf(investor)).should.be.bignumber.equal(expectedTransferred);
       (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(new BN('0'));
+    });
+    it('cannot swap unregistered token', async function () {
+      tempTON = await VestingToken.new(
+        ZERO_ADDRESS, ZERO_ADDRESS, 0, 'TEMP TON', 18, 'TTON', true, { from: controller }
+      );
+      await expectRevert(
+        swapper.swap(tempTON.address, { from: investor }),
+        "Swapper: not valid sale token address"
+      );
     });
     it('should revert releasable amount if transaction fail', async function () {
       await swapper.withdraw(others[0], totalSupply, { from: owner });
