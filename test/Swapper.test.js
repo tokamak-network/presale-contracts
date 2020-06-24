@@ -284,7 +284,6 @@ contract('Swapper scenario', function ([controller, owner, investor, ...others])
       await seedTON.changeController(swapper.address);
       await privateTON.changeController(swapper.address);
       await strategicTON.changeController(swapper.address);
-
     });
     it('should get initiated status', async function () {
       (await seedTON.initiated()).should.be.equal(true);
@@ -339,26 +338,162 @@ contract('Swapper scenario', function ([controller, owner, investor, ...others])
           currentTime = currentTime.add(time.duration.days(2));
           await time.increaseTo(currentTime);
         });
-        it('should get releasable amount', async function () {
+        it('can get releasable amount', async function () {
           gotSeedRate = await swapper.rate(seedTON.address);
           gotPrivateRate = await swapper.rate(privateTON.address);
           gotStrategicRate = await swapper.rate(strategicTON.address);
 
-          expected1 = amount.mul(currentTime.sub(start)).div(duration);
-          (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(expected1);
-          (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(expected1);
-          (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(expected1);
-
-          currentTime = currentTime.add(time.duration.days(30));
+          let lastTime = currentTime;
+          let lastValue = new BN(0);
+          let i = 0;
+          for (; currentTime < start.add(duration);
+            currentTime = currentTime.add(time.duration.days(30))) {
+            await time.increaseTo(currentTime);
+            expected = amount.mul(currentTime.sub(start)).div(duration);
+            expected.should.be.bignumber.least(lastValue);
+            (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(expected);
+            (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(expected);
+            (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(expected);
+            lastValue = expected;
+            i++;
+          }
+          i.should.be.equal(13);
           await time.increaseTo(currentTime);
-          
-          expected2 = amount.mul(currentTime.sub(start)).div(duration);
-          expected2.should.be.bignumber.not.equal(expected1);
-          (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(expected2);
-          (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(expected2);
-          (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(expected2);
+          (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(amount);
+          (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(amount);
+          (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(amount);
+        });
+        it('can swap', async function () {
+          const rate = await swapper.rate(seedTON.address);
+          const releasableAmount = await swapper.releasableAmount(seedTON.address, investor);
+          const expectedTransferred = releasableAmount.mul(rate);
+          //const expectedTransferred = amount.mul(rate);
+
+          const { logs } = await swapper.swap(seedTON.address, { from: investor });
+
+          expectEvent.inLogs(logs, 'Swapped', {
+            account: investor,
+            unreleased: releasableAmount,
+            transferred: expectedTransferred,
+          });
+          (await token.balanceOf(investor)).should.be.bignumber.equal(expectedTransferred);
+          (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(new BN('0'));
+        });
+        it('cannot swap by others', async function () {
+          await expectRevert(
+            swapper.swap(seedTON.address, { from: others[0] }),
+            "VestingToken: no tokens are due"
+          );
+        });
+        context('after end', function () {
+          beforeEach(async function () {
+            currentTime = currentTime.add(duration);
+            await time.increaseTo(currentTime);
+          });
+          it('can swap', async function () {
+            const rate = await swapper.rate(seedTON.address);
+            const expectedTransferred = amount.mul(rate);
+            (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(amount);
+
+            const { logs } = await swapper.swap(seedTON.address, { from: investor });
+
+            expectEvent.inLogs(logs, 'Swapped', {
+              account: investor,
+              unreleased: amount,
+              transferred: expectedTransferred,
+            });
+            (await token.balanceOf(investor)).should.be.bignumber.equal(expectedTransferred);
+            (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(new BN('0'));
+          });
         });
       });
+    });
+  });
+  describe('after start, zero cliff, before end', function () {
+    beforeEach(async function () {
+      start = (await time.latest()).add(time.duration.days(1));
+      cliffDuration = 0;
+      duration = time.duration.years(2);
+
+      await seedTON.initiate(start, cliffDuration, duration);
+      await privateTON.initiate(start, cliffDuration, duration);
+      await strategicTON.initiate(start, cliffDuration, duration);
+
+      await seedTON.changeController(swapper.address);
+      await privateTON.changeController(swapper.address);
+      await strategicTON.changeController(swapper.address);
+
+      currentTime = start.add(time.duration.days(1));
+      await time.increaseTo(currentTime);
+    });
+    it('should get initiated status', async function () {
+      (await seedTON.initiated()).should.be.equal(true);
+      (await privateTON.initiated()).should.be.equal(true);
+      (await strategicTON.initiated()).should.be.equal(true);
+    });
+    it('can get releasable amount', async function () {
+      //currentTime = currentTime.add(time.duration.days(2));
+      //await time.increaseTo(currentTime);
+
+      gotSeedRate = await swapper.rate(seedTON.address);
+      gotPrivateRate = await swapper.rate(privateTON.address);
+      gotStrategicRate = await swapper.rate(strategicTON.address);
+
+      let lastTime = currentTime;
+      let lastValue = new BN(0);
+      let i = 0;
+      for (; currentTime < start.add(duration);
+        currentTime = currentTime.add(time.duration.days(30))) {
+        await time.increaseTo(currentTime);
+        expected = amount.mul(currentTime.sub(start)).div(duration);
+        expected.should.be.bignumber.least(lastValue);
+        (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(expected);
+        (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(expected);
+        (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(expected);
+        lastValue = expected;
+        i++;
+      }
+      i.should.be.equal(25);
+      await time.increaseTo(currentTime);
+      (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(amount);
+      (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(amount);
+      (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(amount);
+    });
+    it('can swap with seed ton', async function () {
+      let lastTokenBalance = new BN(0);
+      let i = 0;
+      const rate = await swapper.rate(seedTON.address);
+      for (; currentTime < start.add(duration);
+        currentTime = currentTime.add(time.duration.days(30))) {
+        await time.increaseTo(currentTime);
+        const releasableAmount = await swapper.releasableAmount(seedTON.address, investor);
+        const expectedTransferred = releasableAmount.mul(rate);
+
+        const { logs } = await swapper.swap(seedTON.address, { from: investor });
+
+        expectEvent.inLogs(logs, 'Swapped', {
+          account: investor,
+          unreleased: releasableAmount,
+          transferred: expectedTransferred,
+        });
+        lastTokenBalance = lastTokenBalance.add(expectedTransferred);
+        (await token.balanceOf(investor)).should.be.bignumber.equal(lastTokenBalance);
+        (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(new BN('0'));
+        i++;
+      }
+      currentTime = currentTime.add(time.duration.days(30));
+      await time.increaseTo(currentTime);
+      i.should.be.equal(25);
+      const releasableAmount = await swapper.releasableAmount(seedTON.address, investor);
+      const expectedTransferred = releasableAmount.mul(rate);
+      const { logs } = await swapper.swap(seedTON.address, { from: investor });
+      expectEvent.inLogs(logs, 'Swapped', {
+        account: investor,
+        unreleased: releasableAmount,
+        transferred: expectedTransferred,
+      });
+      (await token.balanceOf(investor)).should.be.bignumber.equal(amount.mul(rate));
+      (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(new BN('0'));
     });
   });
 });
