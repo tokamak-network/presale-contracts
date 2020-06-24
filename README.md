@@ -70,4 +70,22 @@ development_daemon: {
 ## Files
 
 test_accounts.json : address information.   
-deployed.json : Deployed contract address information. This is generated after token deployment.
+```
+{
+    "owner": "0xDf08F82De32B8d460adbE8D72043E3a7e25A3B39",
+    "holder1": "0x6704Fbfcd5Ef766B287262fA2281C105d57246a6",
+    "holder2": "0x9E1Ef1eC212F5DFfB41d35d9E5c14054F26c6560",
+    "holder3": "0xce42bdB34189a93c55De250E011c68FaeE374Dd3",
+    "holder4": "0x97A3FC5Ee46852C1Cf92A97B7BaD42F2622267cC",
+    "holder5": "0xB9dcBf8A52Edc0C8DD9983fCc1d97b1F5d975Ed7",
+    "holder6": "0x26064a2E2b568D9A6D01B93D039D1da9Cf2A58CD",
+    "holder7": "0xe84Da28128a48Dd5585d1aBB1ba67276FdD70776",
+    "holder8": "0xCc036143C68A7A9a41558Eae739B428eCDe5EF66",
+    "holder9": "0xE2b3204F29Ab45d5fd074Ff02aDE098FbC381D42"
+}
+```   
+deployed.json : Deployed contract address information. This is generated after token deployment.   
+ex)
+```
+{"VestingTokenAddress1":"0x0f5Ea0A652E851678Ebf77B69484bFcD31F9459B","VestingTokenAddress2":"0x6732c278C58FC90542cce498981844A073D693d7","VestingTokenAddress3":"0x5baB00b1582B170DBAE7557586A29BA9EeA6f55b","VestingTokenAddress5":"0x3d627fE11843eF6b3D5EC6683D53BD9822696Ef6","TON":"0x254C1eAE847823B664D1Acb1BdfE5e19172D8336","Swapper":"0x7DCC8D20Ff08A8cd50464544139aF34abC1384fB"}
+```
