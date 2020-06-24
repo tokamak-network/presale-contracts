@@ -19,7 +19,8 @@
     "lint:sol:fix": "solium -d . --fix",
     "lint": "npm run lint:js && npm run lint:sol",
     "lint:fix": "npm run lint:js:fix && npm run lint:sol:fix",
-    "test": "scripts/test.sh"
+    "test": "scripts/test.sh",
+    "test_daemon": "DAEMONTEST=true scripts/test_daemon.sh"
   },
   "keywords": [],
   "author": "",
