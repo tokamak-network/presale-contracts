@@ -126,3 +126,15 @@ ex)
 ```
 {"VestingTokenAddress1":"0x0f5Ea0A652E851678Ebf77B69484bFcD31F9459B","VestingTokenAddress2":"0x6732c278C58FC90542cce498981844A073D693d7","VestingTokenAddress3":"0x5baB00b1582B170DBAE7557586A29BA9EeA6f55b","VestingTokenAddress5":"0x3d627fE11843eF6b3D5EC6683D53BD9822696Ef6","TON":"0x254C1eAE847823B664D1Acb1BdfE5e19172D8336","Swapper":"0x7DCC8D20Ff08A8cd50464544139aF34abC1384fB"}
 ```
+
+# Information
+
+## releasableAmount result
+* before initiate(before a) : 0
+* after initiate, before start(a~b) : 0
+* after start, before cliff(b~c) : 0
+* after start, zero cliff, before duration(before d, b~c period is zero) : vested_amount * (block_timestamp - start_timestamp) / duration - released_amount
+* after cliff, before duration(c~d) : vested_amount * (block_timestamp - start_timestamp) / duration - released_amount
+* after duration(after d) : vested_amount - released_amount
+
+![alt text](https://s3.us-west-2.amazonaws.com/secure.notion-static.com/e358ca29-7a13-4974-8e1f-19850d3adb73/Untitled.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAT73L2G45O3KS52Y5%2F20200625%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20200625T035100Z&X-Amz-Expires=86400&X-Amz-Signature=80d1c5f7383f28aa5448d153e086a5aa8b1bf8bbb9508b9c3062631c779ea028&X-Amz-SignedHeaders=host&response-content-disposition=filename%20%3D%22Untitled.png%22)
