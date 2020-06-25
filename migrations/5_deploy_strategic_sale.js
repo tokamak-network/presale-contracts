@@ -34,7 +34,7 @@ module.exports = async function (deployer) {
         console.error(e);
         throw e;
       });
-  } else if (process.env.STRATEGICSALE) {
+  } else if (process.env.DAEMONTEST) {
     let token;
     await deployer.deploy(VestingToken,
       ZERO_ADDRESS,
