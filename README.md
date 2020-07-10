@@ -17,14 +17,14 @@
 ## Contracts (deployed in rinkeby)
 ```
 token:
-    "VestingTokenAddress1":"0x999cd9f58C9C4283f94c1C66b3f65CE1130889E3", swap rate : 1
-    "VestingTokenAddress2":"0x90F0AB1EA35a98176e82932bDf01A0a0FcA2A2Ee", swap rate : 2
-    "VestingTokenAddress3":"0x059572D593C0d84dfEE1662061344615FECb6486", swap rate : 3
-    "VestingTokenAddress4":"0x9611aEee8174687a614C1E3FA22806a6410e2953", swap rate : 4
-    "VestingTokenAddress5":"0x50f27d040D24B51d7E0d39122C2E367228cC2D2A", swap rate : 5
-    "VestingTokenAddress6":"0x81ED96D20244D83Aa8226469e145c7589eDf8012", swap rate : 6
-    "TON":"0xceBc1eBcAFc7dB4F5A6848554F385aEa2Da86c09",
-    "Swapper":"0x4d678902A155bcd40A061410E85B1614dd8E314A"
+    "VestingTokenAddress1":"0xe7416e9286188AC82E8bc0987fFc639D95437Eb9", swap rate : 1
+    "VestingTokenAddress2":"0xBc7bE5d4E4fFa69AFC560C02F1C62213d7401013", swap rate : 2
+    "VestingTokenAddress3":"0xB291b498127Bcc4DA5521F942e4a3960c3Cf09Fd", swap rate : 3
+    "VestingTokenAddress4":"0x67378C8Cd3EB79d73E3301079cfc5569bB41eE10", swap rate : 4
+    "VestingTokenAddress5":"0x90b976D0e896d7A71ab41014b916126966118d5f", swap rate : 5
+    "VestingTokenAddress6":"0x585C5C25d22695323DC976990D3c6d2c252c9112", swap rate : 6
+    "TON":"0xE21cd01Eef5fa0347301b7F9299c6dba5A990519",
+    "Swapper":"0x0B54E043c847a900f7bA8a945AAe95C26E9998E2"
 
 address: 
     "owner": "0xDf08F82De32B8d460adbE8D72043E3a7e25A3B39",
