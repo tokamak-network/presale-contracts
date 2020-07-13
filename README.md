@@ -51,6 +51,22 @@ address: private-key
     "0xE2b3204F29Ab45d5fd074Ff02aDE098FbC381D42": "0x2bdd21761a483f71054e14f5b827213567971c676928d9a1808cbfa4b7501209"
 ```
 
+### Period
+
+ | | start | cliff_duration | duration |
+ | ---- | ---- | ---- | ---- |
+ | 0xe7416e9286188AC82E8bc0987fFc639D95437Eb9 | o | x | x |
+ | 0xBc7bE5d4E4fFa69AFC560C02F1C62213d7401013 | o | o | x |
+ | 0xB291b498127Bcc4DA5521F942e4a3960c3Cf09Fd | o | o | o |
+ | 0x67378C8Cd3EB79d73E3301079cfc5569bB41eE10 | o | z | o |
+ | 0x90b976D0e896d7A71ab41014b916126966118d5f | o | z | x |
+ | 0x585C5C25d22695323DC976990D3c6d2c252c9112 | x | x | x |
+ 
+ column info(see also the below [period information part](https://github.com/Onther-Tech/presale-contracts/blob/swapper/README.md#information))  :
+ * "o" means that the time has passed already. 
+ * "z" in cliff_duration means the cliff duration of the token is zero.
+ * "x" means that the time has not passed yet.
+
 # Building testing environment
 
 Run test script to build testing environment. Features include:
