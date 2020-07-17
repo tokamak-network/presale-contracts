@@ -4,6 +4,7 @@ import time
 import os
 import json
 import numpy as np
+import datetime
 from enum import Enum
 from web3 import Web3, HTTPProvider, IPCProvider
 #from web3.middleware import geth_poa_middleware
@@ -60,17 +61,22 @@ ACCOUNTS_PATH = "config/accounts.json"
 COMPILED_VESTING_TOKEN_PATH = "contracts/VestingToken.json"
 COMPILED_TON_PATH = "contracts/TON.json"
 COMPILED_SWAPPER_PATH = "contracts/Swapper.json"
-VESTING_TOKEN_TOTAL_SUPLY = 10000000000000000
+#VESTING_TOKEN_TOTAL_SUPLY = 10000000000000000
+VESTING_TOKEN_TOTAL_SUPLY = 10000000000
 VESTING_TOKEN_COUNT = 8
 #VESTING_DURATION = 60*60*24
-VESTING_DURATION = 60*3
+VESTING_DURATION_IN_MONTHS = 12
+VESTING_DURATION = VESTING_DURATION_IN_MONTHS * 60 * 60 * 24 * 30
+DAY_IN_SECONDS = 60 * 60 * 24
 
-@pytest.fixture(scope="session")
-def w3():
+#@pytest.fixture(scope="session")
+def ww3():
     #w3 = Web3(IPCProvider(ipc_path))
     w3 = Web3(HTTPProvider(ENDPOINT))
     #w3.middleware_onion.inject(geth_poa_middleware, layer=0)
     return w3
+    
+w3 = ww3()    
 
 def get_accounts():
     with open(ACCOUNTS_PATH, "r") as f:
@@ -199,9 +205,10 @@ def init(w3):
             vt.transfer(accounts["owner"], account["address"], amount)
             tracker.add_ton_amount(account["address"], amount * (i+1))
             print(f"#### VestingToken amount - token: {vt.address}, recepient: {account['address']}, amount: {amount}, rate: {i+1}")
-        cliff_duration = int(np.random.choice(VESTING_DURATION, 1)[0])
-        vt.initiate(begin_time, cliff_duration, VESTING_DURATION)
-        print(f"#### Token init - {begin_time}, {cliff_duration}, {VESTING_DURATION}")
+        cliff_duration = int(np.random.choice(VESTING_DURATION_IN_MONTHS, 1)[0])
+        vt.initiate(begin_time, cliff_duration, VESTING_DURATION_IN_MONTHS)
+        begin_date = datetime.datetime.fromtimestamp(int(begin_time)).strftime('%Y-%m-%d %H:%M:%S')
+        print(f"#### Token init - {begin_date}, {cliff_duration}, {VESTING_DURATION_IN_MONTHS}")
     swapper.change_tokens_controller(vesting_tokens)
 
     tracker.init(vesting_tokens, holders)
@@ -211,27 +218,37 @@ def init(w3):
 def test_swap(w3):
     vesting_tokens, ton, swapper, tracker, begin_time = init(w3)
     current_time = get_block_time(w3)
+    last_swap_time = {}
+    for holder in holders:
+        last_swap_time[holder["address"]] = 0
     while current_time < begin_time + VESTING_DURATION:
-        time_to_increase = int(np.random.choice(range(60), 1)[0])
+        current_date = datetime.datetime.fromtimestamp(int(current_time)).strftime('%Y-%m-%d %H:%M:%S')
+        print(f"######################################## current time : {current_date}")
+        time_to_increase = int(np.random.choice(range(DAY_IN_SECONDS), 1)[0])
         time_increase_to(w3, time_to_increase)
         caller = np.random.choice(holders, 1)[0]
         token = np.random.choice(vesting_tokens, 1)[0]
         expected = tracker.swap(w3, token, caller)
         try:
-            print(f"#### Swap - timestamp: {current_time}, caller: {caller['address']}, token: {token.address}")
+            #print(f"#### Swap - timestamp: {current_time}, caller: {caller['address']}, token: {token.address}")
             swapper.swap(token.address, caller)
+            ton_balance = ton.get_balance(caller['address'])
+            print(f"after swap {token.address}, balance of {caller['address']} is {ton_balance}")
         except Exception as e:
+            #print(e)
             pass
         current_time = get_block_time(w3)
 
     for account in holders:
         for token in vesting_tokens:
             try:
-                print(f"#### Swap - caller: {account['address']}, token: {token.address}")
+                #print(f"#### Swap - caller: {account['address']}, token: {token.address}")
                 swapper.swap(token.address, account)
             except Exception as e:
                 pass
         expected = tracker.total_ton[account["address"]]
         ton_balance = ton.get_balance(account["address"])
+        print(f"result expected:ton_balance = {expected}:{ton_balance}")
         assert expected == ton_balance
     
+test_swap(w3)

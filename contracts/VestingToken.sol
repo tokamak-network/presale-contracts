@@ -12,6 +12,7 @@ contract VestingToken is MiniMeToken {
     uint256 private _cliff;
     uint256 private _start;
     uint256 private _duration;
+    uint256 constant UNIT_IN_SECONDS = 60 * 60 * 24 * 30;
 
     mapping (address => uint256) private _released;
 
@@ -79,8 +80,8 @@ contract VestingToken is MiniMeToken {
     /**
      * @notice Makes vested tokens releasable.
      * @param start the time (as Unix time) at which point vesting starts
-     * @param cliffDuration duration in seconds of the cliff in which tokens will begin to vest
-     * @param duration duration in seconds of the period in which the tokens will vest
+     * @param cliffDuration duration in unit(30 days) of the cliff in which tokens will begin to vest
+     * @param duration duration in unit(30 days) of the period in which the tokens will vest
      */
     function initiate(uint256 start, uint256 cliffDuration, uint256 duration) public beforeInitiated onlyController {
         _initiated = true;
@@ -91,10 +92,10 @@ contract VestingToken is MiniMeToken {
         require(cliffDuration <= duration, "VestingToken: cliff is longer than duration");
         require(duration > 0, "VestingToken: duration is 0");
         // solhint-disable-next-line max-line-length
-        require(start.add(duration) > block.timestamp, "VestingToken: final time is before current time");
+        require(start.add(duration.mul(UNIT_IN_SECONDS)) > block.timestamp, "VestingToken: final time is before current time");
 
         _duration = duration;
-        _cliff = start.add(cliffDuration);
+        _cliff = start.add(cliffDuration.mul(UNIT_IN_SECONDS));
         _start = start;
     }
 
@@ -144,10 +145,10 @@ contract VestingToken is MiniMeToken {
 
         if (block.timestamp < _cliff) {
             return 0;
-        } else if (block.timestamp >= _start.add(_duration)) {
+        } else if (block.timestamp >= _start.add(_duration.mul(UNIT_IN_SECONDS))) {
             return totalVestedAmount;
         } else {
-            return totalVestedAmount.mul(block.timestamp.sub(_start)).div(_duration);
+            return totalVestedAmount.mul(block.timestamp.sub(_start)).div(UNIT_IN_SECONDS).div(_duration);
         }
     }
 }
