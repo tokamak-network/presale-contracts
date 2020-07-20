@@ -36,6 +36,13 @@ module.exports = {
       gasPrice: 20000000000,
       skipDryRun: true,
     },
+    ropsten: {
+      provider: new PrivateKeyProvider(pk, "https://ropsten.infura.io/v3/a608d5cd0f1e42109d964abdffe5d8d9"),
+      network_id: '3', // eslint-disable-line camelcase
+      gas: 5000000,
+      gasPrice: 20000000000,
+      skipDryRun: true,
+    },
   },
   mocha: {
     bail: true,

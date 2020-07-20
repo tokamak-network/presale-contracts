@@ -11,12 +11,12 @@ const totalSupply = ether('224000.1');
 
 
 module.exports = async function (deployer) {
-  if (process.env.DAEMONTEST) {
+  if (process.env.DAEMONTEST || process.env.SEEDSALE || process.env.PRIVATESALE || process.env.STRATEGICSALE) {
     let swapper;
-    let data = JSON.parse(fs.readFileSync('deployed.json').toString());
+    let data = JSON.parse(fs.readFileSync('deployed_test.json').toString());
     await deployer.deploy(Swapper, data['TON']).then(async () => { swapper = await Swapper.deployed(); })
     data['Swapper'] = swapper.address
-    fs.writeFile('deployed.json', JSON.stringify(data), (err) => {
+    fs.writeFile('deployed_test.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });
     let ton = await TON.at(data['TON']);

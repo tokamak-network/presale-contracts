@@ -41,9 +41,9 @@ module.exports = async function (deployer) {
       true,
     ).then(async () => { token = await VestingToken.deployed(); })
     .then(() => token.generateTokens(accounts['owner'], ether('30000')))
-    let data = JSON.parse(fs.readFileSync('deployed.json').toString());
+    let data = JSON.parse(fs.readFileSync('deployed_test.json').toString());
     data['VestingTokenAddress5'] = token.address
-    fs.writeFile('deployed.json', JSON.stringify(data), (err) => {
+    fs.writeFile('deployed_test.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });
     await token.transfer(accounts['holder1'], ether('11.11'));

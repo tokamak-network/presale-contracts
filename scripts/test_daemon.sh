@@ -76,7 +76,12 @@ if [ "$SOLIDITY_COVERAGE" = true ]; then
     cat coverage/lcov.info | npx coveralls
   fi
 else
-  DAEMONTEST=true truffle migrate --network development_daemon
-  echo "Token deployment completed"
-  wait $ganache_pid
+  if [ "$NETWORK" = "rinkeby" ]; then
+    DAEMONTEST=true truffle migrate --network rinkeby --reset
+    echo "Token deployment completed"
+  else
+    DAEMONTEST=true truffle migrate --network development_daemon --reset
+    echo "Token deployment completed"
+    wait $ganache_pid
+  fi
 fi

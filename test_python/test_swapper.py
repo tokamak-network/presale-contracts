@@ -69,15 +69,13 @@ VESTING_DURATION_IN_MONTHS = 12
 VESTING_DURATION = VESTING_DURATION_IN_MONTHS * 60 * 60 * 24 * 30
 DAY_IN_SECONDS = 60 * 60 * 24
 
-#@pytest.fixture(scope="session")
-def ww3():
+@pytest.fixture(scope="session")
+def w3():
     #w3 = Web3(IPCProvider(ipc_path))
     w3 = Web3(HTTPProvider(ENDPOINT))
     #w3.middleware_onion.inject(geth_poa_middleware, layer=0)
     return w3
     
-w3 = ww3()    
-
 def get_accounts():
     with open(ACCOUNTS_PATH, "r") as f:
         data = json.load(f)
@@ -251,4 +249,3 @@ def test_swap(w3):
         print(f"result expected:ton_balance = {expected}:{ton_balance}")
         assert expected == ton_balance
     
-test_swap(w3)

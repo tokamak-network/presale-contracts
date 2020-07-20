@@ -11,13 +11,13 @@ const totalSupply = ether('224000.1');
 
 
 module.exports = async function (deployer) {
-  if (process.env.DAEMONTEST) {
+  if (process.env.DAEMONTEST || process.env.SEEDSALE || process.env.PRIVATESALE || process.env.STRATEGICSALE) {
     let token;
     await deployer.deploy(TON).then(async () => { token = await TON.deployed(); })
     .then(() => token.mint(accounts['owner'], ether('10000000')));
-    let data = JSON.parse(fs.readFileSync('deployed.json').toString());
+    let data = JSON.parse(fs.readFileSync('deployed_test.json').toString());
     data['TON'] = (await TON.deployed()).address
-    fs.writeFile('deployed.json', JSON.stringify(data), (err) => {
+    fs.writeFile('deployed_test.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });
   }

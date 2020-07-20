@@ -20,7 +20,8 @@
     "lint": "npm run lint:js && npm run lint:sol",
     "lint:fix": "npm run lint:js:fix && npm run lint:sol:fix",
     "test": "scripts/test.sh",
-    "test_daemon": "DAEMONTEST=true scripts/test_daemon.sh"
+    "test_daemon": "DAEMONTEST=true scripts/test_daemon.sh",
+    "test_daemon_rinkeby": "DAEMONTEST=true NETWORK=rinkeby scripts/test_daemon.sh"
   },
   "keywords": [],
   "author": "",
@@ -45,6 +46,6 @@
     "table": "^5.4.6",
     "truffle": "^5.1.22",
     "truffle-privatekey-provider": "^1.3.0",
-    "web3-utils": "^1.2.9"
+    "web3": "^1.2.11"
   }
 }

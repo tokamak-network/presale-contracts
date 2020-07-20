@@ -148,7 +148,8 @@ contract VestingToken is MiniMeToken {
         } else if (block.timestamp >= _start.add(_duration.mul(UNIT_IN_SECONDS))) {
             return totalVestedAmount;
         } else {
-            return totalVestedAmount.mul(block.timestamp.sub(_start)).div(UNIT_IN_SECONDS).div(_duration);
+            uint256 currenUnit = block.timestamp.sub(_start).div(UNIT_IN_SECONDS).add(1);
+            return totalVestedAmount.mul(currenUnit).div(_duration);
         }
     }
 }
