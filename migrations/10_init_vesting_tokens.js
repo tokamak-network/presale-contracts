@@ -24,13 +24,13 @@ module.exports = async function (deployer) {
     let ton = await TON.at(data['TON']);
     let swapper = await Swapper.at(data['Swapper']);
 
-    await swapper.updateRate(seedTon.address, 10);
-    await swapper.updateRate(privateTon.address, 20);
-    await swapper.updateRate(strategicTon.address, 30);
+    await swapper.updateRatio(seedTon.address, 10);
+    await swapper.updateRatio(privateTon.address, 20);
+    await swapper.updateRatio(strategicTon.address, 30);
 
-    await seedTon.initiate((Date.now() / 1000 | 0) + 120, 0, 6);
-    await privateTon.initiate((Date.now() / 1000 | 0) + 120, 0, 10);
-    await strategicTon.initiate((Date.now() / 1000 | 0) + 120, 0, 10);
+    await swapper.initiate(seedTon.address, (Date.now() / 1000 | 0) + 120, 0, 0, 0, 6);
+    await swapper.initiate(privateTon.address, (Date.now() / 1000 | 0) + 120, 0, 0, 0, 10);
+    await swapper.initiate(strategicTon.address, (Date.now() / 1000 | 0) + 120, 0, 0, 0, 10);
 
     await seedTon.changeController(swapper.address);
     await privateTon.changeController(swapper.address);
@@ -47,19 +47,19 @@ module.exports = async function (deployer) {
     let ton = await TON.at(data['TON']);
     let swapper = await Swapper.at(data['Swapper']);
 
-    await swapper.updateRate(token1.address, 1);
-    await swapper.updateRate(token2.address, 2);
-    await swapper.updateRate(token3.address, 3);
-    await swapper.updateRate(token4.address, 4);
-    await swapper.updateRate(token5.address, 5);
-    await swapper.updateRate(token6.address, 6);
+    await swapper.updateRatio(token1.address, 1);
+    await swapper.updateRatio(token2.address, 2);
+    await swapper.updateRatio(token3.address, 3);
+    await swapper.updateRatio(token4.address, 4);
+    await swapper.updateRatio(token5.address, 5);
+    await swapper.updateRatio(token6.address, 6);
 
-    await token1.initiate((Date.now() / 1000 | 0) + 10, 0, 6);
-    await token2.initiate((Date.now() / 1000 | 0) + 10, 0, 12);
-    await token3.initiate((Date.now() / 1000 | 0) + 10, 0, 6);
-    await token4.initiate((Date.now() / 1000 | 0) + 10, 0, 12);
-    await token5.initiate((Date.now() / 1000 | 0) + 10, 0, 6);
-    await token6.initiate((Date.now() / 1000 | 0) + 10, 0, 12);
+    await swapper.initiate(token1.address, (Date.now() / 1000 | 0) + 10, 0, 0, 0, 6);
+    await swapper.initiate(token2.address, (Date.now() / 1000 | 0) + 10, 0, 0, 0, 12);
+    await swapper.initiate(token3.address, (Date.now() / 1000 | 0) + 10, 0, 0, 0, 6);
+    await swapper.initiate(token4.address, (Date.now() / 1000 | 0) + 10, 0, 0, 0, 12);
+    await swapper.initiate(token5.address, (Date.now() / 1000 | 0) + 10, 0, 0, 0, 6);
+    await swapper.initiate(token6.address, (Date.now() / 1000 | 0) + 10, 0, 0, 0, 12);
 
     await token1.changeController(swapper.address);
     await token2.changeController(swapper.address);

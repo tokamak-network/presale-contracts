@@ -8,36 +8,66 @@ import "./VestingToken.sol";
 contract Swapper is Secondary {
     using SafeMath for uint256;
 
-    mapping(address => uint256) public rate;
+    uint256 constant UNIT_IN_SECONDS = 60 * 60 * 24 * 30;
+
+    struct BeneficiaryInfo {
+        uint256 totalAmount; // total deposit amount
+        uint256 releasedAmount; // released amount
+    }
+
+    struct VestingInfo {
+        bool isInitiated;
+        uint256 start; // start timestamp
+        uint256 cliff; // cilff timestamp
+        uint256 firstClaimTimestamp; // the timestamp of the first claim
+        uint256 firstClaimAmount; // the first claim amount of the VestingToken
+        uint256 durationUnit; // duration unit
+        uint256 durationInSeconds; // duration in seconds
+        uint256 ratio;
+    }
+
+    // (VestingToken => (beneficiary => info))
+    mapping(address => mapping(address => BeneficiaryInfo)) public beneficiaryInfo;
+
+    // VestingToken => info
+    mapping(address => VestingInfo) public vestingInfo;
 
     ERC20Mintable public _token;
 
     event Swapped(address account, uint256 unreleased, uint256 transferred);
     event Withdrew(address recipient, uint256 amount);
 
+    modifier beforeInitiated(address vestingToken) {
+        require(!vestingInfo[vestingToken].isInitiated, "Swapper: cannot execute after initiation");
+        _;
+    }
+
+    modifier beforeStart(address vestingToken) {
+        require(!vestingInfo[vestingToken].isInitiated || block.timestamp < vestingInfo[vestingToken].start, "Swapper: cannot execute after start");
+        _;
+    }
+
+    // @param token ton token
     constructor (ERC20Mintable token) public {
         _token = token;
     }
 
-    function updateRate(address vestingToken, uint256 tokenRate) external onlyPrimary {
-        rate[vestingToken] = tokenRate;
-    }
+    // @param vestingToken the address of vesting token
+    function swap(VestingToken vestingToken) external returns (bool) {
+        uint256 ratio = vestingInfo[address(vestingToken)].ratio;
+        require(ratio > 0, "Swapper: not valid sale token address");
 
-    function swap (VestingToken vestingToken) external returns (bool) {
-        require(rate[address(vestingToken)] != 0, "Swapper: not valid sale token address");
-
-        uint256 rate = rate[address(vestingToken)];
-        uint256 unreleased = vestingToken.destroyReleasableTokens(msg.sender);
-
-        uint256 amount = unreleased.mul(rate);
-        _token.transfer(msg.sender, amount);
-
-        emit Swapped(msg.sender, unreleased, amount);
+        uint256 unreleased = releasableAmount(address(vestingToken), msg.sender);
+        uint256 ton_amount = unreleased.mul(ratio);
+        bool success = vestingToken.destroyTokens(address(this), unreleased);
+        require(success);
+        // TODO: transfer from other contract
+        success = _token.transfer(msg.sender, ton_amount);
+        require(success);
+        increaseReleasedAmount(address(vestingToken), msg.sender, unreleased);
+        
+        emit Swapped(msg.sender, unreleased, ton_amount);
         return true;
-    }
-
-    function releasableAmount(VestingToken vestingToken, address beneficiary) external view returns (uint256) {
-        return vestingToken.releasableAmount(beneficiary);
     }
 
     function changeController (VestingToken vestingToken, address payable newController) external onlyPrimary {
@@ -47,5 +77,188 @@ contract Swapper is Secondary {
     function withdraw(address payable recipient, uint amount256) external onlyPrimary {
         _token.transfer(recipient, amount256);
         emit Withdrew(recipient, amount256);
+    }
+
+    // TokenController
+
+    /// @notice Called when `_owner` sends ether to the MiniMe Token contract
+    /// @param _owner The address that sent the ether to create tokens
+    /// @return True if the ether is accepted, false if it throws
+    function proxyPayment(address _owner) public payable returns(bool) {
+        return true;
+    }
+
+    /// @notice Notifies the controller about a token transfer allowing the
+    ///  controller to react if desired
+    /// @param _from The origin of the transfer
+    /// @param _to The destination of the transfer
+    /// @param _amount The amount of the transfer
+    /// @return False if the controller does not authorize the transfer
+    function onTransfer(address _from, address _to, uint _amount) public returns(bool) {
+        return true;
+    }
+
+    /// @notice Notifies the controller about an approval allowing the
+    ///  controller to react if desired
+    /// @param _owner The address that calls `approve()`
+    /// @param _spender The spender in the `approve()` call
+    /// @param _amount The amount in the `approve()` call
+    /// @return False if the controller does not authorize the approval
+    function onApprove(address _owner, address _spender, uint _amount) public returns(bool) {
+        return true;
+    }
+
+    //
+    // init
+    //
+
+    /*function registerBeneficiary(address vestingToken, address[] memory beneficiaries, uint256[] memory amounts) public onlyPrimary {
+        require(beneficiaries.length == amounts.length);
+        for (uint256 i = 0; i < beneficiaries.length; i++) {
+            BeneficiaryInfo storage info = beneficiaryInfo[vestingToken][beneficiaries[i]];
+            info.totalAmount = amounts[i];
+        }
+    }*/
+
+    function receiveApproval(address from, uint256 _amount, address payable _token, bytes memory _data) public {
+        VestingToken token = VestingToken(_token);
+        require(_amount <= token.balanceOf(from), "Swapper: receiveApproval error 1");
+
+        bool success = token.transferFrom(from, address(this), _amount);
+        require(success, "Swapper: receiveApproval error 2");
+
+        add(token, from, _amount);
+    }
+
+    function add(VestingToken vestingToken, address beneficiary, uint256 amount) internal {
+        BeneficiaryInfo storage info = beneficiaryInfo[address(vestingToken)][beneficiary];
+        info.totalAmount = info.totalAmount.add(amount);
+    }
+
+    //
+    // init vesting info
+    //
+
+    // @notice initiate VestingToken
+    // @param vestingToken the address of vesting token
+    // @param start start timestamp
+    // @param cliffDurationInSeconds cliff duration from start date in seconds
+    // @param firstClaimDurationInSeconds the first claim duration from start date in seconds
+    // @param firstClaimAmount the first claim amount of the VestingToken
+    // @param durationUnit duration unit 
+    function initiate(address vestingToken, uint256 start, uint256 cliffDurationInSeconds, uint256 firstClaimDurationInSeconds, uint256 firstClaimAmount, uint256 durationUnit) public onlyPrimary beforeInitiated(vestingToken) {
+        require(cliffDurationInSeconds <= durationUnit, "Swapper: cliff is longer than duration");
+        require(durationUnit > 0, "Swapper: duration is 0");
+        require(start.add(durationUnit.mul(UNIT_IN_SECONDS)) > block.timestamp, "Swapper: final time is before current time");
+
+        VestingInfo storage info = vestingInfo[vestingToken];
+        info.start = start;
+        info.cliff = start.add(cliffDurationInSeconds);
+        info.firstClaimTimestamp = start.add(firstClaimDurationInSeconds);
+        info.firstClaimAmount = firstClaimAmount;
+        info.durationUnit = durationUnit;
+        info.durationInSeconds = durationUnit.mul(UNIT_IN_SECONDS);
+        info.isInitiated = true;
+    }
+
+    function updateRatio(address vestingToken, uint256 tokenRatio) external onlyPrimary beforeStart(vestingToken) {
+        VestingInfo storage info = vestingInfo[vestingToken];
+        info.ratio = tokenRatio;
+    }
+
+    // @notice get swapping ratio of VestingToken
+    // @param vestingToken the address of vesting token
+    // @param beneficiary the address of beneficiary
+    // @return the swapping ratio of the token
+    function ratio(address vestingToken) public view returns (uint256) {
+        VestingInfo storage info = vestingInfo[vestingToken];
+        return info.ratio;
+    }
+
+    //
+    // get vesting info
+    //
+
+    function initiated(address vestingToken) public view returns (bool) {
+        VestingInfo storage info = vestingInfo[vestingToken];
+        return info.isInitiated;
+    }
+
+    // @notice get vesting start date
+    // @param vestingToken the address of vesting token
+    // @return timestamp of the start date
+    function start(address vestingToken) public view returns (uint256) {
+        VestingInfo storage info = vestingInfo[vestingToken];
+        return info.start;
+    }
+
+    // @notice get vesting cliff date
+    // @param vestingToken the address of vesting token
+    // @return timestamp of the cliff date
+    function cliff(address vestingToken) public view returns (uint256) {
+        VestingInfo storage info = vestingInfo[vestingToken];
+        return info.cliff;
+    }
+
+    // @notice get the number of duration unit
+    // @param vestingToken the address of vesting token
+    // @return the number of duration unit
+    function duration(address vestingToken) public view returns (uint256) {
+        VestingInfo storage info = vestingInfo[vestingToken];
+        return info.durationUnit;
+    }
+
+    //
+    // beneficiary info
+    //
+
+    // @notice get total deposit amount of VestingToken
+    // @param vestingToken the address of vesting token
+    // @param beneficiary the address of beneficiary
+    // @return the amount of the token deposited
+    function totalAmount(address vestingToken, address beneficiary) public view returns (uint256) {
+        return beneficiaryInfo[vestingToken][beneficiary].totalAmount;
+    }
+
+    // @notice get released(swapped) amount of VestingToken
+    // @param vestingToken the address of vesting token
+    // @param beneficiary the address of beneficiary
+    // @return the amount of the token released
+    function released(address vestingToken, address beneficiary) public view returns (uint256) {
+        return beneficiaryInfo[vestingToken][beneficiary].releasedAmount;
+    }
+
+    // @notice get releasable amount of VestingToken
+    // @param vestingToken the address of vesting token
+    // @param beneficiary the address of beneficiary
+    // @return the releasable amount of the token
+    function releasableAmount(address vestingToken, address beneficiary) public view returns (uint256) {
+        uint256 releasedAmount = released(vestingToken, beneficiary);
+        return _releasableAmountLimit(vestingToken, beneficiary).sub(releasedAmount);
+    }
+
+    function increaseReleasedAmount(address vestingToken, address beneficiary, uint256 amount) internal {
+        BeneficiaryInfo storage info = beneficiaryInfo[vestingToken][beneficiary];
+        info.releasedAmount = info.releasedAmount.add(amount);
+    }
+
+    function _releasableAmountLimit(address vestingToken, address beneficiary) internal view returns (uint256) {
+        VestingInfo storage vestingInfo = vestingInfo[vestingToken];
+
+        if (!vestingInfo.isInitiated) {
+            return 0;
+        }
+
+        if (block.timestamp < vestingInfo.cliff) {
+            return 0;
+        } else if (block.timestamp < vestingInfo.firstClaimTimestamp) {
+            return vestingInfo.firstClaimAmount;
+        } else if (block.timestamp >= vestingInfo.start.add(vestingInfo.durationInSeconds)) {
+            return totalAmount(vestingToken, beneficiary);
+        } else {
+            uint256 currenUnit = block.timestamp.sub(vestingInfo.start).div(UNIT_IN_SECONDS).add(1);
+            uint256 totalAmount = totalAmount(vestingToken, beneficiary);
+            return totalAmount.mul(currenUnit).div(vestingInfo.durationUnit);
+        }
     }
 }
