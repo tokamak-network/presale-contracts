@@ -1,6 +1,7 @@
 pragma solidity ^0.5.0;
 
 import "./openzeppelin-solidity/token/ERC20/ERC20Mintable.sol";
+import "./openzeppelin-solidity/token/ERC20/IERC20.sol";
 import "./openzeppelin-solidity/math/SafeMath.sol";
 import "./openzeppelin-solidity/ownership/Secondary.sol";
 import "./VestingToken.sol";
@@ -147,9 +148,10 @@ contract Swapper is Secondary {
     // @param firstClaimAmount the first claim amount of the VestingToken
     // @param durationUnit duration unit 
     function initiate(address vestingToken, uint256 start, uint256 cliffDurationInSeconds, uint256 firstClaimDurationInSeconds, uint256 firstClaimAmount, uint256 durationUnit) public onlyPrimary beforeInitiated(vestingToken) {
-        require(cliffDurationInSeconds <= durationUnit, "Swapper: cliff is longer than duration");
+        require(cliffDurationInSeconds <= durationUnit.mul(UNIT_IN_SECONDS), "Swapper: cliff is longer than duration");
         require(durationUnit > 0, "Swapper: duration is 0");
         require(start.add(durationUnit.mul(UNIT_IN_SECONDS)) > block.timestamp, "Swapper: final time is before current time");
+        // TODO: firstClaimAmount should be less than token total supply
 
         VestingInfo storage info = vestingInfo[vestingToken];
         info.start = start;
@@ -198,6 +200,11 @@ contract Swapper is Secondary {
     function cliff(address vestingToken) public view returns (uint256) {
         VestingInfo storage info = vestingInfo[vestingToken];
         return info.cliff;
+    }
+
+    function firstClaim(address vestingToken) public view returns (uint256) {
+        VestingInfo storage info = vestingInfo[vestingToken];
+        return info.firstClaimTimestamp;
     }
 
     // @notice get the number of duration unit
@@ -252,13 +259,22 @@ contract Swapper is Secondary {
         if (block.timestamp < vestingInfo.cliff) {
             return 0;
         } else if (block.timestamp < vestingInfo.firstClaimTimestamp) {
-            return vestingInfo.firstClaimAmount;
-        } else if (block.timestamp >= vestingInfo.start.add(vestingInfo.durationInSeconds)) {
+            return firstClaimAmount(vestingToken, beneficiary);
+        } else if (block.timestamp >= vestingInfo.firstClaimTimestamp.add(vestingInfo.durationInSeconds)) {
             return totalAmount(vestingToken, beneficiary);
         } else {
-            uint256 currenUnit = block.timestamp.sub(vestingInfo.start).div(UNIT_IN_SECONDS).add(1);
+            uint256 userFirstClaimAmount = firstClaimAmount(vestingToken, beneficiary);
+            uint256 currenUnit = block.timestamp.sub(vestingInfo.firstClaimTimestamp).div(UNIT_IN_SECONDS).add(1);
             uint256 totalAmount = totalAmount(vestingToken, beneficiary);
-            return totalAmount.mul(currenUnit).div(vestingInfo.durationUnit);
+            return totalAmount.sub(userFirstClaimAmount).mul(currenUnit).div(vestingInfo.durationUnit).add(userFirstClaimAmount);
         }
+    }
+    
+    function firstClaimAmount(address vestingToken, address beneficiary) internal view returns (uint256) {
+        VestingInfo storage vestingInfo = vestingInfo[vestingToken];
+
+        uint256 userTotalAmount = totalAmount(vestingToken, beneficiary);
+        uint256 tokenTotalAmount = IERC20(vestingToken).totalSupply();
+        return vestingInfo.firstClaimAmount.mul(userTotalAmount).div(tokenTotalAmount);
     }
 }
