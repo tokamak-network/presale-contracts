@@ -9,7 +9,7 @@ const ether = n => new BN(toWei(n, 'ether'));
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 const wallet = '0xF8e1d287C5Cc579dd2A2ceAe6ccf4FbfBe4CA2F5';
-const totalSupply = ether('4200000');
+const totalSupply = ether('2500000');
 
 module.exports = async function (deployer) {
   if (process.env.STRATEGICSALE) {
@@ -19,9 +19,9 @@ module.exports = async function (deployer) {
       ZERO_ADDRESS,
       ZERO_ADDRESS,
       0,
-      'Strategic Tokamak Network Token',
+      'Marketing Tokamak Network Token',
       18,
-      'StrategicTON',
+      'MTON',
       true,
     ).then(async () => { token = await VestingToken.deployed(); })
       .then(() => deployer.deploy(Strategicsale,
@@ -45,14 +45,14 @@ module.exports = async function (deployer) {
       ZERO_ADDRESS,
       ZERO_ADDRESS,
       0,
-      'Strategic Tokamak Network Token',
+      'Marketing Tokamak Network Token',
       18,
-      'StrategicTON',
+      'MTON',
       true,
     ).then(async () => { token = await VestingToken.deployed(); })
       .then(() => token.generateTokens(accounts.owner, totalSupply));
     const data = JSON.parse(fs.readFileSync('deployed_test.json').toString());
-    data.strategicTon = token.address;
+    data.marketingTon = token.address;
     fs.writeFile('deployed_test.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });
