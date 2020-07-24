@@ -1,5 +1,6 @@
-const Swapper = artifacts.require('Swapper');
+const TONVault = artifacts.require('TONVault');
 const TON = artifacts.require('TON');
+const Swapper = artifacts.require('Swapper');
 const fs = require('fs');
 const { BN, constants, ether } = require('openzeppelin-test-helpers');
 
@@ -12,14 +13,16 @@ const totalSupply = ether('224000.1');
 
 module.exports = async function (deployer) {
   if (process.env.DAEMONTEST || process.env.SEEDSALE || process.env.PRIVATESALE || process.env.STRATEGICSALE) {
-    let swapper;
+    let vault;
     let data = JSON.parse(fs.readFileSync('deployed_test.json').toString());
-    await deployer.deploy(Swapper, data['TON']).then(async () => { swapper = await Swapper.deployed(); })
-    data['Swapper'] = swapper.address
+    await deployer.deploy(TONVault, data['TON']).then(async () => { vault = await TONVault.deployed(); })
+    data['TONVault'] = vault.address
     fs.writeFile('deployed_test.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });
-    //let ton = await TON.at(data['TON']);
-    //await ton.transfer(swapper.address, ether('10000'));
+    let ton = await TON.at(data['TON']);
+    //await ton.transfer(vault.address, ether('10000'));
+    //let swapper = await Swapper.at(data['Swapper']);
+    await vault.setApprovalAmount(data['Swapper'], ether('10000'));
   }
 };

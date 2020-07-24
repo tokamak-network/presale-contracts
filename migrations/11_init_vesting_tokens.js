@@ -6,6 +6,7 @@ const { networks } = require('../truffle-config.js')
 const VestingToken = artifacts.require('VestingToken');
 const TON = artifacts.require('TON');
 const Swapper = artifacts.require('Swapper');
+const Vault = artifacts.require('TONVault');
 const Privatesale = artifacts.require('Privatesale');
 const fs = require('fs');
 const accounts = require('../test_accounts.json');
@@ -46,6 +47,7 @@ module.exports = async function (deployer) {
     let token6 = await VestingToken.at(data['VestingTokenAddress6']);
     let ton = await TON.at(data['TON']);
     let swapper = await Swapper.at(data['Swapper']);
+    let vault = await Vault.at(data["TONVault"]);
 
     await swapper.updateRatio(token1.address, 1);
     await swapper.updateRatio(token2.address, 2);

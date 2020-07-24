@@ -11,7 +11,7 @@ require('chai')
   .should();
 
 const amount = new BN('1000');
-const totalSupply = amount.mul(new BN('100'));
+const totalSupply = amount.mul(new BN('1000000000'));
 
 /* test data
 ratio   10      20      30    
@@ -49,13 +49,15 @@ const seedAmount = new BN('10000');
 const privateAmount = new BN('20000');
 const strategicAmount = new BN('30000');
 
-const seedRate = new BN('10');
-const privateRate = new BN('20');
-const strategicRate = new BN('30');
+const seedRatio = new BN('10');
+const privateRatio = new BN('20');
+const strategicRatio = new BN('30');
+const ratios = [seedRatio, privateRatio, strategicRatio];
 const durationUnitInSeconds = 60*60*24*30;
 const durationInUnits = 10;
 
-const expectedReleasableAmount = {
+const expectedAmount = {
+    // releasable amount
     "seed": {
         "firstClaim": new BN('100'),
         "inUnit": new BN('990')
@@ -68,9 +70,17 @@ const expectedReleasableAmount = {
         "firstClaim": new BN('200'),
         "inUnit": new BN('2980')
     },
+    // after all source tokens swapped
+    "ton": {
+        "firstClaimEachAmount": [new BN('1000'), new BN('3000'), new BN('6000')],
+        "firstClaimTotal": new BN('10000'),
+        "inUnitEachAmount": [new BN('9900'), new BN('39700'), new BN('89400')],
+        "inUnitTotal": new BN('139000'),
+    },
 };
 
-const expectedReleasableAmount_noFirstClaim = {
+const expectedAmount_noFirstClaim = {
+    // releasable amount
     "seed": {
         "firstClaim": new BN('0'),
         "inUnit": new BN('1000')
@@ -83,10 +93,18 @@ const expectedReleasableAmount_noFirstClaim = {
         "firstClaim": new BN('0'),
         "inUnit": new BN('3000')
     },
+    // after all source tokens swapped
+    "ton": {
+        "firstClaimEachAmount": [new BN('0'), new BN('0'), new BN('0')],
+        "firstClaimTotal": new BN('0'),
+        "inUnitEachAmount": [new BN('10000'), new BN('40000'), new BN('90000')],
+        "inUnitTotal": new BN('140000'),
+    },
 };
 
 let swapper, token, seedTON, privateTON, strategicTON; // contract instance
 let start, cliffDuration, duration;
+let sourceTokens;
 
 contract('Swapper basis', function ([controller, owner, investor, ...others]) {
   beforeEach(async function () {
@@ -103,9 +121,9 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
     swapper = await Swapper.new(token.address, { from: owner });
     vault = await TONVault.new(token.address, { from: owner });
     
-    await swapper.updateRatio(seedTON.address, seedRate, {from: owner});
-    await swapper.updateRatio(privateTON.address, privateRate, {from: owner});
-    await swapper.updateRatio(strategicTON.address, strategicRate, {from: owner});
+    await swapper.updateRatio(seedTON.address, seedRatio, {from: owner});
+    await swapper.updateRatio(privateTON.address, privateRatio, {from: owner});
+    await swapper.updateRatio(strategicTON.address, strategicRatio, {from: owner});
 
     await seedTON.generateTokens(investor, seedAmount, {from: owner});
     await privateTON.generateTokens(investor, privateAmount, {from: owner});
@@ -113,22 +131,24 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
     await token.mint(vault.address, totalSupply, {from: owner});
 
     await vault.setApprovalAmount(swapper.address, totalSupply, {from: owner});
+    await swapper.setVault(vault.address, {from: owner});
 
     await seedTON.changeController(swapper.address, {from: owner});
     await privateTON.changeController(swapper.address, {from: owner});
     await strategicTON.changeController(swapper.address, {from: owner});
+    sourceTokens = [seedTON, privateTON, strategicTON];
   });
 
   describe('update ratio', function () {
     it('success, before initiate', async function () {
-      await swapper.updateRatio(seedTON.address, seedRate, {from: owner});
-      await swapper.updateRatio(privateTON.address, privateRate, {from: owner});
-      await swapper.updateRatio(strategicTON.address, strategicRate, {from: owner});
+      await swapper.updateRatio(seedTON.address, seedRatio, {from: owner});
+      await swapper.updateRatio(privateTON.address, privateRatio, {from: owner});
+      await swapper.updateRatio(strategicTON.address, strategicRatio, {from: owner});
     });
     it('success, before start', async function () {
-      await swapper.updateRatio(seedTON.address, seedRate, {from: owner});
-      await swapper.updateRatio(privateTON.address, privateRate, {from: owner});
-      await swapper.updateRatio(strategicTON.address, strategicRate, {from: owner});
+      await swapper.updateRatio(seedTON.address, seedRatio, {from: owner});
+      await swapper.updateRatio(privateTON.address, privateRatio, {from: owner});
+      await swapper.updateRatio(strategicTON.address, strategicRatio, {from: owner});
     });
     it('fail, after start', async function () {
       start = (await time.latest()).add(time.duration.days(1));
@@ -141,36 +161,35 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
       await time.increaseTo(currentTime);
 
       await expectRevert(
-        swapper.updateRatio(seedTON.address, seedRate, {from: owner}),
+        swapper.updateRatio(seedTON.address, seedRatio, {from: owner}),
         'Swapper: cannot execute after start'
       );
       await expectRevert(
-        swapper.updateRatio(privateTON.address, privateRate, {from: owner}),
+        swapper.updateRatio(privateTON.address, privateRatio, {from: owner}),
         'Swapper: cannot execute after start'
       );
       await expectRevert(
-        swapper.updateRatio(strategicTON.address, strategicRate, {from: owner}),
+        swapper.updateRatio(strategicTON.address, strategicRatio, {from: owner}),
         'Swapper: cannot execute after start'
       );
     });
     it('fail, other caller', async function () {
       await expectRevert(
-        swapper.updateRatio(seedTON.address, seedRate, {from: others[0]}),
+        swapper.updateRatio(seedTON.address, seedRatio, {from: others[0]}),
         'Secondary: caller is not the primary account'
       );
       await expectRevert(
-        swapper.updateRatio(privateTON.address, privateRate, {from: others[0]}),
+        swapper.updateRatio(privateTON.address, privateRatio, {from: others[0]}),
         'Secondary: caller is not the primary account'
       );
       await expectRevert(
-        swapper.updateRatio(strategicTON.address, strategicRate, {from: others[0]}),
+        swapper.updateRatio(strategicTON.address, strategicRatio, {from: others[0]}),
         'Secondary: caller is not the primary account'
       );
     });
   });
   describe('before initiation', function () {
     beforeEach(async function () {
-
     });
     it('releasable amount should be zero', async function () {
       (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(new BN(0));
@@ -184,9 +203,9 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
       cliffDurationInSeconds = time.duration.days(5);
       firstClaimDurationInSeconds = time.duration.days(10);
 
-      await swapper.initiate(seedTON.address, start, cliffDurationInSeconds, firstClaimDurationInSeconds, expectedReleasableAmount["seed"]["firstClaim"], durationInUnits, {from: owner});
-      await swapper.initiate(privateTON.address, start, cliffDurationInSeconds, firstClaimDurationInSeconds, expectedReleasableAmount["private"]["firstClaim"], durationInUnits, {from: owner});
-      await swapper.initiate(strategicTON.address, start, cliffDurationInSeconds, firstClaimDurationInSeconds, expectedReleasableAmount["strategic"]["firstClaim"], durationInUnits, {from: owner});
+      await swapper.initiate(seedTON.address, start, cliffDurationInSeconds, firstClaimDurationInSeconds, expectedAmount["seed"]["firstClaim"], durationInUnits, {from: owner});
+      await swapper.initiate(privateTON.address, start, cliffDurationInSeconds, firstClaimDurationInSeconds, expectedAmount["private"]["firstClaim"], durationInUnits, {from: owner});
+      await swapper.initiate(strategicTON.address, start, cliffDurationInSeconds, firstClaimDurationInSeconds, expectedAmount["strategic"]["firstClaim"], durationInUnits, {from: owner});
 
       await seedTON.approveAndCall(swapper.address, seedAmount, new Uint8Array(0), {from: investor});
       await time.increaseTo(start.sub(time.duration.hours(1)));
@@ -198,6 +217,13 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
       (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(new BN(0));
       (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(new BN(0));
     });
+    it('swap', async function () {
+      balanceBefore = await token.balanceOf(investor);
+      await swapper.swap(seedTON.address, {from: investor});
+      balanceAfter = await token.balanceOf(investor);
+      balanceBefore.should.be.bignumber.equal(new BN(0));
+      balanceAfter.should.be.bignumber.equal(new BN(0));
+    });
     describe('after start, before cliff', function () {
       beforeEach(async function () {
         await time.increaseTo(start.add(time.duration.hours(1)));
@@ -206,6 +232,13 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
         (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(new BN(0));
         (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(new BN(0));
         (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(new BN(0));
+      });
+      it('swap', async function () {
+        balanceBefore = await token.balanceOf(investor);
+        await swapper.swap(seedTON.address, {from: investor});
+        balanceAfter = await token.balanceOf(investor);
+        balanceBefore.should.be.bignumber.equal(new BN(0));
+        balanceAfter.should.be.bignumber.equal(new BN(0));
       });
       describe('after cliff, before first claim', function () {
         beforeEach(async function () {
@@ -218,17 +251,106 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
           let current_time = (await time.latest());
           current_time.should.be.bignumber.gt(cliff);
           current_time.should.be.bignumber.lt(firstClaim);
-          (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(expectedReleasableAmount["seed"]["firstClaim"]);
-          (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(expectedReleasableAmount["private"]["firstClaim"]);
-          (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(expectedReleasableAmount["strategic"]["firstClaim"]);
+          (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(expectedAmount["seed"]["firstClaim"]);
+          (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(expectedAmount["private"]["firstClaim"]);
+          (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(expectedAmount["strategic"]["firstClaim"]);
+        });
+        it('swap', async function () {
+          let initAmount = await token.balanceOf(investor);
+          for (i = 0; i < 3; i++) {
+            let balanceBefore = await token.balanceOf(investor);
+            await swapper.swap(sourceTokens[i].address, {from: investor});
+            let balanceAfter = await token.balanceOf(investor);
+            balanceAfter.should.be.bignumber.equal(balanceBefore.add(expectedAmount["ton"]["firstClaimEachAmount"][i]));
+          }
+          (await token.balanceOf(investor)).should.be.bignumber.equal(initAmount.add(expectedAmount["ton"]["firstClaimTotal"]));
         });
         describe('after first claim, before end', function () {
           beforeEach(async function () {
             await time.increaseTo(start.add(firstClaimDurationInSeconds).add(time.duration.hours(1)));
           });
+          it('releasable amount', async function () {
+            (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(expectedAmount["seed"]["firstClaim"].add(expectedAmount["seed"]["inUnit"]));
+            (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(expectedAmount["private"]["firstClaim"].add(expectedAmount["private"]["inUnit"]));
+            (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(expectedAmount["strategic"]["firstClaim"].add(expectedAmount["strategic"]["inUnit"]));
+          });
+          it('monthly releasable amount', async function () {
+            for (i = 0; i < durationInUnits; i++) {
+              await time.increaseTo(start.add(firstClaimDurationInSeconds).add(time.duration.days(30 * i)).add(time.duration.hours(1)));
+              (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(
+                expectedAmount["seed"]["firstClaim"].add(expectedAmount["seed"]["inUnit"].mul((new BN(i)).add(new BN(1)))));
+              (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(
+                expectedAmount["private"]["firstClaim"].add(expectedAmount["private"]["inUnit"].mul((new BN(i)).add(new BN(1)))));
+              (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(
+                expectedAmount["strategic"]["firstClaim"].add(expectedAmount["strategic"]["inUnit"].mul((new BN(i)).add(new BN(1)))));
+            }
+          });
+          it('swap', async function () {
+            let initAmount = await token.balanceOf(investor);
+            for (i = 0; i < 3; i++) {
+              let balanceBefore = await token.balanceOf(investor);
+              await swapper.swap(sourceTokens[i].address, {from: investor});
+              let balanceAfter = await token.balanceOf(investor);
+              balanceAfter.should.be.bignumber.equal(balanceBefore.add(expectedAmount["ton"]["firstClaimEachAmount"][i].add(expectedAmount["ton"]["inUnitEachAmount"][i])));
+            }
+            (await token.balanceOf(investor)).should.be.bignumber.equal(initAmount.add(expectedAmount["ton"]["firstClaimTotal"].add(expectedAmount["ton"]["inUnitTotal"])));
+          });
+          it('monthly swap token1', async function () {
+            let balanceBefore = await token.balanceOf(investor);
+            await swapper.swap(sourceTokens[0].address, {from: investor});
+            let balanceAfter = await token.balanceOf(investor);
+            balanceAfter.should.be.bignumber.equal(balanceBefore.add(expectedAmount["ton"]["firstClaimEachAmount"][0]).add(expectedAmount["ton"]["inUnitEachAmount"][0]));
+            await time.increaseTo(start.add(firstClaimDurationInSeconds).add(time.duration.days(30 * 1)).add(time.duration.hours(1)));
+
+            for (i = 0; i < durationInUnits - 1; i++) {
+              let initAmount = await token.balanceOf(investor);
+              let balanceBefore = await token.balanceOf(investor);
+              await swapper.swap(sourceTokens[0].address, {from: investor});
+              let balanceAfter = await token.balanceOf(investor);
+              balanceAfter.should.be.bignumber.equal(balanceBefore.add(expectedAmount["ton"]["inUnitEachAmount"][0]));
+              await time.increaseTo(start.add(firstClaimDurationInSeconds).add(time.duration.days(30 * (i+2))).add(time.duration.hours(2)));
+            }
+          });
+          it('monthly swap token2', async function () {
+            let balanceBefore = await token.balanceOf(investor);
+            await swapper.swap(sourceTokens[1].address, {from: investor});
+            let balanceAfter = await token.balanceOf(investor);
+            balanceAfter.should.be.bignumber.equal(balanceBefore.add(expectedAmount["ton"]["firstClaimEachAmount"][1]).add(expectedAmount["ton"]["inUnitEachAmount"][1]));
+            await time.increaseTo(start.add(firstClaimDurationInSeconds).add(time.duration.days(30 * 1)).add(time.duration.hours(1)));
+
+            for (i = 0; i < durationInUnits - 1; i++) {
+              let initAmount = await token.balanceOf(investor);
+              let balanceBefore = await token.balanceOf(investor);
+              await swapper.swap(sourceTokens[1].address, {from: investor});
+              let balanceAfter = await token.balanceOf(investor);
+              balanceAfter.should.be.bignumber.equal(balanceBefore.add(expectedAmount["ton"]["inUnitEachAmount"][1]));
+              await time.increaseTo(start.add(firstClaimDurationInSeconds).add(time.duration.days(30 * (i+2))).add(time.duration.hours(2)));
+            }
+          });
+          it('monthly swap token3', async function () {
+            let balanceBefore = await token.balanceOf(investor);
+            await swapper.swap(sourceTokens[2].address, {from: investor});
+            let balanceAfter = await token.balanceOf(investor);
+            balanceAfter.should.be.bignumber.equal(balanceBefore.add(expectedAmount["ton"]["firstClaimEachAmount"][2]).add(expectedAmount["ton"]["inUnitEachAmount"][2]));
+            await time.increaseTo(start.add(firstClaimDurationInSeconds).add(time.duration.days(30 * 1)).add(time.duration.hours(1)));
+
+            for (i = 0; i < durationInUnits - 1; i++) {
+              let initAmount = await token.balanceOf(investor);
+              let balanceBefore = await token.balanceOf(investor);
+              await swapper.swap(sourceTokens[2].address, {from: investor});
+              let balanceAfter = await token.balanceOf(investor);
+              balanceAfter.should.be.bignumber.equal(balanceBefore.add(expectedAmount["ton"]["inUnitEachAmount"][2]));
+              await time.increaseTo(start.add(firstClaimDurationInSeconds).add(time.duration.days(30 * (i+2))).add(time.duration.hours(2)));
+            }
+          });
           describe('after end', function () {
             beforeEach(async function () {
-              await time.increaseTo(start.add(durationUnitInSeconds).add(time.duration.hours(1)));
+              await time.increaseTo(start.add(firstClaimDurationInSeconds).add(time.duration.seconds(durationUnitInSeconds*durationInUnits)).add(time.duration.hours(1)));
+            });
+            it('releasable amount', async function () {
+              (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(seedAmount);
+              (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(privateAmount);
+              (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(strategicAmount);
             });
           });
           
@@ -243,9 +365,9 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
       cliffDurationInSeconds = 0;
       firstClaimDurationInSeconds = time.duration.days(10);
 
-      await swapper.initiate(seedTON.address, start, cliffDurationInSeconds, firstClaimDurationInSeconds, expectedReleasableAmount["seed"]["firstClaim"], durationInUnits, {from: owner});
-      await swapper.initiate(privateTON.address, start, cliffDurationInSeconds, firstClaimDurationInSeconds, expectedReleasableAmount["private"]["firstClaim"], durationInUnits, {from: owner});
-      await swapper.initiate(strategicTON.address, start, cliffDurationInSeconds, firstClaimDurationInSeconds, expectedReleasableAmount["strategic"]["firstClaim"], durationInUnits, {from: owner});
+      await swapper.initiate(seedTON.address, start, cliffDurationInSeconds, firstClaimDurationInSeconds, expectedAmount["seed"]["firstClaim"], durationInUnits, {from: owner});
+      await swapper.initiate(privateTON.address, start, cliffDurationInSeconds, firstClaimDurationInSeconds, expectedAmount["private"]["firstClaim"], durationInUnits, {from: owner});
+      await swapper.initiate(strategicTON.address, start, cliffDurationInSeconds, firstClaimDurationInSeconds, expectedAmount["strategic"]["firstClaim"], durationInUnits, {from: owner});
 
       await time.increaseTo(start.sub(time.duration.hours(1)));
 
@@ -263,29 +385,29 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
         await time.increaseTo(start.add(time.duration.hours(1)));
       });
       it('releasable amount', async function () {
-        (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(expectedReleasableAmount["seed"]["firstClaim"]);
-        (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(expectedReleasableAmount["private"]["firstClaim"]);
-        (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(expectedReleasableAmount["strategic"]["firstClaim"]);
+        (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(expectedAmount["seed"]["firstClaim"]);
+        (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(expectedAmount["private"]["firstClaim"]);
+        (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(expectedAmount["strategic"]["firstClaim"]);
       });
       describe('after first claim, before end', function () {
         beforeEach(async function () {
           await time.increaseTo(start.add(firstClaimDurationInSeconds).add(time.duration.hours(1)));
         });
         it('releasable amount', async function () {
-          (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(expectedReleasableAmount["seed"]["firstClaim"].add(expectedReleasableAmount["seed"]["inUnit"]));
-          (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(expectedReleasableAmount["private"]["firstClaim"].add(expectedReleasableAmount["private"]["inUnit"]));
-          (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(expectedReleasableAmount["strategic"]["firstClaim"].add(expectedReleasableAmount["strategic"]["inUnit"]));
+          (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(expectedAmount["seed"]["firstClaim"].add(expectedAmount["seed"]["inUnit"]));
+          (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(expectedAmount["private"]["firstClaim"].add(expectedAmount["private"]["inUnit"]));
+          (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(expectedAmount["strategic"]["firstClaim"].add(expectedAmount["strategic"]["inUnit"]));
         });
         it('monthly releasable amount', async function () {
           for (i = 0; i < durationInUnits; i++)
           {
             await time.increaseTo(start.add(firstClaimDurationInSeconds).add(time.duration.days(30 * i)).add(time.duration.hours(1)));
             (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(
-              expectedReleasableAmount["seed"]["firstClaim"].add(expectedReleasableAmount["seed"]["inUnit"].mul((new BN(i)).add(new BN(1)))));
+              expectedAmount["seed"]["firstClaim"].add(expectedAmount["seed"]["inUnit"].mul((new BN(i)).add(new BN(1)))));
             (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(
-              expectedReleasableAmount["private"]["firstClaim"].add(expectedReleasableAmount["private"]["inUnit"].mul((new BN(i)).add(new BN(1)))));
+              expectedAmount["private"]["firstClaim"].add(expectedAmount["private"]["inUnit"].mul((new BN(i)).add(new BN(1)))));
             (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(
-              expectedReleasableAmount["strategic"]["firstClaim"].add(expectedReleasableAmount["strategic"]["inUnit"].mul((new BN(i)).add(new BN(1)))));
+              expectedAmount["strategic"]["firstClaim"].add(expectedAmount["strategic"]["inUnit"].mul((new BN(i)).add(new BN(1)))));
           }
         });
         describe('after end', function () {
@@ -307,17 +429,29 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
       cliffDurationInSeconds = 0;
       firstClaimDurationInSeconds = 0;
       firstClaimAmount = 0
-      durationUnit = 24
 
-      await swapper.initiate(seedTON.address, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit, {from: owner});
-      await swapper.initiate(privateTON.address, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit, {from: owner});
-      await swapper.initiate(strategicTON.address, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit, {from: owner});
+      await swapper.initiate(seedTON.address, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationInUnits, {from: owner});
+      await swapper.initiate(privateTON.address, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationInUnits, {from: owner});
+      await swapper.initiate(strategicTON.address, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationInUnits, {from: owner});
 
+      await seedTON.approveAndCall(swapper.address, seedAmount, new Uint8Array(0), {from: investor});
       await time.increaseTo(start.sub(time.duration.hours(1)));
+      await privateTON.approveAndCall(swapper.address, privateAmount, new Uint8Array(0), {from: investor});
+      await strategicTON.approveAndCall(swapper.address, strategicAmount, new Uint8Array(0), {from: investor});
+    });
+    it('releasable amount should be zero', async function () {
+      (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(new BN(0));
+      (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(new BN(0));
+      (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(new BN(0));
     });
     describe('after start, zero cliff, no first claim, before end', function () {
       beforeEach(async function () {
         await time.increaseTo(start.add(time.duration.hours(1)));
+      });
+      it('releasable amount', async function () {
+        (await swapper.releasableAmount(seedTON.address, investor)).should.be.bignumber.equal(expectedAmount_noFirstClaim["seed"]["inUnit"]);
+        (await swapper.releasableAmount(privateTON.address, investor)).should.be.bignumber.equal(expectedAmount_noFirstClaim["private"]["inUnit"]);
+        (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(expectedAmount_noFirstClaim["strategic"]["inUnit"]);
       });
       describe('after end', function () {
         beforeEach(async function () {
@@ -478,9 +612,9 @@ contract('Swapper scenario', function ([controller, owner, investor, ...others])
     );
     token = await TON.new({ from: owner });
     swapper = await Swapper.new(token.address, { from: owner });
-    await swapper.updateRatio(seedTON.address, seedRate, {from: owner});
-    await swapper.updateRatio(privateTON.address, privateRate, {from: owner});
-    await swapper.updateRatio(strategicTON.address, strategicRate, {from: owner});
+    await swapper.updateRatio(seedTON.address, seedRatio, {from: owner});
+    await swapper.updateRatio(privateTON.address, privateRatio, {from: owner});
+    await swapper.updateRatio(strategicTON.address, strategicRatio, {from: owner});
 
     await seedTON.generateTokens(investor, amount);
     await privateTON.generateTokens(investor, amount);

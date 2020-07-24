@@ -8,24 +8,10 @@ contract TONVault is Secondary {
     using SafeMath for uint256;
     
     ERC20Mintable public ton;
-    //mapping(address => bool) public approvers;
-
-    /*modifier onlyApprovers() {
-        require(approvers[msg.sender], "TONVault: caller is not an approver");
-        _;
-    }*/
 
     constructor (ERC20Mintable tonToken) public {
         ton = tonToken;
     }
-
-    /*function addApprover(address newApprover) public onlyPrimary {
-        approvers[newApprover] = true;
-    }
-
-    function delApprover(address approver) public onlyPrimary {
-        approvers[approver] = false;
-    }*/
 
     function setApprovalAmount(address approval, uint256 amount) public onlyPrimary {
         ton.approve(approval, amount);

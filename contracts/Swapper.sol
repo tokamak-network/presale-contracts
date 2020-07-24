@@ -5,6 +5,7 @@ import "./openzeppelin-solidity/token/ERC20/IERC20.sol";
 import "./openzeppelin-solidity/math/SafeMath.sol";
 import "./openzeppelin-solidity/ownership/Secondary.sol";
 import "./VestingToken.sol";
+import "./TONVault.sol";
 
 contract Swapper is Secondary {
     using SafeMath for uint256;
@@ -25,6 +26,7 @@ contract Swapper is Secondary {
         uint256 durationUnit; // duration unit
         uint256 durationInSeconds; // duration in seconds
         uint256 ratio;
+        uint256 initialTotalSupply; // totalSupply of the VestingToken when initiated
     }
 
     // (VestingToken => (beneficiary => info))
@@ -34,6 +36,7 @@ contract Swapper is Secondary {
     mapping(address => VestingInfo) public vestingInfo;
 
     ERC20Mintable public _token;
+    TONVault public vault;
 
     event Swapped(address account, uint256 unreleased, uint256 transferred);
     event Withdrew(address recipient, uint256 amount);
@@ -59,10 +62,15 @@ contract Swapper is Secondary {
         require(ratio > 0, "Swapper: not valid sale token address");
 
         uint256 unreleased = releasableAmount(address(vestingToken), msg.sender);
+        if (unreleased == 0) {
+            return true;
+        }
         uint256 ton_amount = unreleased.mul(ratio);
         bool success = vestingToken.destroyTokens(address(this), unreleased);
         require(success);
-        // TODO: transfer from other contract
+        //success = _token.transfer(msg.sender, ton_amount);
+        success = _token.transferFrom(address(vault), address(this), ton_amount);
+        require(success);
         success = _token.transfer(msg.sender, ton_amount);
         require(success);
         increaseReleasedAmount(address(vestingToken), msg.sender, unreleased);
@@ -71,8 +79,12 @@ contract Swapper is Secondary {
         return true;
     }
 
-    function changeController (VestingToken vestingToken, address payable newController) external onlyPrimary {
+    function changeController(VestingToken vestingToken, address payable newController) external onlyPrimary {
         vestingToken.changeController(newController);
+    }
+
+    function setVault(TONVault vaultAddress) external onlyPrimary {
+        vault = vaultAddress;
     }
 
     function withdraw(address payable recipient, uint amount256) external onlyPrimary {
@@ -161,6 +173,7 @@ contract Swapper is Secondary {
         info.durationUnit = durationUnit;
         info.durationInSeconds = durationUnit.mul(UNIT_IN_SECONDS);
         info.isInitiated = true;
+        info.initialTotalSupply = IERC20(vestingToken).totalSupply();
     }
 
     function updateRatio(address vestingToken, uint256 tokenRatio) external onlyPrimary beforeStart(vestingToken) {
@@ -274,7 +287,7 @@ contract Swapper is Secondary {
         VestingInfo storage vestingInfo = vestingInfo[vestingToken];
 
         uint256 userTotalAmount = totalAmount(vestingToken, beneficiary);
-        uint256 tokenTotalAmount = IERC20(vestingToken).totalSupply();
+        uint256 tokenTotalAmount = vestingInfo.initialTotalSupply;
         return vestingInfo.firstClaimAmount.mul(userTotalAmount).div(tokenTotalAmount);
     }
 }
