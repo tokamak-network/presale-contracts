@@ -1,6 +1,6 @@
 const TONVault = artifacts.require('TONVault');
 const TON = artifacts.require('TON');
-const Swapper = artifacts.require('Swapper');
+const VestingSwapper = artifacts.require('VestingSwapper');
 const fs = require('fs');
 const { BN, constants, ether } = require('openzeppelin-test-helpers');
 
@@ -22,7 +22,7 @@ module.exports = async function (deployer) {
     });
     let ton = await TON.at(data['TON']);
     //await ton.transfer(vault.address, ether('10000'));
-    //let swapper = await Swapper.at(data['Swapper']);
-    await vault.setApprovalAmount(data['Swapper'], ether('10000'));
+    //let swapper = await VestingSwapper.at(data['VestingSwapper']);
+    await vault.setApprovalAmount(data['VestingSwapper'], ether('10000'));
   }
 };

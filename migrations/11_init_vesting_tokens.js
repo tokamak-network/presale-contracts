@@ -5,7 +5,7 @@ const { networks } = require('../truffle-config.js')
 
 const VestingToken = artifacts.require('VestingToken');
 const TON = artifacts.require('TON');
-const Swapper = artifacts.require('Swapper');
+const VestingSwapper = artifacts.require('VestingSwapper');
 const Vault = artifacts.require('TONVault');
 const Privatesale = artifacts.require('Privatesale');
 const fs = require('fs');
@@ -23,7 +23,7 @@ module.exports = async function (deployer) {
     let privateTon = await VestingToken.at(data['privateTon']);
     let strategicTon = await VestingToken.at(data['strategicTon']);
     let ton = await TON.at(data['TON']);
-    let swapper = await Swapper.at(data['Swapper']);
+    let swapper = await VestingSwapper.at(data['VestingSwapper']);
 
     await swapper.updateRatio(seedTon.address, 10);
     await swapper.updateRatio(privateTon.address, 20);
@@ -46,7 +46,7 @@ module.exports = async function (deployer) {
     let token5 = await VestingToken.at(data['VestingTokenAddress5']);
     let token6 = await VestingToken.at(data['VestingTokenAddress6']);
     let ton = await TON.at(data['TON']);
-    let swapper = await Swapper.at(data['Swapper']);
+    let swapper = await VestingSwapper.at(data['VestingSwapper']);
     let vault = await Vault.at(data["TONVault"]);
 
     await swapper.updateRatio(token1.address, 1);
@@ -56,12 +56,12 @@ module.exports = async function (deployer) {
     await swapper.updateRatio(token5.address, 5);
     await swapper.updateRatio(token6.address, 6);
 
-    await swapper.initiate(token1.address, (Date.now() / 1000 | 0) + 10, 0, 0, 0, 6);
+    /*await swapper.initiate(token1.address, (Date.now() / 1000 | 0) + 10, 0, 0, 0, 6);
     await swapper.initiate(token2.address, (Date.now() / 1000 | 0) + 10, 0, 0, 0, 12);
     await swapper.initiate(token3.address, (Date.now() / 1000 | 0) + 10, 0, 0, 0, 6);
     await swapper.initiate(token4.address, (Date.now() / 1000 | 0) + 10, 0, 0, 0, 12);
     await swapper.initiate(token5.address, (Date.now() / 1000 | 0) + 10, 0, 0, 0, 6);
-    await swapper.initiate(token6.address, (Date.now() / 1000 | 0) + 10, 0, 0, 0, 12);
+    await swapper.initiate(token6.address, (Date.now() / 1000 | 0) + 10, 0, 0, 0, 12);*/
 
     await token1.changeController(swapper.address);
     await token2.changeController(swapper.address);

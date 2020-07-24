@@ -7,7 +7,7 @@ import "./openzeppelin-solidity/ownership/Secondary.sol";
 import "./VestingToken.sol";
 import "./TONVault.sol";
 
-contract Swapper is Secondary {
+contract VestingSwapper is Secondary {
     using SafeMath for uint256;
 
     uint256 constant UNIT_IN_SECONDS = 60 * 60 * 24 * 30;
@@ -42,12 +42,12 @@ contract Swapper is Secondary {
     event Withdrew(address recipient, uint256 amount);
 
     modifier beforeInitiated(address vestingToken) {
-        require(!vestingInfo[vestingToken].isInitiated, "Swapper: cannot execute after initiation");
+        require(!vestingInfo[vestingToken].isInitiated, "VestingSwapper: cannot execute after initiation");
         _;
     }
 
     modifier beforeStart(address vestingToken) {
-        require(!vestingInfo[vestingToken].isInitiated || block.timestamp < vestingInfo[vestingToken].start, "Swapper: cannot execute after start");
+        require(!vestingInfo[vestingToken].isInitiated || block.timestamp < vestingInfo[vestingToken].start, "VestingSwapper: cannot execute after start");
         _;
     }
 
@@ -59,7 +59,7 @@ contract Swapper is Secondary {
     // @param vestingToken the address of vesting token
     function swap(VestingToken vestingToken) external returns (bool) {
         uint256 ratio = vestingInfo[address(vestingToken)].ratio;
-        require(ratio > 0, "Swapper: not valid sale token address");
+        require(ratio > 0, "VestingSwapper: not valid sale token address");
 
         uint256 unreleased = releasableAmount(address(vestingToken), msg.sender);
         if (unreleased == 0) {
@@ -135,10 +135,10 @@ contract Swapper is Secondary {
 
     function receiveApproval(address from, uint256 _amount, address payable _token, bytes memory _data) public {
         VestingToken token = VestingToken(_token);
-        require(_amount <= token.balanceOf(from), "Swapper: receiveApproval error 1");
+        require(_amount <= token.balanceOf(from), "VestingSwapper: receiveApproval error 1");
 
         bool success = token.transferFrom(from, address(this), _amount);
-        require(success, "Swapper: receiveApproval error 2");
+        require(success, "VestingSwapper: receiveApproval error 2");
 
         add(token, from, _amount);
     }
@@ -160,9 +160,9 @@ contract Swapper is Secondary {
     // @param firstClaimAmount the first claim amount of the VestingToken
     // @param durationUnit duration unit 
     function initiate(address vestingToken, uint256 start, uint256 cliffDurationInSeconds, uint256 firstClaimDurationInSeconds, uint256 firstClaimAmount, uint256 durationUnit) public onlyPrimary beforeInitiated(vestingToken) {
-        require(cliffDurationInSeconds <= durationUnit.mul(UNIT_IN_SECONDS), "Swapper: cliff is longer than duration");
-        require(durationUnit > 0, "Swapper: duration is 0");
-        require(start.add(durationUnit.mul(UNIT_IN_SECONDS)) > block.timestamp, "Swapper: final time is before current time");
+        require(cliffDurationInSeconds <= durationUnit.mul(UNIT_IN_SECONDS), "VestingSwapper: cliff is longer than duration");
+        require(durationUnit > 0, "VestingSwapper: duration is 0");
+        require(start.add(durationUnit.mul(UNIT_IN_SECONDS)) > block.timestamp, "VestingSwapper: final time is before current time");
         // TODO: firstClaimAmount should be less than token total supply
 
         VestingInfo storage info = vestingInfo[vestingToken];
