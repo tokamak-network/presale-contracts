@@ -6,7 +6,7 @@ const Private2sale = artifacts.require('Private2sale');
 const fs = require('fs');
 const testAccounts = require('../test_accounts.json');
 
-const wallet = '0xf35A0c48c970d5abFBC1B33096A83bFc87A4a82E';
+const wallet = '0xF8e1d287C5Cc579dd2A2ceAe6ccf4FbfBe4CA2F5';
 const decimal = new BN('18');
 const totalSupply = ether('61000.1');
 
@@ -50,16 +50,16 @@ module.exports = async function (deployer, network, accounts) {
       'PrivateTON',
       true,
     ).then(async () => { token = await VestingToken.deployed(); })
-    .then(() => token.generateTokens(testAccounts['owner'], totalSupply))
-    let data = JSON.parse(fs.readFileSync('deployed_test.json').toString());
-    data['VestingTokenAddress3'] = token.address
+      .then(() => token.generateTokens(testAccounts.owner, totalSupply));
+    const data = JSON.parse(fs.readFileSync('deployed_test.json').toString());
+    data.VestingTokenAddress3 = token.address;
     fs.writeFile('deployed_test.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });
-    await token.transfer(testAccounts['holder1'], ether('11.11'));
-    await token.transfer(testAccounts['holder2'], ether('22.22'));
-    await token.transfer(testAccounts['holder3'], ether('33.33'));
-    await token.transfer(testAccounts['holder6'], ether('44.44'));
-    await token.transfer(testAccounts['holder7'], ether('55.55'));
+    await token.transfer(testAccounts.holder1, ether('11.11'));
+    await token.transfer(testAccounts.holder2, ether('22.22'));
+    await token.transfer(testAccounts.holder3, ether('33.33'));
+    await token.transfer(testAccounts.holder6, ether('44.44'));
+    await token.transfer(testAccounts.holder7, ether('55.55'));
   }
 };
