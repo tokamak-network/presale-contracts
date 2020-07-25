@@ -1,4 +1,5 @@
 const VestingSwapper = artifacts.require('VestingSwapper');
+const Burner = artifacts.require('Burner');
 const TON = artifacts.require('TON');
 const fs = require('fs');
 const { BN, constants, ether } = require('openzeppelin-test-helpers');
@@ -12,9 +13,10 @@ const totalSupply = ether('224000.1');
 
 module.exports = async function (deployer) {
   if (process.env.DAEMONTEST || process.env.SEEDSALE || process.env.PRIVATESALE || process.env.STRATEGICSALE) {
-    let swapper;
+    let swapper, burner;
     let data = JSON.parse(fs.readFileSync('deployed_test.json').toString());
-    await deployer.deploy(VestingSwapper, data['TON']).then(async () => { swapper = await VestingSwapper.deployed(); })
+    await deployer.deploy(Burner).then(async () => { burner = await Burner.deployed(); })
+    await deployer.deploy(VestingSwapper, data['TON']).then(async () => { swapper = await VestingSwapper.deployed(); }).then(async () => { swapper.setBurner(burner.address); });
     data['VestingSwapper'] = swapper.address
     fs.writeFile('deployed_test.json', JSON.stringify(data), (err) => {
       if (err) throw err;
