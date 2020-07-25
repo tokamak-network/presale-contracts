@@ -5,7 +5,7 @@ import "./openzeppelin-solidity/math/SafeMath.sol";
 import "./openzeppelin-solidity/ownership/Secondary.sol";
 import "./VestingToken.sol";
 
-contract Swapper is Secondary {
+contract StepSwapper is Secondary {
     using SafeMath for uint256;
 
     mapping(address => uint256) public rate;

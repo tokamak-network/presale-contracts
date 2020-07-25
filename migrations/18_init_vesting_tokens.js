@@ -8,7 +8,7 @@ const VestingTokenStep = artifacts.require('VestingTokenStep');
 const TON = artifacts.require('TON');
 
 const VestingSwapper = artifacts.require('VestingSwapper');
-const SwapperStep = artifacts.require('SwapperStep')
+const SwapperStep = artifacts.require('StepSwapper')
 const Vault = artifacts.require('TONVault');
 const Privatesale = artifacts.require('Privatesale');
 const fs = require('fs');

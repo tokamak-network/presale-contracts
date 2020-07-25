@@ -10,7 +10,7 @@ const decimal = new BN('18');
 const totalSupply = ether('224000.1');
 
 module.exports = async function (deployer) {
-  if (process.env.DAEMONTEST || process.env.SEEDSALE || process.env.PRIVATESALE || process.env.STRATEGICSALE) {
+  if (process.env.DAEMONTEST || process.env.SEEDSALE || process.env.PRIVATESALE || process.env.STRATEGICSALE || process.env.DAO) {
     let token;
     await deployer.deploy(TON).then(async () => { token = await TON.deployed(); })
       .then(() => token.mint(accounts.owner, ether('10000000')));

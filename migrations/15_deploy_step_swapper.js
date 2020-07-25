@@ -1,4 +1,4 @@
-const StepSwapper = artifacts.require('Swapper');
+const StepSwapper = artifacts.require('StepSwapper');
 const TON = artifacts.require('TON');
 const fs = require('fs');
 const { BN, constants, ether } = require('openzeppelin-test-helpers');
