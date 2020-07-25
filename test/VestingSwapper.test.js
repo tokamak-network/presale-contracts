@@ -2,7 +2,7 @@ const { BN, constants, expectEvent, expectRevert, time } = require('openzeppelin
 const Web3 = require('web3');
 const { ZERO_ADDRESS } = constants;
 
-const Swapper = artifacts.require('Swapper');
+const VestingSwapper = artifacts.require('VestingSwapper');
 const TON = artifacts.require('TON');
 const VestingToken = artifacts.require('VestingToken');
 const TONVault = artifacts.require('TONVault');
@@ -106,7 +106,7 @@ let swapper, token, seedTON, privateTON, strategicTON; // contract instance
 let start, cliffDuration, duration;
 let sourceTokens;
 
-contract('Swapper basis', function ([controller, owner, investor, ...others]) {
+contract('VestingSwapper basis', function ([controller, owner, investor, ...others]) {
   beforeEach(async function () {
     seedTON = await VestingToken.new(
       ZERO_ADDRESS, ZERO_ADDRESS, 0, 'SEED TON', 18, 'STON', true, { from: owner }
@@ -118,7 +118,7 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
       ZERO_ADDRESS, ZERO_ADDRESS, 0, 'STRATEGIC TON', 18, 'STTON', true, { from: owner }
     );
     token = await TON.new({ from: owner });
-    swapper = await Swapper.new(token.address, { from: owner });
+    swapper = await VestingSwapper.new(token.address, { from: owner });
     vault = await TONVault.new(token.address, { from: owner });
     
     await swapper.updateRatio(seedTON.address, seedRatio, {from: owner});
@@ -162,15 +162,15 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
 
       await expectRevert(
         swapper.updateRatio(seedTON.address, seedRatio, {from: owner}),
-        'Swapper: cannot execute after start'
+        'VestingSwapper: cannot execute after start'
       );
       await expectRevert(
         swapper.updateRatio(privateTON.address, privateRatio, {from: owner}),
-        'Swapper: cannot execute after start'
+        'VestingSwapper: cannot execute after start'
       );
       await expectRevert(
         swapper.updateRatio(strategicTON.address, strategicRatio, {from: owner}),
-        'Swapper: cannot execute after start'
+        'VestingSwapper: cannot execute after start'
       );
     });
     it('fail, other caller', async function () {
@@ -528,7 +528,7 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
     it('can swap token only with sale token', async function () {
       await expectRevert(
         swapper.swap(ZERO_ADDRESS),
-        'Swapper: not valid sale token address'
+        'VestingSwapper: not valid sale token address'
       );
     });
 
@@ -582,7 +582,7 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
       );
       await expectRevert(
         swapper.swap(tempTON.address, { from: investor }),
-        "Swapper: not valid sale token address"
+        "VestingSwapper: not valid sale token address"
       );
     });
     it('should revert releasable amount if transaction fail', async function () {
@@ -599,7 +599,7 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
     });
   });
 });
-contract('Swapper scenario', function ([controller, owner, investor, ...others]) {
+contract('VestingSwapper scenario', function ([controller, owner, investor, ...others]) {
   beforeEach(async function () {
     seedTON = await VestingToken.new(
       ZERO_ADDRESS, ZERO_ADDRESS, 0, 'SEED TON', 18, 'STON', true, { from: controller }
@@ -611,7 +611,7 @@ contract('Swapper scenario', function ([controller, owner, investor, ...others])
       ZERO_ADDRESS, ZERO_ADDRESS, 0, 'STRATEGIC TON', 18, 'STTON', true, { from: controller }
     );
     token = await TON.new({ from: owner });
-    swapper = await Swapper.new(token.address, { from: owner });
+    swapper = await VestingSwapper.new(token.address, { from: owner });
     await swapper.updateRatio(seedTON.address, seedRatio, {from: owner});
     await swapper.updateRatio(privateTON.address, privateRatio, {from: owner});
     await swapper.updateRatio(strategicTON.address, strategicRatio, {from: owner});

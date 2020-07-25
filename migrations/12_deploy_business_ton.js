@@ -11,7 +11,7 @@ const wallet = '0xF8e1d287C5Cc579dd2A2ceAe6ccf4FbfBe4CA2F5';
 const totalSupply = ether('5000000');
 
 module.exports = async function (deployer) {
-  if (process.env.BUSINESSSALE) {
+  if (process.env.BUSINESS) {
     let token;
     await deployer.deploy(VestingToken,
       ZERO_ADDRESS,
