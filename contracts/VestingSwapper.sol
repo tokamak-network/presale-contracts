@@ -99,11 +99,6 @@ contract VestingSwapper is Secondary {
         burner = bernerAddress;
     }
 
-    function withdraw(address payable recipient, uint amount256) external onlyPrimary {
-        _token.transfer(recipient, amount256);
-        emit Withdrew(recipient, amount256);
-    }
-
     // TokenController
 
     /// @notice Called when `_owner` sends ether to the MiniMe Token contract

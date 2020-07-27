@@ -641,36 +641,6 @@ contract('VestingSwapper basis', function ([controller, owner, investor, ...othe
     });
   });
 
-  describe('related with withdraw', function () {
-    it('can withdraw', async function () {
-      const before = await token.balanceOf(swapper.address);
-      await swapper.withdraw(others[0], before, { from: owner });
-      (await token.balanceOf(swapper.address)).should.be.bignumber.equal(new BN('0'));
-      (await token.balanceOf(others[0])).should.be.bignumber.equal(before);
-    });
-    it('cannot withdraw from others', async function () {
-      const before = await token.balanceOf(swapper.address);
-    });
-  });
-
-  describe('related with withdraw', function () {
-    it('can withdraw', async function () {
-      const before = await token.balanceOf(swapper.address);
-      await swapper.withdraw(others[0], before, { from: owner });
-      (await token.balanceOf(swapper.address)).should.be.bignumber.equal(new BN('0'));
-      (await token.balanceOf(others[0])).should.be.bignumber.equal(before);
-    });
-    it('cannot withdraw from others', async function () {
-      const before = await token.balanceOf(swapper.address);
-      await expectRevert(
-        swapper.withdraw(others[0], before, { from: others[0] }),
-        'Secondary: caller is not the primary account'
-      );
-      (await token.balanceOf(swapper.address)).should.be.bignumber.equal(before);
-      (await token.balanceOf(others[0])).should.be.bignumber.equal(new BN('0'));
-    });
-  });
-
   describe('related with swap', function () {
     beforeEach(async function () {
       start = (await time.latest()).add(time.duration.days(1));
@@ -745,18 +715,6 @@ contract('VestingSwapper basis', function ([controller, owner, investor, ...othe
         swapper.swap(tempTON.address, { from: investor }),
         "VestingSwapper: not valid sale token address"
       );
-    });
-    it('should revert releasable amount if transaction fail', async function () {
-      await swapper.withdraw(others[0], totalSupply, { from: owner });
-
-      const before = (await swapper.releasableAmount(strategicTON.address, investor));
-      await expectRevert(
-        swapper.swap(strategicTON.address, { from: investor }),
-        'SafeMath: subtraction overflow.'
-      );
-
-      (await token.balanceOf(investor)).should.be.bignumber.equal(new BN('0'));
-      (await swapper.releasableAmount(strategicTON.address, investor)).should.be.bignumber.equal(before);
     });
   });
 });
