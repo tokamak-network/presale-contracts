@@ -7,7 +7,8 @@ const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 const wallet = '0xF8e1d287C5Cc579dd2A2ceAe6ccf4FbfBe4CA2F5';
 const decimal = new BN('18');
-const totalSupply = ether('224000.1');
+const totalSupply = ether('224000.1'); // total supply 50,000,000
+// 배포된 컨트랙트개수 각 owner계정 및 권한들, 엑셀로 정리
 
 module.exports = async function (deployer) {
   if (process.env.DAEMONTEST || process.env.SEEDSALE || process.env.PRIVATESALE || process.env.STRATEGICSALE || process.env.DAO) {

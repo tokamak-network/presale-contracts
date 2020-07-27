@@ -14,6 +14,10 @@ const Privatesale = artifacts.require('Privatesale');
 const fs = require('fs');
 const accounts = require('../test_accounts.json');
 
+const seedAddress = '0x279418C435d50768958C3602f36e38Afa424cc99';
+const privateAddress = '0xaeb25ad2512c237820A7d2094194E1e46c279bDf';
+const strategicAddress = '0x08536cfDFff2ab0A67eE5d3FF4Dca8Ea03e0aaF2';
+
 const wallet = '0xF8e1d287C5Cc579dd2A2ceAe6ccf4FbfBe4CA2F5';
 const decimal = new BN('18');
 const totalSupply = ether('224000.1');
@@ -39,16 +43,15 @@ module.exports = async function (deployer) {
 
     // Swapper
     const vestingSwapper = await VestingSwapper.at(data.VestingSwapper);
-    const stepSwapper = await SwapperStep.at(data.SwapperStep);
+    const stepSwapper = await SwapperStep.at(data.StepSwapper);
 
     // update swap ratio of vestingSwapper
-    await vestingSwapper.updateRatio(seedTon.address, 10);
-    await vestingSwapper.updateRatio(privateTon.address, 20);
-    await vestingSwapper.updateRatio(strategicTon.address, 30);
+    await vestingSwapper.updateRatio(seedTon.address, 50);
+    await vestingSwapper.updateRatio(privateTon.address, 50);
+    await vestingSwapper.updateRatio(strategicTon.address, 50);
 
     // update swap ratio of stepSwapper
     // await swapper.updateRate(marketingTon.address, 1);
-    await stepSwapper.updateRate(publicTon.address, 50);
     await stepSwapper.updateRate(teamTon.address, 50);
     await stepSwapper.updateRate(advisorTon.address, 50);
     await stepSwapper.updateRate(businessTon.address, 50);
@@ -61,7 +64,6 @@ module.exports = async function (deployer) {
     await vestingSwapper.initiate(strategicTon.address, (Date.now() / 1000 | 0) + 120, 0, 0, 0, 10);
 
     // initiate another TON
-    await publicTon.initiate((Date.now() / 1000 | 0) + 120, 0, 10);
     await teamTon.initiate((Date.now() / 1000 | 0) + 120, 0, 10);
     await advisorTon.initiate((Date.now() / 1000 | 0) + 120, 0, 10);
     await businessTon.initiate((Date.now() / 1000 | 0) + 120, 0, 10);
@@ -74,7 +76,6 @@ module.exports = async function (deployer) {
     await strategicTon.changeController(vestingSwapper.address);
 
     // change controller for stepSwapper
-    await publicTon.changeController(stepSwapper.address);
     await teamTon.changeController(stepSwapper.address);
     await advisorTon.changeController(stepSwapper.address);
     await businessTon.changeController(stepSwapper.address);

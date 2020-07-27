@@ -8,7 +8,7 @@ const ether = n => new BN(toWei(n, 'ether'));
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 const wallet = '0xF8e1d287C5Cc579dd2A2ceAe6ccf4FbfBe4CA2F5';
-const totalSupply = ether('17500000');
+const totalSupply = ether('350000');
 
 module.exports = async function (deployer) {
   if (process.env.DAO) {
