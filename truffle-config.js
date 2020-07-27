@@ -2,7 +2,7 @@ require('dotenv').config();
 const fs = require('fs');
 const PrivateKeyProvider = require('truffle-privatekey-provider');
 // const pk = fs.readFileSync('.pk').toString().trim();
-const pk = '2bdd21761a483f71054e14f5b827213567971c676928d9a1808cbfa4b7501200';
+
 
 module.exports = {
   networks: {
