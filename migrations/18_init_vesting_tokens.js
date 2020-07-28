@@ -8,7 +8,7 @@ const VestingTokenStep = artifacts.require('VestingTokenStep');
 const TON = artifacts.require('TON');
 
 const VestingSwapper = artifacts.require('VestingSwapper');
-const SwapperStep = artifacts.require('StepSwapper')
+const SimpleSwapper = artifacts.require('SimpleSwapper')
 const Vault = artifacts.require('TONVault');
 const Privatesale = artifacts.require('Privatesale');
 const fs = require('fs');
@@ -43,7 +43,7 @@ module.exports = async function (deployer) {
 
     // Swapper
     const vestingSwapper = await VestingSwapper.at(data.VestingSwapper);
-    const stepSwapper = await SwapperStep.at(data.StepSwapper);
+    const simpleSwapper = await SimpleSwapper.at(data.SimpleSwapper);
 
     // update swap ratio of vestingSwapper
     await vestingSwapper.updateRatio(seedTon.address, 50);
@@ -52,16 +52,16 @@ module.exports = async function (deployer) {
 
     // update swap ratio of stepSwapper
     // await swapper.updateRate(marketingTon.address, 1);
-    await stepSwapper.updateRate(teamTon.address, 50);
-    await stepSwapper.updateRate(advisorTon.address, 50);
-    await stepSwapper.updateRate(businessTon.address, 50);
-    await stepSwapper.updateRate(reserveTon.address, 50);
-    await stepSwapper.updateRate(daoTon.address, 50);
+    await simpleSwapper.updateRate(teamTon.address, 50);
+    await simpleSwapper.updateRate(advisorTon.address, 50);
+    await simpleSwapper.updateRate(businessTon.address, 50);
+    await simpleSwapper.updateRate(reserveTon.address, 50);
+    await simpleSwapper.updateRate(daoTon.address, 50);
  
     // initiate seed, private, strategic TON
-    await vestingSwapper.initiate(seedTon.address, (Date.now() / 1000 | 0) + 120, 0, 0, 0, 6);
-    await vestingSwapper.initiate(privateTon.address, (Date.now() / 1000 | 0) + 120, 0, 0, 0, 10);
-    await vestingSwapper.initiate(strategicTon.address, (Date.now() / 1000 | 0) + 120, 0, 0, 0, 10);
+    await vestingSwapper.initiate(seedTon.address, (Date.now() / 1000 | 0) + 10, 0, 0, 0, 50);
+    await vestingSwapper.initiate(privateTon.address, (Date.now() / 1000 | 0) + 10, 0, 0, 0, 50);
+    await vestingSwapper.initiate(strategicTon.address, (Date.now() / 1000 | 0) + 10, 0, 0, 0, 50);
 
     // initiate another TON
     await teamTon.initiate((Date.now() / 1000 | 0) + 120, 0, 10);
@@ -76,11 +76,13 @@ module.exports = async function (deployer) {
     await strategicTon.changeController(vestingSwapper.address);
 
     // change controller for stepSwapper
-    await teamTon.changeController(stepSwapper.address);
-    await advisorTon.changeController(stepSwapper.address);
-    await businessTon.changeController(stepSwapper.address);
-    await reserveTon.changeController(stepSwapper.address);
-    await daoTon.changeController(stepSwapper.address);
+    await teamTon.changeController(simpleSwapper.address);
+    await advisorTon.changeController(simpleSwapper.address);
+    await businessTon.changeController(simpleSwapper.address);
+    await reserveTon.changeController(simpleSwapper.address);
+    await daoTon.changeController(simpleSwapper.address);
+
+
   } else if (process.env.DAEMONTEST) {
     const data = JSON.parse(fs.readFileSync('deployed_test.json').toString());
 

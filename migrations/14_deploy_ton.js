@@ -14,7 +14,7 @@ module.exports = async function (deployer) {
   if (process.env.DAEMONTEST || process.env.SEEDSALE || process.env.PRIVATESALE || process.env.STRATEGICSALE || process.env.DAO) {
     let token;
     await deployer.deploy(TON).then(async () => { token = await TON.deployed(); })
-      .then(() => token.mint(accounts.owner, ether('10000000')));
+      .then(() => token.mint(accounts.owner, ether('50000000')));
     const data = JSON.parse(fs.readFileSync('deployed.json').toString());
     data.TON = (await TON.deployed()).address;
     fs.writeFile('deployed.json', JSON.stringify(data), (err) => {

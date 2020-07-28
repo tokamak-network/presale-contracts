@@ -5,11 +5,15 @@ const TON = artifacts.require('TON');
 const fs = require('fs');
 const { BN, constants, ether } = require('openzeppelin-test-helpers');
 
-const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+const { createCurrency } = require('@makerdao/currency');
+const _ETH = createCurrency('ETH');
+const _TON = createCurrency('TON');
+const UNIT = 'wei';
 
-const wallet = '0xf35A0c48c970d5abFBC1B33096A83bFc87A4a82E';
-const decimal = new BN('18');
-const totalSupply = ether('224000.1');
+const seed = 30000;
+const private = 144000.083230664748493368;
+const strategic = 84000.1;
+const ratio = 50;
 
 module.exports = async function (deployer) {
   if (process.env.DAEMONTEST || process.env.SEED || process.env.PRIVATE || process.env.STRATEGIC) {
@@ -22,10 +26,13 @@ module.exports = async function (deployer) {
     });
     // let ton = await TON.at(data.TON);
     // await ton.transfer(vault.address, ether('10000'));
-    // valut 안에 ton 넣어놓고 
+    // valut 안에 ton 넣어놓고  
+    
+    const amount = (_ETH(seed).add(_ETH(private)).add(_ETH(strategic))).mul(ratio);
+
     // let swapper = await Swapper.at(data['Swapper']);
-    await vault.setApprovalAmount(data.VestingSwapper, ether('10000')); // seed, private, strategic
-    await vault.setApprovalAmount(data.StepSwapper, ether('10000'));
+    await vault.setApprovalAmount(data.VestingSwapper, ether(amount._amount.toString())); // seed, private, strategic
+    await vault.setApprovalAmount(data.SimpleSwapper, ether('34500000'));
     // vesting swapper & simple swapper
     // setApprovalAmount 계산 정교하게
     // stepSwapper need

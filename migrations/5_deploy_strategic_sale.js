@@ -29,7 +29,7 @@ module.exports = async function (deployer) {
         token.address,
       ))
       .then(async () => { sale = await Strategicsale.deployed(); })
-      .then(() => token.generateTokens(sale.address, totalSupply))
+      .then(() => token.generateTokens(accounts.owner, totalSupply))
       .catch((e) => {
         console.error(e);
         throw e;

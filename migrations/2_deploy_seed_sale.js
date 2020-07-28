@@ -36,11 +36,7 @@ module.exports = async function (deployer) {
         minCap,
       ))
       .then(async () => { seedSale = await Seedsale.deployed(); })
-      .then(() => seedToken.generateTokens(seedSale.address, totalSupply))
-      .catch((e) => {
-        console.error(e);
-        throw e;
-      });
+      .then(() => seedToken.generateTokens(accounts.owner, totalSupply))
     fs.writeFile('deployed.json', '{}', (err) => { if (err) throw err; });
     const data = {};
     data.seedTon = seedToken.address;

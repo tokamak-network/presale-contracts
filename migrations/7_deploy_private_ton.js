@@ -9,9 +9,7 @@ const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 module.exports = async function (deployer) {
   if (process.env.PRIVATESALE) {
     if (holders.length !== 27) return;
-
     let token;
-
     deployer.deploy(VestingToken,
       ZERO_ADDRESS,
       ZERO_ADDRESS,

@@ -12,7 +12,7 @@ const totalSupply = ether('350000');
 
 module.exports = async function (deployer) {
   if (process.env.DAO) {
-    let token, sale;
+    let token;
     await deployer.deploy(VestingToken,
       ZERO_ADDRESS,
       ZERO_ADDRESS,
@@ -27,6 +27,7 @@ module.exports = async function (deployer) {
         console.error(e);
         throw e;
       });
+      
     const data = JSON.parse(fs.readFileSync('deployed.json').toString());
     // console.log(token)
     data.daoTon = token.address;

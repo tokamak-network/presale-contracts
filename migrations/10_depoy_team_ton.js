@@ -32,6 +32,11 @@ module.exports = async function (deployer) {
     fs.writeFile('deployed.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });
+    // await token.transfer(accounts.holder1, ether('11.11'));
+    // await token.transfer(accounts.holder2, ether('22.22'));
+    // await token.transfer(accounts.holder6, ether('33.33'));
+    // await token.transfer(accounts.holder7, ether('44.44'));
+    // await token.transfer(accounts.holder8, ether('55.55'));
   } else if (process.env.DAEMONTEST) {
     let token;
     await deployer.deploy(VestingToken,

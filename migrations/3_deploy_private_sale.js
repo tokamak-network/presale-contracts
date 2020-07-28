@@ -28,11 +28,7 @@ module.exports = async function (deployer) {
         token.address,
       ))
       .then(async () => { sale = await Privatesale.deployed(); })
-      .then(() => token.generateTokens(sale.address, totalSupply))
-      .catch((e) => {
-        console.error(e);
-        throw e;
-      });
+      .then(() => token.generateTokens(accounts.owner, totalSupply))
     const data = JSON.parse(fs.readFileSync('deployed.json').toString());
     data.privateTon = token.address;
     fs.writeFile('deployed.json', JSON.stringify(data), (err) => {
