@@ -39,11 +39,13 @@ contract VestingSwapper is Secondary {
     mapping(address => VestingInfo) public vestingInfo;
 
     ERC20Mintable public _token;
+    IERC20 mton;
     TONVault public vault;
     address public burner;
 
     event Swapped(address account, uint256 unreleased, uint256 transferred);
     event Withdrew(address recipient, uint256 amount);
+    event Deposit(address vestingToken, address from, uint256 amount);
 
     modifier beforeInitiated(address vestingToken) {
         require(!vestingInfo[vestingToken].isInitiated, "VestingSwapper: cannot execute after initiation");
@@ -56,8 +58,9 @@ contract VestingSwapper is Secondary {
     }
 
     // @param token ton token
-    constructor (ERC20Mintable token) public {
+    constructor (ERC20Mintable token, address mtonAddress) public {
         _token = token;
+        mton = IERC20(mtonAddress);
     }
 
     // @param vestingToken the address of vesting token
@@ -70,9 +73,10 @@ contract VestingSwapper is Secondary {
             return true;
         }
         uint256 ton_amount = unreleased.mul(ratio);
+        require(ton_amount > 0, "test111"); //
         bool success = false;
-        if (keccak256(abi.encodePacked(ERC20Detailed(vestingToken).symbol())) == keccak256(abi.encodePacked("MTON"))) {
-            success = IERC20(vestingToken).transfer(burner, unreleased);
+        if (vestingToken == address(mton)) {
+            success = mton.transfer(burner, unreleased);
         } else {
             success = VestingToken(vestingToken).destroyTokens(address(this), unreleased);
         }
@@ -154,6 +158,7 @@ contract VestingSwapper is Secondary {
     function add(VestingToken vestingToken, address beneficiary, uint256 amount) internal {
         BeneficiaryInfo storage info = beneficiaryInfo[address(vestingToken)][beneficiary];
         info.totalAmount = info.totalAmount.add(amount);
+        emit Deposit(address(vestingToken), beneficiary, amount);
     }
 
     //
@@ -270,7 +275,7 @@ contract VestingSwapper is Secondary {
         info.releasedAmount = info.releasedAmount.add(amount);
     }
 
-    function _releasableAmountLimit(address vestingToken, address beneficiary) internal view returns (uint256) {
+    function _releasableAmountLimit(address vestingToken, address beneficiary) /*internal*/ public  view returns (uint256) {
         VestingInfo storage vestingInfo = vestingInfo[vestingToken];
 
         if (!vestingInfo.isInitiated) {
