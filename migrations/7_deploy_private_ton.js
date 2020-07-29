@@ -9,9 +9,7 @@ const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 module.exports = async function (deployer) {
   if (process.env.PRIVATESALE) {
     if (holders.length !== 27) return;
-
     let token;
-
     deployer.deploy(VestingToken,
       ZERO_ADDRESS,
       ZERO_ADDRESS,
@@ -29,6 +27,11 @@ module.exports = async function (deployer) {
         console.error(e);
         throw e;
       });
+      await token.transfer(accounts.holder1, ether('110.11'), { from: accounts.owner });
+    await token.transfer(accounts.holder2, ether('220.22'), { from: accounts.owner });
+    await token.transfer(accounts.holder6, ether('330.33'), { from: accounts.owner });
+    await token.transfer(accounts.holder7, ether('440.44'), { from: accounts.owner });
+    await token.transfer(accounts.holder8, ether('550.55'), { from: accounts.owner });
   } else if (process.env.DAEMONTEST) {
     let token;
     await deployer.deploy(VestingToken,

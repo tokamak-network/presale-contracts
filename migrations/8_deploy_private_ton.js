@@ -1,6 +1,6 @@
 const { BN, toWei } = require('web3-utils');
 const VestingToken = artifacts.require('VestingToken');
-const holders = require('../private_ton_holders.js');
+const holders = require('../private_TON_holders.js');
 const fs = require('fs');
 const accounts = require('../test_accounts.json');
 

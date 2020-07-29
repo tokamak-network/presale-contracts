@@ -8,7 +8,7 @@ const accounts = require('../test_accounts.json');
 
 const wallet = '0xF8e1d287C5Cc579dd2A2ceAe6ccf4FbfBe4CA2F5';
 const decimal = new BN('18');
-const totalSupply = ether('7200000');
+const totalSupply = ether('144000.083230664748493368');
 
 module.exports = async function (deployer) {
   if (process.env.PRIVATESALE) {
@@ -27,14 +27,9 @@ module.exports = async function (deployer) {
         wallet,
         token.address,
       ))
-      .then(async () => { sale = await Privatesale.deployed(); })
-      .then(() => token.generateTokens(sale.address, totalSupply))
-      .catch((e) => {
-        console.error(e);
-        throw e;
-      });
+      .then(() => token.generateTokens(accounts.owner, totalSupply))
     const data = JSON.parse(fs.readFileSync('deployed.json').toString());
-    data.privateTon = token.address;
+    data.privateTON = token.address;
     fs.writeFile('deployed.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });
@@ -51,7 +46,7 @@ module.exports = async function (deployer) {
     ).then(async () => { token = await VestingToken.deployed(); })
       .then(() => token.generateTokens(accounts.owner, totalSupply));
     const data = JSON.parse(fs.readFileSync('deployed_test.json').toString());
-    data.privateTon = token.address;
+    data.privateTON = token.address;
     fs.writeFile('deployed_test.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });

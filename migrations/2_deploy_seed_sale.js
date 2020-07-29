@@ -13,7 +13,7 @@ const minCap = ether('200');
 const cap = ether('900');
 const wallet = '0xF8e1d287C5Cc579dd2A2ceAe6ccf4FbfBe4CA2F5';
 const decimal = new BN('18');
-const totalSupply = ether('1500000');
+const totalSupply = ether('30000');
 
 module.exports = async function (deployer) {
   if (process.env.SEEDSALE) {
@@ -35,18 +35,18 @@ module.exports = async function (deployer) {
         cap,
         minCap,
       ))
-      .then(async () => { seedSale = await Seedsale.deployed(); })
-      .then(() => seedToken.generateTokens(seedSale.address, totalSupply))
-      .catch((e) => {
-        console.error(e);
-        throw e;
-      });
+      .then(() => seedToken.generateTokens(accounts.owner, totalSupply))
     fs.writeFile('deployed.json', '{}', (err) => { if (err) throw err; });
     const data = {};
-    data.seedTon = seedToken.address;
+    data.seedTON = seedToken.address;
     fs.writeFile('deployed.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });
+    await seedToken.transfer(accounts.holder1, ether('110.11'), { from: accounts.owner });
+    await seedToken.transfer(accounts.holder2, ether('220.22'), { from: accounts.owner });
+    await seedToken.transfer(accounts.holder6, ether('330.33'), { from: accounts.owner });
+    await seedToken.transfer(accounts.holder7, ether('440.44'), { from: accounts.owner });
+    await seedToken.transfer(accounts.holder8, ether('550.55'), { from: accounts.owner });
   } else if (process.env.DAEMONTEST) {
     let token;
     await deployer.deploy(VestingToken,
@@ -62,7 +62,7 @@ module.exports = async function (deployer) {
     fs.writeFile('deployed_test.json', '{}', (err) => { if (err) throw err; });
     // let data = JSON.parse(fs.readFileSync('deployed_test.json').toString());
     const data = {};
-    data.seedTon = token.address;
+    data.seedTON = token.address;
     fs.writeFile('deployed_test.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });
