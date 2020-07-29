@@ -2,7 +2,7 @@ const { BN, constants, expectRevert, time } = require('openzeppelin-test-helpers
 const { ZERO_ADDRESS } = constants;
 
 const MiniMeTokenFactory = artifacts.require('MiniMeTokenFactory');
-const VestingToken = artifacts.require('VestingToken');
+const VestingToken = artifacts.require('VestingTokenStep');
 
 require('chai')
   .should();
