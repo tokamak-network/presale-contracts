@@ -270,11 +270,11 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
             (await swapper.releasableAmount(vestingToken.address, others[0])).should.be.bignumber.equal(expected["team"]["0"]["firstClaimAmount"].add(expected["team"]["0"]["amountInDurationUnit"]));
           });
           it('monthly releasable amount', async function () {
-            // TODO: check
             for (i = 0; i < durationInUnits; i++) {
               await time.increaseTo(start.add(firstClaimDurationInSeconds).add(time.duration.days(30 * i)).add(time.duration.hours(1)));
               (await swapper.releasableAmount(vestingToken.address, others[0])).should.be.bignumber.equal(
-                expected["team"]["0"]["firstClaimAmount"].add(expected["team"]["0"]["amountInDurationUnit"].mul((new BN(i+1)))));
+                expected["team"]["0"]["firstClaimAmount"].add(expected["team"]["0"]["totalVestedAmount"].sub(expected["team"]["0"]["firstClaimAmount"]).mul((new BN(i+1))).div(new BN(vestingData["team"]["durationInUnit"]))));
+                //expected["team"]["0"]["firstClaimAmount"].add(expected["team"]["0"]["amountInDurationUnit"].mul((new BN(i+1)))));
             }
 
             /*let i = 0;
@@ -362,8 +362,7 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
               (await swapper.releasableAmount(vestingToken.address, others[0])).should.be.bignumber.equal(expected["team"]["0"]["totalVestedAmount"]);
             });
             it('swap', async function () {
-              (await swapper.totalAmount(vestingToken.address, others[0], {from: others[0]})).should.be.bignumber.equal(expected["team"]["0"]["totalVestedAmount"]);
-              (await vestingToken.balanceOf(swapper.address)).should.be.bignumber.not.lt(expected["team"]["0"]["totalVestedAmount"]);
+              (await vestingToken.balanceOf(others[0])).should.be.bignumber.not.lt(expected["team"]["0"]["totalVestedAmount"]);
               let balanceBefore = await ton.balanceOf(others[0]);
               await swapper.swap(vestingToken.address, {from: others[0]});
               let balanceAfter = await ton.balanceOf(others[0]);

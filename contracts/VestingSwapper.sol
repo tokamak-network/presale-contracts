@@ -46,6 +46,9 @@ contract VestingSwapper is Secondary {
     event Swapped(address account, uint256 unreleased, uint256 transferred);
     event Withdrew(address recipient, uint256 amount);
     event Deposit(address vestingToken, address from, uint256 amount);
+    event UpdateRatio(address vestingToken, uint256 tokenRatio);
+    event SetVault(address vaultAddress);
+    event SetBurner(address bernerAddress);
 
     modifier beforeInitiated(address vestingToken) {
         require(!vestingInfo[vestingToken].isInitiated, "VestingSwapper: cannot execute after initiation");
@@ -98,10 +101,12 @@ contract VestingSwapper is Secondary {
 
     function setVault(TONVault vaultAddress) external onlyPrimary {
         vault = vaultAddress;
+        emit SetVault(address(vaultAddress));
     }
 
     function setBurner(address bernerAddress) external onlyPrimary {
         burner = bernerAddress;
+        emit SetBurner(bernerAddress);
     }
 
     // TokenController
@@ -137,21 +142,13 @@ contract VestingSwapper is Secondary {
     // init
     //
 
-    /*function registerBeneficiary(address vestingToken, address[] memory beneficiaries, uint256[] memory amounts) public onlyPrimary {
-        require(beneficiaries.length == amounts.length);
-        for (uint256 i = 0; i < beneficiaries.length; i++) {
-            BeneficiaryInfo storage info = beneficiaryInfo[vestingToken][beneficiaries[i]];
-            info.totalAmount = amounts[i];
-        }
-    }*/
-
     function receiveApproval(address from, uint256 _amount, address payable _token, bytes memory _data) public {
         require(ratio(_token) > 0, "VestingSwapper: not valid sale token address");
         VestingToken token = VestingToken(_token);
-        require(_amount <= token.balanceOf(from), "VestingSwapper: receiveApproval error 1");
+        require(_amount <= token.balanceOf(from), "VestingSwapper: VestingToken amount exceeded");
 
         bool success = token.transferFrom(from, address(this), _amount);
-        require(success, "VestingSwapper: receiveApproval error 2");
+        require(success, "VestingSwapper: transferFrom error");
 
         add(token, from, _amount);
     }
@@ -177,7 +174,7 @@ contract VestingSwapper is Secondary {
         require(cliffDurationInSeconds <= durationUnit.mul(UNIT_IN_SECONDS), "VestingSwapper: cliff is longer than duration");
         require(durationUnit > 0, "VestingSwapper: duration is 0");
         require(start.add(durationUnit.mul(UNIT_IN_SECONDS)) > block.timestamp, "VestingSwapper: final time is before current time");
-        // TODO: firstClaimAmount should be less than token total supply
+        require(firstClaimAmount <= IERC20(vestingToken).totalSupply());
 
         VestingInfo storage info = vestingInfo[vestingToken];
         info.start = start;
@@ -193,6 +190,7 @@ contract VestingSwapper is Secondary {
     function updateRatio(address vestingToken, uint256 tokenRatio) external onlyPrimary onlyBeforeStart(vestingToken) {
         VestingInfo storage info = vestingInfo[vestingToken];
         info.ratio = tokenRatio;
+        emit UpdateRatio(vestingToken, tokenRatio);
     }
 
     // @notice get swapping ratio of VestingToken
@@ -276,7 +274,7 @@ contract VestingSwapper is Secondary {
         info.releasedAmount = info.releasedAmount.add(amount);
     }
 
-    function _releasableAmountLimit(address vestingToken, address beneficiary) /*internal*/ public  view returns (uint256) {
+    function _releasableAmountLimit(address vestingToken, address beneficiary) internal view returns (uint256) {
         VestingInfo storage vestingInfo = vestingInfo[vestingToken];
 
         if (!vestingInfo.isInitiated) {

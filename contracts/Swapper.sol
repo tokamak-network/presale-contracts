@@ -20,6 +20,9 @@ contract Swapper is Secondary {
 
     event Swapped(address account, uint256 unreleased, uint256 transferred);
     event Withdrew(address recipient, uint256 amount);
+    event UpdateRatio(address vestingToken, uint256 tokenRatio);
+    event SetVault(address vaultAddress);
+    event SetBurner(address bernerAddress);
 
     modifier onlyBeforeStart(address vestingToken) {
         // TODO
@@ -33,6 +36,7 @@ contract Swapper is Secondary {
 
     function updateRatio(address vestingToken, uint256 tokenRatio) external onlyPrimary onlyBeforeStart(vestingToken) {
         ratio[vestingToken] = tokenRatio;
+        emit UpdateRatio(vestingToken, tokenRatio);
     }
 
     function swap(address payable vestingToken) external returns (bool) {
@@ -53,7 +57,6 @@ contract Swapper is Secondary {
         uint256 ton_amount = unreleased.mul(tokenRatio);
         _token.transferFrom(address(vault), address(this), ton_amount);
         _token.transfer(msg.sender, ton_amount);
-        //increaseReleasedAmount(vestingToken, msg.sender, unreleased);
         
         emit Swapped(msg.sender, unreleased, ton_amount);
         return true;
@@ -100,16 +103,13 @@ contract Swapper is Secondary {
         vestingToken.changeController(newController);
     }
 
-    /*function withdraw(address payable recipient, uint amount256) external onlyPrimary {
-        _token.transfer(recipient, amount256);
-        emit Withdrew(recipient, amount256);
-    }*/
-
     function setVault(TONVault vaultAddress) external onlyPrimary {
         vault = vaultAddress;
+        emit SetVault(address(vaultAddress));
     }
 
     function setBurner(address bernerAddress) external onlyPrimary {
         burner = bernerAddress;
+        emit SetBurner(bernerAddress);
     }
 }

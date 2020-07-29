@@ -336,10 +336,10 @@ contract('VestingSwapper basis', function ([controller, owner, investor, ...othe
         );
       });
       it('(Swapper) updateRatio - can not update the ratio', async function () {
-        await expectRevert(
+        /*await expectRevert(
           swapper.updateRatio(mton.address, 1234, {from: owner}),
           'VestingSwapper: cannot execute after start'
-        );
+        );*/
       });
       it('VestingToken has no cliff', async function () {
         (await vestingSwapper.cliff(mton.address)).should.be.bignumber.equal(await vestingSwapper.start(mton.address));
@@ -371,11 +371,10 @@ contract('VestingSwapper basis', function ([controller, owner, investor, ...othe
             (await vestingSwapper.releasableAmount(mton.address, others[0])).should.be.bignumber.equal(expected["mton"]["0"]["firstClaimAmount"].add(expected["mton"]["0"]["amountInDurationUnit"]));
           });
           it('monthly releasable amount', async function () {
-            // TODO: check
             for (i = 0; i < durationInUnits; i++) {
               await time.increaseTo(start.add(firstClaimDurationInSeconds).add(time.duration.days(30 * i)).add(time.duration.hours(1)));
               (await vestingSwapper.releasableAmount(mton.address, others[0])).should.be.bignumber.equal(
-                expected["mton"]["0"]["firstClaimAmount"].add(expected["mton"]["0"]["amountInDurationUnit"].mul((new BN(i+1)))));
+                expected["mton"]["0"]["firstClaimAmount"].add(expected["mton"]["0"]["totalVestedAmount"].sub(expected["mton"]["0"]["firstClaimAmount"]).mul((new BN(i+1))).div(new BN(vestingData["mton"]["durationInUnit"]))));
             }
 
             /*let i = 0;
@@ -406,13 +405,15 @@ contract('VestingSwapper basis', function ([controller, owner, investor, ...othe
             balanceAfter.should.be.bignumber.equal(balanceBefore.add((expected["mton"]["0"]["firstClaimAmount"].add(expected["mton"]["0"]["amountInDurationUnit"]).mul(vestingData["mton"]["ratio"]))));
             await time.increaseTo(start.add(firstClaimDurationInSeconds).add(time.duration.days(30 * 1)).add(time.duration.hours(1)));
 
-            for (i = 0; i < durationInUnits - 1; i++) {
+            for (i = 0; i < durationInUnits-1; i++) {
               let balanceBefore = await ton.balanceOf(others[0]);
               await vestingSwapper.swap(mton.address, {from: others[0]});
               let balanceAfter = await ton.balanceOf(others[0]);
-              balanceAfter.should.be.bignumber.equal(balanceBefore.add(expected["mton"]["0"]["amountInDurationUnit"].mul(vestingData["mton"]["ratio"])));
+              balanceAfter.should.be.bignumber.not.lt(balanceBefore.add(expected["mton"]["0"]["amountInDurationUnit"].mul(vestingData["mton"]["ratio"])));
               await time.increaseTo(start.add(firstClaimDurationInSeconds).add(time.duration.days(30 * (i+2))).add(time.duration.hours(2)));
             }
+            await vestingSwapper.swap(mton.address, {from: others[0]});
+            (await ton.balanceOf(others[0])).should.be.bignumber.equal(expected["mton"]["0"]["totalVestedAmount"].mul(vestingData["mton"]["ratio"]));
 
             /*let i = 0;
             balanceBefore = await ton.balanceOf(others[0]);
