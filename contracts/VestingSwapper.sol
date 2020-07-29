@@ -1,16 +1,19 @@
 pragma solidity ^0.5.0;
 
 import "./openzeppelin-solidity/token/ERC20/ERC20Mintable.sol";
+import "./openzeppelin-solidity/token/ERC20/ERC20Detailed.sol";
 import "./openzeppelin-solidity/token/ERC20/IERC20.sol";
 import "./openzeppelin-solidity/math/SafeMath.sol";
 import "./openzeppelin-solidity/ownership/Secondary.sol";
 import "./VestingToken.sol";
 import "./TONVault.sol";
+import "./Burner.sol";
 
 contract VestingSwapper is Secondary {
     using SafeMath for uint256;
 
     uint256 constant UNIT_IN_SECONDS = 60 * 60 * 24 * 30;
+    address constant ZERO_ADDRESS = address(0);
 
     struct BeneficiaryInfo {
         uint256 totalAmount; // total deposit amount
@@ -36,10 +39,13 @@ contract VestingSwapper is Secondary {
     mapping(address => VestingInfo) public vestingInfo;
 
     ERC20Mintable public _token;
+    IERC20 mton;
     TONVault public vault;
+    address public burner;
 
     event Swapped(address account, uint256 unreleased, uint256 transferred);
     event Withdrew(address recipient, uint256 amount);
+    event Deposit(address vestingToken, address from, uint256 amount);
 
     modifier beforeInitiated(address vestingToken) {
         require(!vestingInfo[vestingToken].isInitiated, "VestingSwapper: cannot execute after initiation");
@@ -52,28 +58,34 @@ contract VestingSwapper is Secondary {
     }
 
     // @param token ton token
-    constructor (ERC20Mintable token) public {
+    constructor (ERC20Mintable token, address mtonAddress) public {
         _token = token;
+        mton = IERC20(mtonAddress);
     }
 
     // @param vestingToken the address of vesting token
-    function swap(VestingToken vestingToken) external returns (bool) {
-        uint256 ratio = vestingInfo[address(vestingToken)].ratio;
+    function swap(address payable vestingToken) external returns (bool) {
+        uint256 ratio = vestingInfo[vestingToken].ratio;
         require(ratio > 0, "VestingSwapper: not valid sale token address");
 
-        uint256 unreleased = releasableAmount(address(vestingToken), msg.sender);
+        uint256 unreleased = releasableAmount(vestingToken, msg.sender);
         if (unreleased == 0) {
             return true;
         }
         uint256 ton_amount = unreleased.mul(ratio);
-        bool success = vestingToken.destroyTokens(address(this), unreleased);
-        require(success);
-        //success = _token.transfer(msg.sender, ton_amount);
+        require(ton_amount > 0, "test111"); //
+        bool success = false;
+        if (vestingToken == address(mton)) {
+            success = mton.transfer(burner, unreleased);
+        } else {
+            success = VestingToken(vestingToken).destroyTokens(address(this), unreleased);
+        }
+        require(success, "VestingSwapper: failed to destoy token");
         success = _token.transferFrom(address(vault), address(this), ton_amount);
         require(success);
         success = _token.transfer(msg.sender, ton_amount);
         require(success);
-        increaseReleasedAmount(address(vestingToken), msg.sender, unreleased);
+        increaseReleasedAmount(vestingToken, msg.sender, unreleased);
         
         emit Swapped(msg.sender, unreleased, ton_amount);
         return true;
@@ -87,9 +99,8 @@ contract VestingSwapper is Secondary {
         vault = vaultAddress;
     }
 
-    function withdraw(address payable recipient, uint amount256) external onlyPrimary {
-        _token.transfer(recipient, amount256);
-        emit Withdrew(recipient, amount256);
+    function setBurner(address bernerAddress) external onlyPrimary {
+        burner = bernerAddress;
     }
 
     // TokenController
@@ -134,6 +145,7 @@ contract VestingSwapper is Secondary {
     }*/
 
     function receiveApproval(address from, uint256 _amount, address payable _token, bytes memory _data) public {
+        require(ratio(_token) > 0, "VestingSwapper: not valid sale token address");
         VestingToken token = VestingToken(_token);
         require(_amount <= token.balanceOf(from), "VestingSwapper: receiveApproval error 1");
 
@@ -146,6 +158,7 @@ contract VestingSwapper is Secondary {
     function add(VestingToken vestingToken, address beneficiary, uint256 amount) internal {
         BeneficiaryInfo storage info = beneficiaryInfo[address(vestingToken)][beneficiary];
         info.totalAmount = info.totalAmount.add(amount);
+        emit Deposit(address(vestingToken), beneficiary, amount);
     }
 
     //
@@ -262,7 +275,7 @@ contract VestingSwapper is Secondary {
         info.releasedAmount = info.releasedAmount.add(amount);
     }
 
-    function _releasableAmountLimit(address vestingToken, address beneficiary) internal view returns (uint256) {
+    function _releasableAmountLimit(address vestingToken, address beneficiary) /*internal*/ public  view returns (uint256) {
         VestingInfo storage vestingInfo = vestingInfo[vestingToken];
 
         if (!vestingInfo.isInitiated) {
