@@ -28,15 +28,15 @@ module.exports = async function (deployer) {
         throw e;
       });
     const data = JSON.parse(fs.readFileSync('deployed.json').toString());
-    data.teamTon = token.address;
+    data.teamTON = token.address;
     fs.writeFile('deployed.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });
-    // await token.transfer(accounts.holder1, ether('11.11'));
-    // await token.transfer(accounts.holder2, ether('22.22'));
-    // await token.transfer(accounts.holder6, ether('33.33'));
-    // await token.transfer(accounts.holder7, ether('44.44'));
-    // await token.transfer(accounts.holder8, ether('55.55'));
+    await token.transfer(accounts.holder1, ether('110.11'), { from: accounts.owner });
+    await token.transfer(accounts.holder2, ether('220.22'), { from: accounts.owner });
+    await token.transfer(accounts.holder6, ether('330.33'), { from: accounts.owner });
+    await token.transfer(accounts.holder7, ether('440.44'), { from: accounts.owner });
+    await token.transfer(accounts.holder8, ether('550.55'), { from: accounts.owner });
   } else if (process.env.DAEMONTEST) {
     let token;
     await deployer.deploy(VestingToken,
@@ -50,7 +50,7 @@ module.exports = async function (deployer) {
     ).then(async () => { token = await VestingToken.deployed(); })
       .then(() => token.generateTokens(accounts.owner, totalSupply));
     const data = JSON.parse(fs.readFileSync('deployed_test.json').toString());
-    data.teamTon = token.address;
+    data.teamTON = token.address;
     fs.writeFile('deployed_test.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });

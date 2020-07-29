@@ -11,7 +11,7 @@ const totalSupply = ether('224000.1'); // total supply 50,000,000
 // 배포된 컨트랙트개수 각 owner계정 및 권한들, 엑셀로 정리
 
 module.exports = async function (deployer) {
-  if (process.env.DAEMONTEST || process.env.SEEDSALE || process.env.PRIVATESALE || process.env.STRATEGICSALE || process.env.DAO) {
+  if (process.env.TON) {
     let token;
     await deployer.deploy(TON).then(async () => { token = await TON.deployed(); })
       .then(() => token.mint(accounts.owner, ether('50000000')));

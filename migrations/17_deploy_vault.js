@@ -16,7 +16,7 @@ const strategic = 84000.1;
 const ratio = 50;
 
 module.exports = async function (deployer) {
-  if (process.env.DAEMONTEST || process.env.SEED || process.env.PRIVATE || process.env.STRATEGIC) {
+  if (process.env.VAULT) {
     let vault;
     const data = JSON.parse(fs.readFileSync('deployed.json').toString());
     await deployer.deploy(TONVault, data.TON).then(async () => { vault = await TONVault.deployed(); });
@@ -24,12 +24,12 @@ module.exports = async function (deployer) {
     fs.writeFile('deployed.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });
-    // let ton = await TON.at(data.TON);
-    // await ton.transfer(vault.address, ether('10000'));
+    let ton = await TON.at(data.TON);
+    await ton.transfer(vault.address, ether('50000000'));
     // valut 안에 ton 넣어놓고  
     
     const amount = (_ETH(seed).add(_ETH(private)).add(_ETH(strategic))).mul(ratio);
-
+    
     // let swapper = await Swapper.at(data['Swapper']);
     await vault.setApprovalAmount(data.VestingSwapper, ether(amount._amount.toString())); // seed, private, strategic
     await vault.setApprovalAmount(data.SimpleSwapper, ether('34500000'));

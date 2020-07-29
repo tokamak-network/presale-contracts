@@ -35,7 +35,7 @@ module.exports = async function (deployer) {
         throw e;
       });
     const data = JSON.parse(fs.readFileSync('deployed.json').toString());
-    data.strategicTon = token.address;
+    data.marketingTON = token.address;
     fs.writeFile('deployed.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });
@@ -52,7 +52,7 @@ module.exports = async function (deployer) {
     ).then(async () => { token = await VestingToken.deployed(); })
       .then(() => token.generateTokens(accounts.owner, totalSupply));
     const data = JSON.parse(fs.readFileSync('deployed_test.json').toString());
-    data.marketingTon = token.address;
+    data.marketingTON = token.address;
     fs.writeFile('deployed_test.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });

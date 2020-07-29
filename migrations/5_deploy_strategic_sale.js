@@ -9,7 +9,7 @@ const ether = n => new BN(toWei(n, 'ether'));
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 const wallet = '0xF8e1d287C5Cc579dd2A2ceAe6ccf4FbfBe4CA2F5';
-const totalSupply = ether('4200000');
+const totalSupply = ether('84000.1');
 
 module.exports = async function (deployer) {
   if (process.env.STRATEGICSALE) {
@@ -35,10 +35,15 @@ module.exports = async function (deployer) {
         throw e;
       });
     const data = JSON.parse(fs.readFileSync('deployed.json').toString());
-    data.strategicTon = token.address;
+    data.strategicTON = token.address;
     fs.writeFile('deployed.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });
+    await token.transfer(accounts.holder1, ether('110.11'), { from: accounts.owner });
+    await token.transfer(accounts.holder2, ether('220.22'), { from: accounts.owner });
+    await token.transfer(accounts.holder6, ether('330.33'), { from: accounts.owner });
+    await token.transfer(accounts.holder7, ether('440.44'), { from: accounts.owner });
+    await token.transfer(accounts.holder8, ether('550.55'), { from: accounts.owner });
   } else if (process.env.DAEMONTEST) {
     let token;
     await deployer.deploy(VestingToken,
@@ -52,7 +57,7 @@ module.exports = async function (deployer) {
     ).then(async () => { token = await VestingToken.deployed(); })
       .then(() => token.generateTokens(accounts.owner, totalSupply));
     const data = JSON.parse(fs.readFileSync('deployed_test.json').toString());
-    data.strategicTon = token.address;
+    data.strategicTON = token.address;
     fs.writeFile('deployed_test.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });
