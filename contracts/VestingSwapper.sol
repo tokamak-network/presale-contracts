@@ -52,7 +52,7 @@ contract VestingSwapper is Secondary {
         _;
     }
 
-    modifier beforeStart(address vestingToken) {
+    modifier onlyBeforeStart(address vestingToken) {
         require(!vestingInfo[vestingToken].isInitiated || block.timestamp < vestingInfo[vestingToken].start, "VestingSwapper: cannot execute after start");
         _;
     }
@@ -78,6 +78,7 @@ contract VestingSwapper is Secondary {
         if (vestingToken == address(mton)) {
             success = mton.transfer(burner, unreleased);
         } else {
+            require(VestingToken(vestingToken).balanceOf(address(this)) >= unreleased, "swap: test error 1");
             success = VestingToken(vestingToken).destroyTokens(address(this), unreleased);
         }
         require(success, "VestingSwapper: failed to destoy token");
@@ -189,7 +190,7 @@ contract VestingSwapper is Secondary {
         info.initialTotalSupply = IERC20(vestingToken).totalSupply();
     }
 
-    function updateRatio(address vestingToken, uint256 tokenRatio) external onlyPrimary beforeStart(vestingToken) {
+    function updateRatio(address vestingToken, uint256 tokenRatio) external onlyPrimary onlyBeforeStart(vestingToken) {
         VestingInfo storage info = vestingInfo[vestingToken];
         info.ratio = tokenRatio;
     }
@@ -291,8 +292,10 @@ contract VestingSwapper is Secondary {
         } else {
             uint256 userFirstClaimAmount = firstClaimAmount(vestingToken, beneficiary);
             uint256 currenUnit = block.timestamp.sub(vestingInfo.firstClaimTimestamp).div(UNIT_IN_SECONDS).add(1);
-            uint256 totalAmount = totalAmount(vestingToken, beneficiary);
-            return totalAmount.sub(userFirstClaimAmount).mul(currenUnit).div(vestingInfo.durationUnit).add(userFirstClaimAmount);
+            uint256 total = totalAmount(vestingToken, beneficiary);
+            uint256 limit = total.sub(userFirstClaimAmount).mul(currenUnit).div(vestingInfo.durationUnit).add(userFirstClaimAmount);
+            require(limit <= totalAmount(vestingToken, beneficiary));
+            return limit;
         }
     }
     
