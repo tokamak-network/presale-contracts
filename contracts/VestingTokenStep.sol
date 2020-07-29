@@ -81,7 +81,7 @@ contract VestingTokenStep is MiniMeToken {
      * @notice Makes vested tokens releasable.
      * @param start the time (as Unix time) at which point vesting starts
      * @param cliffDuration duration in unit(30 days) of the cliff in which tokens will begin to vest
-     * @param duration duration in unit(30 days) of the period in which the tokens will vest
+     * @param duration duration in unit(30 days) of the period in which the tokens will vest(after the cliff period)
      */
     function initiate(uint256 start, uint256 cliffDuration, uint256 duration) public beforeInitiated onlyController {
         _initiated = true;
@@ -145,10 +145,10 @@ contract VestingTokenStep is MiniMeToken {
 
         if (block.timestamp < _cliff) {
             return 0;
-        } else if (block.timestamp >= _start.add(_duration.mul(UNIT_IN_SECONDS))) {
+        } else if (block.timestamp >= _cliff.add(_duration.mul(UNIT_IN_SECONDS))) {
             return totalVestedAmount;
         } else {
-            uint256 currenUnit = block.timestamp.sub(_start).div(UNIT_IN_SECONDS).add(1);
+            uint256 currenUnit = block.timestamp.sub(_cliff).div(UNIT_IN_SECONDS).add(1);
             return totalVestedAmount.mul(currenUnit).div(_duration);
         }
     }

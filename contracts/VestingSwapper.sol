@@ -42,6 +42,7 @@ contract VestingSwapper is Secondary {
     IERC20 mton;
     TONVault public vault;
     address public burner;
+    uint256 startTimestamp;
 
     event Swapped(address account, uint256 unreleased, uint256 transferred);
     event Withdrew(address recipient, uint256 amount);
@@ -55,8 +56,8 @@ contract VestingSwapper is Secondary {
         _;
     }
 
-    modifier onlyBeforeStart(address vestingToken) {
-        require(!vestingInfo[vestingToken].isInitiated || block.timestamp < vestingInfo[vestingToken].start, "VestingSwapper: cannot execute after start");
+    modifier onlyBeforeStart() {
+        require(block.timestamp < startTimestamp || startTimestamp == 0, "VestingSwapper: cannot execute after start");
         _;
     }
 
@@ -104,9 +105,13 @@ contract VestingSwapper is Secondary {
         emit SetVault(address(vaultAddress));
     }
 
-    function setBurner(address bernerAddress) external onlyPrimary {
+    function setBurner(address bernerAddress) external onlyPrimary onlyBeforeStart {
         burner = bernerAddress;
         emit SetBurner(bernerAddress);
+    }
+
+    function setStart(uint256 _startTimestamp) external onlyPrimary {
+        startTimestamp = _startTimestamp;
     }
 
     // TokenController
@@ -187,7 +192,7 @@ contract VestingSwapper is Secondary {
         info.initialTotalSupply = IERC20(vestingToken).totalSupply();
     }
 
-    function updateRatio(address vestingToken, uint256 tokenRatio) external onlyPrimary onlyBeforeStart(vestingToken) {
+    function updateRatio(address vestingToken, uint256 tokenRatio) external onlyPrimary onlyBeforeStart {
         VestingInfo storage info = vestingInfo[vestingToken];
         info.ratio = tokenRatio;
         emit UpdateRatio(vestingToken, tokenRatio);

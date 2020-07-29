@@ -16,54 +16,6 @@ require('chai')
 const amount = new BN('50000000');
 const totalSupply = amount.mul(new BN('1000000000000000000'));
 
-/* test data
-ratio   10      20      30    
-        seed    private strategic   expected ton
-total   10000   20000   30000       1400000
-
-case1:
-first   100     150     200         10000
-1       990     1985    2980        139000
-2       990     1985    2980        139000
-3       990     1985    2980        139000
-4       990     1985    2980        139000
-5       990     1985    2980        139000
-6       990     1985    2980        139000
-7       990     1985    2980        139000
-8       990     1985    2980        139000
-9       990     1985    2980        139000
-10      990     1985    2980        139000
-
-case2:
-first   0       0       0           0
-1       1000    2000    3000        140000
-2       1000    2000    3000        140000
-3       1000    2000    3000        140000
-4       1000    2000    3000        140000
-5       1000    2000    3000        140000
-6       1000    2000    3000        140000
-7       1000    2000    3000        140000
-8       1000    2000    3000        140000
-9       1000    2000    3000        140000
-10      1000    2000    3000        140000
-
-MTON:
-first   100
-1       990
-2       990
-3       990
-4       990
-5       990
-6       990
-7       990
-8       990
-9       990
-10      990
-*/
-
-//const seedAmount = new BN('10000');
-//const privateAmount = new BN('20000');
-//const strategicAmount = new BN('30000');
 const mtonAmount = new BN('10000');
 
 //const seedRatio = new BN('10');
@@ -257,6 +209,7 @@ contract('VestingSwapper basis', function ([controller, owner, investor, ...othe
       start = (await time.latest()).add(time.duration.days(1));
 
       await vestingSwapper.initiate(mton.address, start, 0, 0, 0, 10, {from: owner});
+      await vestingSwapper.setStart(start, {from: owner});
 
       currentTime = start.add(time.duration.hours(1));
       await time.increaseTo(currentTime);
@@ -298,6 +251,7 @@ contract('VestingSwapper basis', function ([controller, owner, investor, ...othe
       durationInUnits = vestingData["mton"]["durationInUnit"];
 
       await vestingSwapper.initiate(mton.address, start, vestingData["mton"]["cliffDurationInSeconds"], vestingData["mton"]["firstClaimDurationInSeconds"], vestingData["mton"]["firstClaimAmountInTon"].div(new BN(vestingData["mton"]["ratio"])), vestingData["mton"]["durationInUnit"], {from: owner});
+      await vestingSwapper.setStart(start, {from: owner});
 
       await mton.approve(vestingSwapper.address, expected["mton"]["0"]["totalVestedAmount"], {from: others[0]});
       await vestingSwapper.receiveApproval(others[0], expected["mton"]["0"]["totalVestedAmount"], mton.address, new Uint8Array(0), {from: others[0]});

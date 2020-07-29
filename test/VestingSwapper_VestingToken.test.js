@@ -12,79 +12,8 @@ const Burner = artifacts.require('Burner');
 require('chai')
   .should();
 
-const amount = new BN('50000000');
-const totalSupply = amount.mul(new BN('1000000000000000000'));
-
-//const seedAmount = new BN('10000');
-//const privateAmount = new BN('20000');
-//const strategicAmount = new BN('30000');
-const mtonAmount = new BN('10000');
-
-//const seedRatio = new BN('10');
-//const privateRatio = new BN('20');
-//const strategicRatio = new BN('30');
-const mtonRatio = new BN('1');
-//const ratios = [seedRatio, privateRatio, strategicRatio];
+const tonTotalSupply = new BN('50000000000000000000000000');
 const durationUnitInSeconds = 60*60*24*30;
-
-const expectedAmount = {
-    // releasable amount
-    "seed": {
-        "firstClaim": new BN('100'),
-        "inUnit": new BN('990')
-    },
-    "private": {
-        "firstClaim": new BN('150'),
-        "inUnit": new BN('1985')
-    },
-    "strategic": {
-        "firstClaim": new BN('200'),
-        "inUnit": new BN('2980')
-    },
-    // after all source tokens swapped
-    "ton": {
-        "firstClaimEachAmount": [new BN('1000'), new BN('3000'), new BN('6000')],
-        "firstClaimTotal": new BN('10000'),
-        "inUnitEachAmount": [new BN('9900'), new BN('39700'), new BN('89400')],
-        "inUnitTotal": new BN('139000'),
-    },
-};
-const expectedMtonAmount = {
-    "mton": {
-        "firstClaim": new BN('100'),
-        "inUnit": new BN('990')
-    },
-    // after all source tokens swapped
-    "ton": {
-        "firstClaimEachAmount": [new BN('100')],
-        "firstClaimTotal": new BN('100'),
-        "inUnitEachAmount": [new BN('990')],
-        "inUnitTotal": new BN('990'),
-    },
-}
-
-const expectedAmount_noFirstClaim = {
-    // releasable amount
-    "seed": {
-        "firstClaim": new BN('0'),
-        "inUnit": new BN('1000')
-    },
-    "private": {
-        "firstClaim": new BN('0'),
-        "inUnit": new BN('2000')
-    },
-    "strategic": {
-        "firstClaim": new BN('0'),
-        "inUnit": new BN('3000')
-    },
-    // after all source tokens swapped
-    "ton": {
-        "firstClaimEachAmount": [new BN('0'), new BN('0'), new BN('0')],
-        "firstClaimTotal": new BN('0'),
-        "inUnitEachAmount": [new BN('10000'), new BN('40000'), new BN('90000')],
-        "inUnitTotal": new BN('140000'),
-    },
-};
 
 const presaleFirstClaimDurationInSeconds = new BN("1728000"); // 60*60*24*20
 const startTimestamp = 0; // will be set using blocktime
@@ -183,9 +112,9 @@ contract('VestingSwapper basis', function ([controller, owner, investor, ...othe
     await vestingSwapper.updateRatio(vestingToken.address, vestingData["seed"]["ratio"], {from: owner});
 
     await vestingToken.generateTokens(owner, vestingData["seed"]["totalSupply"], {from: owner});
-    await ton.mint(vault.address, totalSupply, {from: owner});
+    await ton.mint(vault.address, tonTotalSupply, {from: owner});
 
-    await vault.setApprovalAmount(vestingSwapper.address, totalSupply, {from: owner});
+    await vault.setApprovalAmount(vestingSwapper.address, tonTotalSupply, {from: owner});
     await vestingSwapper.setVault(vault.address, {from: owner});
 
     await vestingToken.changeController(vestingSwapper.address, {from: owner});
@@ -196,33 +125,6 @@ contract('VestingSwapper basis', function ([controller, owner, investor, ...othe
     await vestingToken.transfer(others[0], expected["seed"]["0"]["totalVestedAmount"], {from: owner});
   });
 
-  describe('update ratio', function () {
-    it('success, before initiate', async function () {
-      await vestingSwapper.updateRatio(vestingToken.address, vestingData["seed"]["ratio"], {from: owner});
-    });
-    it('success, before start', async function () {
-      await vestingSwapper.updateRatio(vestingToken.address, vestingData["seed"]["ratio"], {from: owner});
-    });
-    it('fail, after start', async function () {
-      start = (await time.latest()).add(time.duration.days(1));
-
-      await vestingSwapper.initiate(vestingToken.address, start, 0, 0, 0, 10, {from: owner});
-
-      currentTime = start.add(time.duration.hours(1));
-      await time.increaseTo(currentTime);
-
-      await expectRevert(
-        vestingSwapper.updateRatio(vestingToken.address, vestingData["seed"]["ratio"], {from: owner}),
-        'VestingSwapper: cannot execute after start'
-      );
-    });
-    it('fail, other caller', async function () {
-      await expectRevert(
-        vestingSwapper.updateRatio(vestingToken.address, vestingData["seed"]["ratio"], {from: others[0]}),
-        'Secondary: caller is not the primary account'
-      );
-    });
-  });
   describe('before initiation', function () {
     beforeEach(async function () {
     });
@@ -241,6 +143,39 @@ contract('VestingSwapper basis', function ([controller, owner, investor, ...othe
 
       await vestingToken.approveAndCall(vestingSwapper.address, expected["seed"]["0"]["totalVestedAmount"], new Uint8Array(0), {from: others[0]});
       await time.increaseTo(start.sub(time.duration.hours(1)));
+    });
+    describe('updateRatio', function () {
+      it('updateRatio - should succeed', async function () {
+        await vestingSwapper.updateRatio(vestingToken.address, 1234, {from: owner});
+      });
+      it('updateRatio - should fail from others', async function () {
+        await expectRevert(
+          vestingSwapper.updateRatio(vestingToken.address, 1234, {from: others[0]}),
+          "Secondary: caller is not the primary account"
+        );
+      });
+    });
+    describe('setBurner', function () {
+      it('setBurner - should succeed', async function () {
+        await vestingSwapper.setBurner(burner.address, {from: owner});
+      });
+      it('setBurner - should fail from others', async function () {
+        await expectRevert(
+          vestingSwapper.setBurner(burner.address, {from: others[0]}),
+          "Secondary: caller is not the primary account"
+        );
+      });
+    });
+    describe('setVault', function () {
+      it('setVault - should succeed', async function () {
+        await vestingSwapper.setVault(vault.address, {from: owner});
+      });
+      it('setVault - should fail from others', async function () {
+        await expectRevert(
+          vestingSwapper.setVault(vault.address, {from: others[0]}),
+          "Secondary: caller is not the primary account"
+        );
+      });
     });
     it('releasableAmount - should be zero', async function () {
       (await vestingSwapper.releasableAmount(vestingToken.address, others[0])).should.be.bignumber.equal(new BN(0));
@@ -271,7 +206,6 @@ contract('VestingSwapper basis', function ([controller, owner, investor, ...othe
           await vestingSwapper.swap(vestingToken.address, {from: others[0]});
           let balanceAfter = await ton.balanceOf(others[0]);
           balanceAfter.should.be.bignumber.equal(balanceBefore.add(expected["seed"]["0"]["firstClaimAmount"].mul(vestingData["seed"]["ratio"])));
-          //balanceAfter.should.be.bignumber.equal(balanceBefore.add(expectedAmount["ton"]["firstClaimEachAmount"][0]));
         });
         it('test after the first swap', async function () {
           await vestingSwapper.swap(vestingToken.address, {from: others[0]});

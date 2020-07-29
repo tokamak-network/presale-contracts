@@ -12,79 +12,8 @@ const Burner = artifacts.require('Burner');
 require('chai')
   .should();
 
-const amount = new BN('50000000');
-const totalSupply = amount.mul(new BN('1000000000000000000'));
-
-//const seedAmount = new BN('10000');
-//const privateAmount = new BN('20000');
-//const strategicAmount = new BN('30000');
-const mtonAmount = new BN('10000');
-
-//const seedRatio = new BN('10');
-//const privateRatio = new BN('20');
-//const strategicRatio = new BN('30');
-const mtonRatio = new BN('1');
-//const ratios = [seedRatio, privateRatio, strategicRatio];
+const tonTotalSupply = new BN('50000000000000000000000000');
 const durationUnitInSeconds = 60*60*24*30;
-
-const expectedAmount = {
-    // releasable amount
-    "seed": {
-        "firstClaim": new BN('100'),
-        "inUnit": new BN('990')
-    },
-    "private": {
-        "firstClaim": new BN('150'),
-        "inUnit": new BN('1985')
-    },
-    "strategic": {
-        "firstClaim": new BN('200'),
-        "inUnit": new BN('2980')
-    },
-    // after all source tokens swapped
-    "ton": {
-        "firstClaimEachAmount": [new BN('1000'), new BN('3000'), new BN('6000')],
-        "firstClaimTotal": new BN('10000'),
-        "inUnitEachAmount": [new BN('9900'), new BN('39700'), new BN('89400')],
-        "inUnitTotal": new BN('139000'),
-    },
-};
-const expectedMtonAmount = {
-    "mton": {
-        "firstClaim": new BN('100'),
-        "inUnit": new BN('990')
-    },
-    // after all source tokens swapped
-    "ton": {
-        "firstClaimEachAmount": [new BN('100')],
-        "firstClaimTotal": new BN('100'),
-        "inUnitEachAmount": [new BN('990')],
-        "inUnitTotal": new BN('990'),
-    },
-}
-
-const expectedAmount_noFirstClaim = {
-    // releasable amount
-    "seed": {
-        "firstClaim": new BN('0'),
-        "inUnit": new BN('1000')
-    },
-    "private": {
-        "firstClaim": new BN('0'),
-        "inUnit": new BN('2000')
-    },
-    "strategic": {
-        "firstClaim": new BN('0'),
-        "inUnit": new BN('3000')
-    },
-    // after all source tokens swapped
-    "ton": {
-        "firstClaimEachAmount": [new BN('0'), new BN('0'), new BN('0')],
-        "firstClaimTotal": new BN('0'),
-        "inUnitEachAmount": [new BN('10000'), new BN('40000'), new BN('90000')],
-        "inUnitTotal": new BN('140000'),
-    },
-};
 
 const presaleFirstClaimDurationInSeconds = new BN("1728000"); // 60*60*24*20
 const startTimestamp = 1596931200; // 8/9 9:00
@@ -135,6 +64,7 @@ let vestingData = {
     "ratio": new BN("50"),
     "startTimestamp": startTimestamp, 
     "cliffDurationInSeconds": 0,
+    "cliffDurationInUnit": new BN("5"),
     "firstClaimDurationInSeconds": new BN("0"), 
     "firstClaimAmountInTon": new BN("0"),
     "durationInUnit": 36
@@ -170,11 +100,6 @@ function generateHoldersInfo(tonName, holderLength) {
     amountInDurationUnit.should.be.bignumber.gt(new BN("0"));
     expected[tonName][String(i)]["amountInDurationUnit"] = amountInDurationUnit;
   }
-
-  // test
-  //expected[tonName]["0"]["totalVestedAmount"] = new BN("10000");
-  //expected[tonName]["0"]["firstClaimAmount"] = new BN("100");
-  //expected[tonName]["0"]["amountInDurationUnit"] = new BN("1650");
 }
 
 let swapper, ton, vestingToken; // contract instance
@@ -197,9 +122,9 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
     await swapper.updateRatio(vestingToken.address, vestingData["team"]["ratio"], {from: owner});
 
     await vestingToken.generateTokens(owner, vestingData["team"]["totalSupply"], {from: owner});
-    await ton.mint(vault.address, totalSupply, {from: owner});
+    await ton.mint(vault.address, tonTotalSupply, {from: owner});
 
-    await vault.setApprovalAmount(swapper.address, totalSupply, {from: owner});
+    await vault.setApprovalAmount(swapper.address, tonTotalSupply, {from: owner});
     await swapper.setVault(vault.address, {from: owner});
 
     //await vestingToken.changeController(swapper.address, {from: owner});
@@ -219,20 +144,43 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
   describe('after initiate, before start', function () {
     beforeEach(async function () {
       start = (await time.latest()).add(time.duration.days(1));
-      cliffDurationInSeconds = time.duration.days(5);
+      cliffDurationInSeconds = vestingData["team"]["cliffDurationInUnit"].mul(new BN(durationUnitInSeconds));
       firstClaimDurationInSeconds = vestingData["team"]["firstClaimDurationInSeconds"];
       durationInUnits = vestingData["team"]["durationInUnit"];
 
-      await vestingToken.initiate(start, vestingData["team"]["cliffDurationInSeconds"], vestingData["team"]["durationInUnit"], {from: owner});
+      await vestingToken.initiate(start, vestingData["team"]["cliffDurationInUnit"], vestingData["team"]["durationInUnit"], {from: owner});
       await vestingToken.changeController(swapper.address, {from: owner});
+      await swapper.setStart(start, {from: owner});
 
       //await vestingToken.approveAndCall(swapper.address, expected["team"]["0"]["totalVestedAmount"], new Uint8Array(0), {from: others[0]});
       await time.increaseTo(start.sub(time.duration.hours(1)));
     });
+    describe('updateRatio', function () {
+      it('updateRatio - should succeed', async function () {
+        await swapper.updateRatio(vestingToken.address, 1234, {from: owner});
+      });
+      it('updateRatio - should fail from others', async function () {
+        await expectRevert(
+          swapper.updateRatio(vestingToken.address, 1234, {from: others[0]}),
+          "Secondary: caller is not the primary account"
+        );
+      });
+    });
+    describe('setBurner', function () {
+      it('setBurner - should succeed', async function () {
+        await swapper.setBurner(burner.address, {from: owner});
+      });
+      it('setBurner - should fail from others', async function () {
+        await expectRevert(
+          swapper.setBurner(burner.address, {from: others[0]}),
+          "Secondary: caller is not the primary account"
+        );
+      });
+    });
     it('releasableAmount - should be zero', async function () {
       (await swapper.releasableAmount(vestingToken.address, others[0])).should.be.bignumber.equal(new BN(0));
     });
-    it('swap', async function () {
+    it('swap - should get zero', async function () {
       balanceBefore = await ton.balanceOf(others[0]);
       await swapper.swap(vestingToken.address, {from: others[0]});
       balanceAfter = await ton.balanceOf(others[0]);
@@ -242,6 +190,22 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
     describe('after start, before cliff', function () {
       beforeEach(async function () {
         await time.increaseTo(start.add(time.duration.hours(1)));
+      });
+      it('updateRatio - should revert', async function () {
+        await expectRevert(
+          swapper.updateRatio(vestingToken.address, 1234, {from: owner}),
+          'Swapper: cannot execute after start'
+        );
+      });
+      it('releasableAmount - should be zero', async function () {
+        (await swapper.releasableAmount(vestingToken.address, others[0])).should.be.bignumber.equal(new BN(0));
+      });
+      it('swap - should get zero', async function () {
+        balanceBefore = await ton.balanceOf(others[0]);
+        await swapper.swap(vestingToken.address, {from: others[0]});
+        balanceAfter = await ton.balanceOf(others[0]);
+        balanceBefore.should.be.bignumber.equal(new BN(0));
+        balanceAfter.should.be.bignumber.equal(new BN(0));
       });
       describe('after cliff, before first claim', function () {
         /*beforeEach(async function () {
@@ -264,17 +228,18 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
         });*/
         describe('after first claim, before end', function () {
           beforeEach(async function () {
-            await time.increaseTo(start.add(firstClaimDurationInSeconds).add(time.duration.hours(1)));
+            await time.increaseTo(start.add(cliffDurationInSeconds).add(firstClaimDurationInSeconds).add(time.duration.hours(1)));
           });
           it('releasable amount', async function () {
             (await swapper.releasableAmount(vestingToken.address, others[0])).should.be.bignumber.equal(expected["team"]["0"]["firstClaimAmount"].add(expected["team"]["0"]["amountInDurationUnit"]));
           });
           it('monthly releasable amount', async function () {
-            for (i = 0; i < durationInUnits; i++) {
-              await time.increaseTo(start.add(firstClaimDurationInSeconds).add(time.duration.days(30 * i)).add(time.duration.hours(1)));
+            for (i = 0; i < durationInUnits-1; i++) {
+              let currentTime = start.add(cliffDurationInSeconds).add(firstClaimDurationInSeconds).add(time.duration.days(30 * i)).add(time.duration.hours(1));
+              await time.increaseTo(currentTime);
+              let currentUnit = currentTime.sub(start.add(cliffDurationInSeconds)).div(new BN(durationUnitInSeconds)).add(new BN("1"));
               (await swapper.releasableAmount(vestingToken.address, others[0])).should.be.bignumber.equal(
-                expected["team"]["0"]["firstClaimAmount"].add(expected["team"]["0"]["totalVestedAmount"].sub(expected["team"]["0"]["firstClaimAmount"]).mul((new BN(i+1))).div(new BN(vestingData["team"]["durationInUnit"]))));
-                //expected["team"]["0"]["firstClaimAmount"].add(expected["team"]["0"]["amountInDurationUnit"].mul((new BN(i+1)))));
+                expected["team"]["0"]["firstClaimAmount"].add(expected["team"]["0"]["totalVestedAmount"].mul(currentUnit).div(new BN(vestingData["team"]["durationInUnit"]))));
             }
 
             /*let i = 0;
@@ -303,15 +268,15 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
             await swapper.swap(vestingToken.address, {from: others[0]});
             let balanceAfter = await ton.balanceOf(others[0]);
             balanceAfter.should.be.bignumber.equal(balanceBefore.add((expected["team"]["0"]["firstClaimAmount"].add(expected["team"]["0"]["amountInDurationUnit"]).mul(vestingData["team"]["ratio"]))));
-            await time.increaseTo(start.add(firstClaimDurationInSeconds).add(time.duration.days(30 * 0)).add(time.duration.hours(1)));
+            await time.increaseTo(start.add(cliffDurationInSeconds).add(firstClaimDurationInSeconds).add(time.duration.days(30 * 1)).add(time.duration.hours(1)));
 
             let initTonAmount = await ton.balanceOf(others[0]);
-            for (i = 0; i < durationInUnits; i++) {
+            for (i = 0; i < durationInUnits-1; i++) {
               let balanceBefore = await ton.balanceOf(others[0]);
               await swapper.swap(vestingToken.address, {from: others[0]});
               let balanceAfter = await ton.balanceOf(others[0]);
-              //balanceAfter.should.be.bignumber.equal(balanceBefore.add(expected["team"]["0"]["amountInDurationUnit"].mul(vestingData["team"]["ratio"])));
-              await time.increaseTo(start.add(firstClaimDurationInSeconds).add(time.duration.days(30 * (i+1))).add(time.duration.hours(2)));
+              balanceAfter.should.be.bignumber.not.lt(balanceBefore.add(expected["team"]["0"]["amountInDurationUnit"].mul(vestingData["team"]["ratio"])));
+              await time.increaseTo(start.add(cliffDurationInSeconds).add(firstClaimDurationInSeconds).add(time.duration.days(30 * (i+2))).add(time.duration.hours(2)));
             }
             await swapper.swap(vestingToken.address, {from: others[0]});
             (await ton.balanceOf(others[0])).should.be.bignumber.equal(expected["team"]["0"]["totalVestedAmount"].mul(vestingData["team"]["ratio"]));
@@ -356,7 +321,7 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
           });
           describe('after end', function () {
             beforeEach(async function () {
-              await time.increaseTo(start.add(firstClaimDurationInSeconds).add(time.duration.seconds(durationUnitInSeconds*durationInUnits)).add(time.duration.hours(1)));
+              await time.increaseTo(start.add(cliffDurationInSeconds).add(firstClaimDurationInSeconds).add(time.duration.seconds(durationUnitInSeconds*durationInUnits)).add(time.duration.hours(1)));
             });
             it('releasable amount', async function () {
               (await swapper.releasableAmount(vestingToken.address, others[0])).should.be.bignumber.equal(expected["team"]["0"]["totalVestedAmount"]);
