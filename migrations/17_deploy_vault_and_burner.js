@@ -21,7 +21,7 @@ module.exports = async function (deployer) {
   if (process.env.VAULT) {
     let vault;
     const data = JSON.parse(fs.readFileSync('deployed.json').toString());
-    await deployer.deploy(TONVault, data.TON, 0).then(async () => { vault = await TONVault.deployed(); });
+    await deployer.deploy(TONVault, data.TON).then(async () => { vault = await TONVault.deployed(); });
     data.TONVault = vault.address;
     await deployer.deploy(Burner).then(async () => { burner = await Burner.deployed(); });
     data.Burner = burner.address;
