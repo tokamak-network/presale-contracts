@@ -6,6 +6,11 @@
           "internalType": "contract ERC20Mintable",
           "name": "token",
           "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "mtonAddress",
+          "type": "address"
         }
       ],
       "payable": false,
@@ -18,11 +23,62 @@
         {
           "indexed": false,
           "internalType": "address",
+          "name": "vestingToken",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "Deposit",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
           "name": "recipient",
           "type": "address"
         }
       ],
       "name": "PrimaryTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "bernerAddress",
+          "type": "address"
+        }
+      ],
+      "name": "SetBurner",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "vaultAddress",
+          "type": "address"
+        }
+      ],
+      "name": "SetVault",
       "type": "event"
     },
     {
@@ -48,6 +104,25 @@
         }
       ],
       "name": "Swapped",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "vestingToken",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "tokenRatio",
+          "type": "uint256"
+        }
+      ],
+      "name": "UpdateRatio",
       "type": "event"
     },
     {
@@ -109,6 +184,21 @@
           "internalType": "uint256",
           "name": "releasedAmount",
           "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "burner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
         }
       ],
       "payable": false,
@@ -225,7 +315,7 @@
       "constant": false,
       "inputs": [
         {
-          "internalType": "contract VestingToken",
+          "internalType": "address payable",
           "name": "vestingToken",
           "type": "address"
         }
@@ -281,17 +371,27 @@
       "constant": false,
       "inputs": [
         {
-          "internalType": "address payable",
-          "name": "recipient",
+          "internalType": "address",
+          "name": "bernerAddress",
           "type": "address"
-        },
+        }
+      ],
+      "name": "setBurner",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
         {
           "internalType": "uint256",
-          "name": "amount256",
+          "name": "_startTimestamp",
           "type": "uint256"
         }
       ],
-      "name": "withdraw",
+      "name": "setStart",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
