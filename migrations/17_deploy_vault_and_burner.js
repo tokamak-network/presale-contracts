@@ -21,7 +21,7 @@ module.exports = async function (deployer) {
   if (process.env.VAULT) {
     let vault;
     const data = JSON.parse(fs.readFileSync('deployed.json').toString());
-    await deployer.deploy(TONVault, data.TON, 0).then(async () => { vault = await TONVault.deployed(); });
+    await deployer.deploy(TONVault, data.TON).then(async () => { vault = await TONVault.deployed(); });
     data.TONVault = vault.address;
     await deployer.deploy(Burner).then(async () => { burner = await Burner.deployed(); });
     data.Burner = burner.address;
@@ -35,7 +35,6 @@ module.exports = async function (deployer) {
     const amount = (_ETH(seed).add(_ETH(private)).add(_ETH(strategic))).mul(ratio).add(_ETH(marketing));
     console.log(amount);
     
-    // let swapper = await Swapper.at(data['Swapper']);
     await vault.setApprovalAmount(data.VestingSwapper, ether(amount._amount.toString())); // seed, private, strategic
     await vault.setApprovalAmount(data.SimpleSwapper, ether('34400000')); // 3450000
     // vesting swapper & simple swapper
