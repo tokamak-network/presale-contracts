@@ -4,6 +4,7 @@ const VestingToken = artifacts.require('VestingToken');
 const Strategicsale = artifacts.require('Strategicsale');
 const fs = require('fs');
 const accounts = require('../test_accounts.json');
+const parameter = require('../config.js');
 
 const ether = n => new BN(toWei(n, 'ether'));
 
@@ -29,13 +30,13 @@ module.exports = async function (deployer) {
         token.address,
       ))
       .then(async () => { sale = await Strategicsale.deployed(); })
-      .then(() => token.generateTokens(accounts.owner, totalSupply))
+      .then(() => token.generateTokens(accounts.owner, parameter.strategic.totalSupply))
       .catch((e) => {
         console.error(e);
         throw e;
       });
     const data = JSON.parse(fs.readFileSync('deployed.json').toString());
-    data.strategicTON = token.address;
+    data.StrategicTON = token.address;
     fs.writeFile('deployed.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });
@@ -48,6 +49,9 @@ module.exports = async function (deployer) {
     await token.transfer(accounts.holder7, ether('2200.22'), { from: accounts.owner });
     await token.transfer(accounts.holder8, ether('3300.33'), { from: accounts.owner });
     await token.transfer(accounts.holder9, ether('4400.44'), { from: accounts.owner });
+    await token.transfer(accounts.holder10, ether('1100.23'), { from: accounts.owner });
+    await token.transfer(accounts.holder11, ether('3350.16'), { from: accounts.owner });
+    await token.transfer(accounts.holder12, ether('590.98'), { from: accounts.owner });
 
   } else if (process.env.DAEMONTEST) {
     let token;

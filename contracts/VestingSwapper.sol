@@ -12,7 +12,8 @@ import "./Burner.sol";
 contract VestingSwapper is Secondary {
     using SafeMath for uint256;
 
-    uint256 constant UNIT_IN_SECONDS = 60 * 60 * 24;
+    uint256 constant UNIT_IN_SECONDS = 60 * 60 * 6;
+    // uint256 constant UNIT_IN_SECONDS = 60 * 60 * 24 * 30 ;
     address constant ZERO_ADDRESS = address(0);
 
     struct BeneficiaryInfo {

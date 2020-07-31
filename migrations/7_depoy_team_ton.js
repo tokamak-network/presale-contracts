@@ -3,6 +3,7 @@ const { BN, toWei } = require('web3-utils');
 const VestingToken = artifacts.require('VestingTokenStep');
 const fs = require('fs');
 const accounts = require('../test_accounts.json');
+const parameter = require('../config.js');
 
 const ether = n => new BN(toWei(n, 'ether'));
 
@@ -22,25 +23,17 @@ module.exports = async function (deployer) {
       'TeamTON',
       true,
     ).then(async () => { token = await VestingToken.deployed(); })
-      .then(() => token.generateTokens(accounts.owner, totalSupply))
+      .then(() => token.generateTokens(accounts.owner, parameter.team.totalSupply))
       .catch((e) => {
         console.error(e);
         throw e;
       });
     const data = JSON.parse(fs.readFileSync('deployed.json').toString());
-    data.teamTON = token.address;
+    data.TeamTON = token.address;
     fs.writeFile('deployed.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });
-    await token.transfer(accounts.holder1, ether('1100.11'), { from: accounts.owner });
-    await token.transfer(accounts.holder2, ether('2200.22'), { from: accounts.owner });
-    await token.transfer(accounts.holder3, ether('3300.33'), { from: accounts.owner });
-    await token.transfer(accounts.holder4, ether('4400.44'), { from: accounts.owner });
-    await token.transfer(accounts.holder5, ether('5500.55'), { from: accounts.owner });
-    await token.transfer(accounts.holder6, ether('1100.11'), { from: accounts.owner });
-    await token.transfer(accounts.holder7, ether('2200.22'), { from: accounts.owner });
-    await token.transfer(accounts.holder8, ether('3300.33'), { from: accounts.owner });
-    await token.transfer(accounts.holder9, ether('4400.44'), { from: accounts.owner });
+    
   } else if (process.env.DAEMONTEST) {
     let token;
     await deployer.deploy(VestingToken,
