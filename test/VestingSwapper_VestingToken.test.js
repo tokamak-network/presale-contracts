@@ -247,6 +247,19 @@ contract('VestingSwapper basis', function ([controller, owner, investor, ...othe
             let balanceAfter = await ton.balanceOf(others[0]);
             balanceAfter.should.be.bignumber.equal(balanceBefore.add((expected["seed"]["0"]["firstClaimAmount"].add(expected["seed"]["0"]["amountInDurationUnit"]).mul(vestingData["seed"]["ratio"]))));
           });
+          it('should be burned after swap', async function () {
+            const totalSupply1 = await vestingToken.totalSupply();
+            await vestingSwapper.swap(vestingToken.address, {from: others[0]});
+            const totalSupply2 = await vestingToken.totalSupply();
+            totalSupply2.should.be.bignumber.lt(totalSupply1);
+          });
+          it('should be transfered to burner after swap', async function () {
+            await vestingSwapper.addUsingBurnerContract(vestingToken.address, {from: owner});
+            const balance1 = await vestingToken.balanceOf(burner.address);
+            await vestingSwapper.swap(vestingToken.address, {from: others[0]});
+            const balance2 = await vestingToken.balanceOf(burner.address);
+            balance2.should.be.bignumber.gt(balance1);
+          });
           it('monthly swap token', async function () {
             let balanceBefore = await ton.balanceOf(others[0]);
             await vestingSwapper.swap(vestingToken.address, {from: others[0]});

@@ -43,6 +43,7 @@ contract VestingSwapper is Secondary {
     TONVault public vault;
     address public burner;
     uint256 startTimestamp;
+    address[] public usingBurnerContracts;
 
     event Swapped(address account, uint256 unreleased, uint256 transferred);
     event Withdrew(address recipient, uint256 amount);
@@ -65,6 +66,7 @@ contract VestingSwapper is Secondary {
     constructor (ERC20Mintable token, address mtonAddress) public {
         _token = token;
         mton = IERC20(mtonAddress);
+        addUsingBurnerContract(mtonAddress);
     }
 
     // @param vestingToken the address of vesting token
@@ -79,8 +81,8 @@ contract VestingSwapper is Secondary {
         uint256 ton_amount = unreleased.mul(ratio);
         require(ton_amount > 0, "test111"); //
         bool success = false;
-        if (vestingToken == address(mton)) {
-            success = mton.transfer(burner, unreleased);
+        if (isUsingBurnerContract(vestingToken)) {
+            success = IERC20(vestingToken).transfer(burner, unreleased);
         } else {
             require(VestingToken(vestingToken).balanceOf(address(this)) >= unreleased, "swap: test error 1");
             success = VestingToken(vestingToken).destroyTokens(address(this), unreleased);
@@ -141,6 +143,21 @@ contract VestingSwapper is Secondary {
     /// @return False if the controller does not authorize the approval
     function onApprove(address _owner, address _spender, uint _amount) public returns(bool) {
         return true;
+    }
+
+    function addUsingBurnerContract(address token) public onlyPrimary {
+        if (!isUsingBurnerContract(token)) {
+            usingBurnerContracts.push(token);
+        }
+    }
+
+    function isUsingBurnerContract(address token) public view returns(bool) {
+        for (uint i = 0; i < usingBurnerContracts.length; i++) {
+            if (usingBurnerContracts[i] == token) {
+                return true;
+            }
+        }
+        return false;
     }
 
     //
