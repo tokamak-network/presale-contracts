@@ -113,6 +113,7 @@ contract VestingSwapper is Secondary {
     }
 
     function setStart(uint64 _startTimestamp) external onlyPrimary {
+        require(startTimestamp == 0, "VestingSwapper: the starttime is already set");
         startTimestamp = _startTimestamp;
     }
 
