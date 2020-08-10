@@ -8,11 +8,13 @@ import "./openzeppelin-solidity/ownership/Secondary.sol";
 import "./VestingToken.sol";
 import "./TONVault.sol";
 import "./Burner.sol";
+import "./SafeMath64.sol";
 
 contract VestingSwapper is Secondary {
     using SafeMath for uint256;
+    using SafeMath64 for uint64;
 
-    uint256 public constant UNIT_IN_SECONDS = 60 * 60 * 24 * 30;
+    uint64 public constant UNIT_IN_SECONDS = 60 * 60 * 24 * 30;
     address public constant ZERO_ADDRESS = address(0);
 
     struct BeneficiaryInfo {
@@ -22,13 +24,13 @@ contract VestingSwapper is Secondary {
 
     struct VestingInfo {
         bool isInitiated;
-        uint256 start; // start timestamp
-        uint256 cliff; // cilff timestamp
-        uint256 firstClaimTimestamp; // the timestamp of the first claim
+        uint64 ratio;
+        uint64 start; // start timestamp
+        uint64 cliff; // cilff timestamp
+        uint64 firstClaimTimestamp; // the timestamp of the first claim
+        uint64 durationUnit; // duration unit
+        uint64 durationInSeconds; // duration in seconds
         uint256 firstClaimAmount; // the first claim amount of the VestingToken
-        uint256 durationUnit; // duration unit
-        uint256 durationInSeconds; // duration in seconds
-        uint256 ratio;
         uint256 initialTotalSupply; // totalSupply of the VestingToken when initiated
     }
 
@@ -42,7 +44,7 @@ contract VestingSwapper is Secondary {
     IERC20 public mton;
     TONVault public vault;
     address public burner;
-    uint256 public startTimestamp;
+    uint64 public startTimestamp;
 
     event Swapped(address account, uint256 unreleased, uint256 transferred);
     event Withdrew(address recipient, uint256 amount);
@@ -69,7 +71,7 @@ contract VestingSwapper is Secondary {
 
     // @param vestingToken the address of vesting token
     function swap(address payable vestingToken) external returns (bool) {
-        uint256 ratio = vestingInfo[vestingToken].ratio;
+        uint64 ratio = vestingInfo[vestingToken].ratio;
         require(ratio > 0, "VestingSwapper: not valid sale token address");
 
         uint256 unreleased = releasableAmount(vestingToken, msg.sender);
@@ -110,7 +112,7 @@ contract VestingSwapper is Secondary {
         emit SetBurner(bernerAddress);
     }
 
-    function setStart(uint256 _startTimestamp) external onlyPrimary {
+    function setStart(uint64 _startTimestamp) external onlyPrimary {
         startTimestamp = _startTimestamp;
     }
 
@@ -175,7 +177,7 @@ contract VestingSwapper is Secondary {
     // @param firstClaimDurationInSeconds the first claim duration from start date in seconds
     // @param firstClaimAmount the first claim amount of the VestingToken
     // @param durationUnit duration unit 
-    function initiate(address vestingToken, uint256 start, uint256 cliffDurationInSeconds, uint256 firstClaimDurationInSeconds, uint256 firstClaimAmount, uint256 durationUnit) public onlyPrimary beforeInitiated(vestingToken) {
+    function initiate(address vestingToken, uint64 start, uint64 cliffDurationInSeconds, uint64 firstClaimDurationInSeconds, uint256 firstClaimAmount, uint64 durationUnit) public onlyPrimary beforeInitiated(vestingToken) {
         require(cliffDurationInSeconds <= durationUnit.mul(UNIT_IN_SECONDS), "VestingSwapper: cliff is longer than duration");
         require(durationUnit > 0, "VestingSwapper: duration is 0");
         require(start.add(durationUnit.mul(UNIT_IN_SECONDS)) > block.timestamp, "VestingSwapper: final time is before current time");
@@ -192,7 +194,7 @@ contract VestingSwapper is Secondary {
         info.initialTotalSupply = IERC20(vestingToken).totalSupply();
     }
 
-    function updateRatio(address vestingToken, uint256 tokenRatio) external onlyPrimary onlyBeforeStart {
+    function updateRatio(address vestingToken, uint64 tokenRatio) external onlyPrimary onlyBeforeStart {
         VestingInfo storage info = vestingInfo[vestingToken];
         info.ratio = tokenRatio;
         emit UpdateRatio(vestingToken, tokenRatio);
@@ -202,7 +204,7 @@ contract VestingSwapper is Secondary {
     // @param vestingToken the address of vesting token
     // @param beneficiary the address of beneficiary
     // @return the swapping ratio of the token
-    function ratio(address vestingToken) public view returns (uint256) {
+    function ratio(address vestingToken) public view returns (uint64) {
         VestingInfo storage info = vestingInfo[vestingToken];
         return info.ratio;
     }
@@ -219,7 +221,7 @@ contract VestingSwapper is Secondary {
     // @notice get vesting start date
     // @param vestingToken the address of vesting token
     // @return timestamp of the start date
-    function start(address vestingToken) public view returns (uint256) {
+    function start(address vestingToken) public view returns (uint64) {
         VestingInfo storage info = vestingInfo[vestingToken];
         return info.start;
     }
@@ -227,12 +229,12 @@ contract VestingSwapper is Secondary {
     // @notice get vesting cliff date
     // @param vestingToken the address of vesting token
     // @return timestamp of the cliff date
-    function cliff(address vestingToken) public view returns (uint256) {
+    function cliff(address vestingToken) public view returns (uint64) {
         VestingInfo storage info = vestingInfo[vestingToken];
         return info.cliff;
     }
 
-    function firstClaim(address vestingToken) public view returns (uint256) {
+    function firstClaim(address vestingToken) public view returns (uint64) {
         VestingInfo storage info = vestingInfo[vestingToken];
         return info.firstClaimTimestamp;
     }
@@ -240,7 +242,7 @@ contract VestingSwapper is Secondary {
     // @notice get the number of duration unit
     // @param vestingToken the address of vesting token
     // @return the number of duration unit
-    function duration(address vestingToken) public view returns (uint256) {
+    function duration(address vestingToken) public view returns (uint64) {
         VestingInfo storage info = vestingInfo[vestingToken];
         return info.durationUnit;
     }
