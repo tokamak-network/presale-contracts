@@ -184,15 +184,18 @@ contract VestingSwapper is Secondary {
         require(start.add(durationUnit.mul(UNIT_IN_SECONDS)) > block.timestamp, "VestingSwapper: final time is before current time");
         require(firstClaimAmount <= IERC20(vestingToken).totalSupply());
 
-        VestingInfo storage info = vestingInfo[vestingToken];
-        info.start = start;
-        info.cliff = start.add(cliffDurationInSeconds);
-        info.firstClaimTimestamp = start.add(firstClaimDurationInSeconds);
-        info.firstClaimAmount = firstClaimAmount;
-        info.durationUnit = durationUnit;
-        info.durationInSeconds = durationUnit.mul(UNIT_IN_SECONDS);
-        info.isInitiated = true;
-        info.initialTotalSupply = IERC20(vestingToken).totalSupply();
+        VestingInfo memory info = VestingInfo({
+            isInitiated: true,
+            ratio: ratio(vestingToken),
+            start: start,
+            cliff: start.add(cliffDurationInSeconds),
+            firstClaimTimestamp: start.add(firstClaimDurationInSeconds),
+            firstClaimAmount: firstClaimAmount,
+            durationUnit: durationUnit,
+            durationInSeconds: durationUnit.mul(UNIT_IN_SECONDS),
+            initialTotalSupply: IERC20(vestingToken).totalSupply()
+        });
+        vestingInfo[vestingToken] = info;
     }
 
     function updateRatio(address vestingToken, uint64 tokenRatio) external onlyPrimary onlyBeforeStart {
