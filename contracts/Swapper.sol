@@ -14,10 +14,10 @@ contract Swapper is Secondary {
     mapping(address => uint256) public ratio;
 
     ERC20Mintable public _token;
-    IERC20 mton;
+    IERC20 public mton;
     TONVault public vault;
     address public burner;
-    uint256 startTimestamp;
+    uint256 public startTimestamp;
 
     event Swapped(address account, uint256 unreleased, uint256 transferred);
     event Withdrew(address recipient, uint256 amount);
