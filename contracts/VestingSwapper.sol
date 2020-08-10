@@ -89,9 +89,9 @@ contract VestingSwapper is Secondary {
         }
         require(success, "VestingSwapper: failed to destoy token");
         success = _token.transferFrom(address(vault), address(this), ton_amount);
-        require(success);
+        require(success, "VestingSwapper: failed to transfer TON from the vault contract");
         success = _token.transfer(msg.sender, ton_amount);
-        require(success);
+        require(success, "VestingSwapper: failed to transfer TON to beneficiary");
         increaseReleasedAmount(vestingToken, msg.sender, unreleased);
         
         emit Swapped(msg.sender, unreleased, ton_amount);
