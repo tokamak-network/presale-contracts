@@ -54,7 +54,7 @@ contract VestingTokenStep is MiniMeToken {
 
         // solhint-disable-next-line max-line-length
         require(cliffDuration <= _duration, "VestingTokenStep: cliff is longer than duration");
-        require(_duration > 0, "VestingTokenStep: duration is 0");
+        require(_duration != 0, "VestingTokenStep: duration is 0");
         // solhint-disable-next-line max-line-length
         require(_start.add(_duration.mul(UNIT_IN_SECONDS)) > block.timestamp, "VestingTokenStep: final time is before current time");
 
@@ -80,7 +80,7 @@ contract VestingTokenStep is MiniMeToken {
     function destroyReleasableTokens(address beneficiary) public afterInitiated onlyController returns (uint256 unreleased) {
         unreleased = releasableAmount(beneficiary);
 
-        require(unreleased > 0, "VestingTokenStep: no tokens are due");
+        require(unreleased != 0, "VestingTokenStep: no tokens are due");
 
         released[beneficiary] = released[beneficiary].add(unreleased);
 
