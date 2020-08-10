@@ -179,8 +179,8 @@ contract('VestingSwapper basis', function ([controller, owner, investor, ...othe
     vault = await TONVault.new(ton.address, { from: owner });
     burner = await Burner.new({ from: owner });
     
-    await vestingSwapper.setBurner(burner.address, {from: owner});
-    await swapper.setBurner(burner.address, {from: owner});
+    //await vestingSwapper.setBurner(burner.address, {from: owner});
+    //await swapper.setBurner(burner.address, {from: owner});
 
     await vestingSwapper.updateRatio(mton.address, vestingData["mton"]["ratio"], {from: owner});
     await swapper.updateRatio(mton.address, vestingData["mton"]["ratio"], {from: owner});

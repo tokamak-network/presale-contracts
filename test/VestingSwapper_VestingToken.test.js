@@ -107,7 +107,7 @@ contract('VestingSwapper basis', function ([controller, owner, investor, ...othe
     vault = await TONVault.new(ton.address, { from: owner });
     burner = await Burner.new({ from: owner });
     
-    await vestingSwapper.setBurner(burner.address, {from: owner});
+    //await vestingSwapper.setBurner(burner.address, {from: owner});
 
     await vestingSwapper.updateRatio(vestingToken.address, vestingData["seed"]["ratio"], {from: owner});
 
@@ -155,7 +155,7 @@ contract('VestingSwapper basis', function ([controller, owner, investor, ...othe
         );
       });
     });
-    describe('setBurner', function () {
+    /*describe('setBurner', function () {
       it('setBurner - should succeed', async function () {
         await vestingSwapper.setBurner(burner.address, {from: owner});
       });
@@ -165,7 +165,7 @@ contract('VestingSwapper basis', function ([controller, owner, investor, ...othe
           "Secondary: caller is not the primary account"
         );
       });
-    });
+    });*/
     describe('setVault', function () {
       it('setVault - should succeed', async function () {
         await vestingSwapper.setVault(vault.address, {from: owner});

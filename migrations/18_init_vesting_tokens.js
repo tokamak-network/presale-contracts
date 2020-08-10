@@ -97,11 +97,11 @@ module.exports = async function (deployer) {
   }
   if (process.env.SETVAULTSIMPLE) {
     await simpleSwapper.setVault(data.TONVault);
-    await simpleSwapper.setBurner(data.Burner)
+    //await simpleSwapper.setBurner(data.Burner)
   }
   if (process.env.SETVAULTVESTING) {
     await vestingSwapper.setVault(data.TONVault);
-    await vestingSwapper.setBurner(data.Burner);
+    //await vestingSwapper.setBurner(data.Burner);
   }
 
   if (process.env.SEEDINIT || process.env.PRIVATEINIT || process.env.STRATEGICINIT || process.env.MARKETINGINIT || process.env.TEAMINIT || process.env.ADVISORINIT || process.env.BUSINESSINIT || process.env.RESERVEINIT || process.env.DAOINIT || process.env.SETVAULTSIMPLE || process.env.SETVAULTVESTING) {

@@ -43,7 +43,7 @@ contract VestingSwapper is Secondary {
     ERC20Mintable public _token;
     IERC20 public mton;
     TONVault public vault;
-    address public burner;
+    address public constant burner = 0x0000000000000000000000000000000000000001; // not deployed yet
     uint64 public startTimestamp;
 
     event Swapped(address account, uint256 unreleased, uint256 transferred);
@@ -51,7 +51,6 @@ contract VestingSwapper is Secondary {
     event Deposit(address vestingToken, address from, uint256 amount);
     event UpdateRatio(address vestingToken, uint256 tokenRatio);
     event SetVault(address vaultAddress);
-    event SetBurner(address bernerAddress);
 
     modifier beforeInitiated(address vestingToken) {
         require(!vestingInfo[vestingToken].isInitiated, "VestingSwapper: cannot execute after initiation");
@@ -105,11 +104,6 @@ contract VestingSwapper is Secondary {
     function setVault(TONVault vaultAddress) external onlyPrimary {
         vault = vaultAddress;
         emit SetVault(address(vaultAddress));
-    }
-
-    function setBurner(address bernerAddress) external onlyPrimary onlyBeforeStart {
-        burner = bernerAddress;
-        emit SetBurner(bernerAddress);
     }
 
     function setStart(uint64 _startTimestamp) external onlyPrimary {
