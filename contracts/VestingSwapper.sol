@@ -12,8 +12,8 @@ import "./Burner.sol";
 contract VestingSwapper is Secondary {
     using SafeMath for uint256;
 
-    uint256 constant UNIT_IN_SECONDS = 60 * 60 * 24 * 30;
-    address constant ZERO_ADDRESS = address(0);
+    uint256 public constant UNIT_IN_SECONDS = 60 * 60 * 24 * 30;
+    address public constant ZERO_ADDRESS = address(0);
 
     struct BeneficiaryInfo {
         uint256 totalAmount; // total deposit amount
@@ -39,10 +39,10 @@ contract VestingSwapper is Secondary {
     mapping(address => VestingInfo) public vestingInfo;
 
     ERC20Mintable public _token;
-    IERC20 mton;
+    IERC20 public mton;
     TONVault public vault;
     address public burner;
-    uint256 startTimestamp;
+    uint256 public startTimestamp;
 
     event Swapped(address account, uint256 unreleased, uint256 transferred);
     event Withdrew(address recipient, uint256 amount);
