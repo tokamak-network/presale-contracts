@@ -72,14 +72,14 @@ contract VestingSwapper is Secondary {
     // @param vestingToken the address of vesting token
     function swap(address payable vestingToken) external returns (bool) {
         uint64 ratio = vestingInfo[vestingToken].ratio;
-        require(ratio > 0, "VestingSwapper: not valid sale token address");
+        require(ratio != 0, "VestingSwapper: not valid sale token address");
 
         uint256 unreleased = releasableAmount(vestingToken, msg.sender);
         if (unreleased == 0) {
             return true;
         }
         uint256 ton_amount = unreleased.mul(ratio);
-        require(ton_amount > 0, "test111"); //
+        require(ton_amount != 0, "VestingSwapper: zero amount to swap"); //
         bool success = false;
         if (vestingToken == address(mton)) {
             success = mton.transfer(burner, unreleased);
@@ -150,7 +150,7 @@ contract VestingSwapper is Secondary {
     //
 
     function receiveApproval(address from, uint256 _amount, address payable _token, bytes memory _data) public {
-        require(ratio(_token) > 0, "VestingSwapper: not valid sale token address");
+        require(ratio(_token) != 0, "VestingSwapper: not valid sale token address");
         VestingToken token = VestingToken(_token);
         require(_amount <= token.balanceOf(from), "VestingSwapper: VestingToken amount exceeded");
 
@@ -179,7 +179,7 @@ contract VestingSwapper is Secondary {
     // @param durationUnit duration unit 
     function initiate(address vestingToken, uint64 start, uint64 cliffDurationInSeconds, uint64 firstClaimDurationInSeconds, uint256 firstClaimAmount, uint64 durationUnit) public onlyPrimary beforeInitiated(vestingToken) {
         require(cliffDurationInSeconds <= durationUnit.mul(UNIT_IN_SECONDS), "VestingSwapper: cliff is longer than duration");
-        require(durationUnit > 0, "VestingSwapper: duration is 0");
+        require(durationUnit != 0, "VestingSwapper: duration is 0");
         require(start.add(durationUnit.mul(UNIT_IN_SECONDS)) > block.timestamp, "VestingSwapper: final time is before current time");
         require(firstClaimAmount <= IERC20(vestingToken).totalSupply());
 
