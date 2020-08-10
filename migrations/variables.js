@@ -5,11 +5,6 @@
 //4.Each of VestingTokens in VestingSwapper should be inited
 
 
-//// Order of deployment
-//1. Vault and Burner
-//2.
-
-
 //// 1.Accounts Address ////
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 const ZERO_ONE_ADDRESS = "0x0000000000000000000000000000000000000001";
@@ -22,8 +17,6 @@ const RTON_HOLDER = "0x2Db13E39eaf889A433E0CB23C38520419eC37202";
 const ATON_HOLDER = "0x33c0e0cf845502EDa9873E8Ab1Da1DaF5a47eac6";
 const TON_VAULT_OWNER = "0xBB6b2fCCC6AA3518FBE36F739A7dE048e814998A";
 const TON_OWNER = "0xC8F4035b79cB95fA18F9BAa9C457843954C28233";
-const SIMPLE_SWAPPER_OWNER = ""; // Can be zero-address
-const VESTING_SWAPPER_OWNER= ""; // Can be zero-address
 
 //// 2.Contract Addresses ////
 //vestingToken, have to use vestingSwapper(Don't have to init token itself).
@@ -57,51 +50,62 @@ const MTON_RATIO = 1;
 const SOURCE_RATIO = 50;
 
 //3.2 Vesting timestamp related
-const START_TIMESTAMP = "";
-const DURATON = ""; //30 days
-const CLIFF_DURATION_STEP_TOKEN = "";
+const START_TIMESTAMP = 1597201200; //2020. 8. 12 오후 12:00:00(KST)
+const DURATON = 60 * 60 * 24 * 30; //30 days
+const CLIFF_DURATION_STEP_TOKEN = 0; //
 
 //3.3 Vesting swapper related
+
+// https://docs.google.com/spreadsheets/d/1o3MXV9ajux3H2aL7mRZRi343DrjoefgOeC9HR1xkXQk/edit#gid=556573766
+
 //3.3.1 seedTON
-const SEED_START = "";
-const SEED_CLIFF_DURATION_IN_SECONDS = "";
-const SEED_FIRST_CLAIM_DURATION_IN_SECONDS = "";
-const SEED_FIRST_CLAIM_AMOUNT = "";
-const SEED_DURATION_UNIT = "";
+const SEED_START = START_TIMESTAMP;
+const SEED_CLIFF_DURATION_IN_SECONDS = "?";
+const SEED_FIRST_CLAIM_DURATION_IN_SECONDS = "?";
+const SEED_FIRST_CLAIM_AMOUNT = "?";
+const SEED_DURATION_UNIT = "?";
 
 //3.3.2 privateTON
-const PRIVATE_START = "";
-const PRIVATE_CLIFF_DURATION_IN_SECONDS = "";
-const PRIVATE_FIRST_CLAIM_DURATION_IN_SECONDS = "";
-const PRIVATE_FIRST_CLAIM_AMOUNT = "";
-const PRIVATE_DURATION_UNIT = "";
+const PRIVATE_START = START_TIMESTAMP;
+const PRIVATE_CLIFF_DURATION_IN_SECONDS = "?";
+const PRIVATE_FIRST_CLAIM_DURATION_IN_SECONDS = "?";
+const PRIVATE_FIRST_CLAIM_AMOUNT = "?";
+const PRIVATE_DURATION_UNIT = "?";
 
 //3.3.3 strategicTON
-const STRATEGIC_START = "";
-const STRATEGIC_CLIFF_DURATION_IN_SECONDS = "";
-const STRATEGIC_FIRST_CLAIM_DURATION_IN_SECONDS = "";
-const STRATEGIC_FIRST_CLAIM_AMOUNT = "";
-const STRATEGIC_DURATION_UNIT = "";
+const STRATEGIC_START = START_TIMESTAMP;
+const STRATEGIC_CLIFF_DURATION_IN_SECONDS = "?";
+const STRATEGIC_FIRST_CLAIM_DURATION_IN_SECONDS = "?";
+const STRATEGIC_FIRST_CLAIM_AMOUNT = "?";
+const STRATEGIC_DURATION_UNIT = "?";
 
 //3.3.4 marketingTON
-const MARKETING_START = "";
-const MARKETING_CLIFF_DURATION_IN_SECONDS = "";
-const MARKETING_FIRST_CLAIM_DURATION_IN_SECONDS = "";
-const MARKETING_FIRST_CLAIM_AMOUNT = "";
-const MARKETING_DURATION_UNIT = "";
+const MARKETING_START = START_TIMESTAMP;
+const MARKETING_CLIFF_DURATION_IN_SECONDS = "?";
+const MARKETING_FIRST_CLAIM_DURATION_IN_SECONDS = "?";
+const MARKETING_FIRST_CLAIM_AMOUNT = "?";
+const MARKETING_DURATION_UNIT = "?";
 
 //amount to be minted
-const GENERATED_MTON = ""; //MTON should be generated more
-const GENERATED_DAO_TON = "";
-const GENERATED_TEAM_TON = "150000"; // TODO : convert to wei
-const GENERATED_ADVISOR_TON = "";
-const GENERATED_BIZ_TON = "";
-const GENERATED_RESERVE_TON = "";
-const GENERATED_TON = "50000000" // TODO : convert to wei
+const GENERATED_MTON = "1064393 " + "685257319142626689"; //wei, 2600000 - (1515283.424251996524338723 + 20322.890490684333034588187841973)
+const GENERATED_DAO_TON = "350000" + "000000000000000000"; //wei
+const GENERATED_TEAM_TON = "150000" + "000000000000000000"; // wei
+const GENERATED_ADVISOR_TON = "30000" + "000000000000000000"; //wei
+const GENERATED_BIZ_TON = "100000" + "000000000000000000"; //wei
+const GENERATED_RESERVE_TON = "60000" + "000000000000000000"; //wei
+const GENERATED_TON = "50000000" + "000000000000000000" // wei
 
 //Vault approve amount
-const APPROVE_VESTING_SWAPPER = "";
-const APPROVE_SIMPLE_SWAPPER = "";
+
+// VestingSwapperApproved = (STON + PTON + STTON)*50 + FirstCliffMTON
+// = (30000 + 144000.083230664748493368 + 84000.1)*50 + 200200
+// = 13100209.1615332374246684
+const APPROVE_VESTING_SWAPPER = "13100209" + "1615332374246684"; //wei
+
+// SimpleSwapperApproved = TON.totalSupply - VestingSwapperApproved
+// = 50000000 - 13100209.1615332374246684
+// = 36899790.8384667625753316
+const APPROVE_SIMPLE_SWAPPER = "36899790" + "8384667625753316"; //wei
 
 
 const data = {
@@ -298,7 +302,7 @@ const data = {
       ".setVault(vaultAddress)",
       ".setBurner(burnerAddress)",
       ".initiate(seedTON, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit)",
-      ".initiate(privateTON, start, PcliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit)",
+      ".initiate(privateTON, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit)",
       ".initiate(strategicTON, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit)",
       ".initiate(marketingTON, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit)",
       ".updateRatio(seedTON, seedRatio)",
