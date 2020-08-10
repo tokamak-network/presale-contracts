@@ -1,5 +1,5 @@
 
-//Accounts Address
+//// 1.Accounts Address ////
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 const ZERO_ONE_ADDRESS = "0x0000000000000000000000000000000000000001";
 const TeamTONHolder = "0xB2E518b841b0Cb7124dDaDcbb882BbCED4337cBf";
@@ -11,8 +11,10 @@ const ReserveTONHolder = "0x2Db13E39eaf889A433E0CB23C38520419eC37202";
 const AdvisorTONHolder = "0x33c0e0cf845502EDa9873E8Ab1Da1DaF5a47eac6";
 const TONVaultOwner = "0xBB6b2fCCC6AA3518FBE36F739A7dE048e814998A";
 const TONOwner = "0xC8F4035b79cB95fA18F9BAa9C457843954C28233";
+const SIMPLE_SWAPPER_OWNER = ""; // Can be zero-address
+const VESTING_SWAPPER_OWNER= ""; // Can be zero-address
 
-//// Contract Address ////
+//// 2.Contract Addresses ////
 //vestingToken, have to use vestingSwapper(Don't have to init token itself).
 const SEED_TON = "0x8Ae43F11DDd3fac5bbD84ab0BA795E1e51b78df7";
 const PRIVATE_TON = "0x2C0F8e85ad3DCbEc1561f6cE632DFF86294e479f";
@@ -31,6 +33,40 @@ const SIMPLE_SWAPPER = "";
 const VESTING_SWAPPER = "";
 //seigManager contract
 const SEIG_MANAGER = "0x2104cEC955b6FaBF603d8B2Ee0c28EA88886fa8C";
+
+//// 3.Swaps and Vestings ////
+//3.1Swap ratios
+const MTON_RATIO = 1;
+const SOURCE_RATIO = 50;
+//3.2Vesting timestamp related
+const START_TIMESTAMP = ""
+const DURATON = "" //30 days
+const CLIFF_DURATION_STEP_TOKEN = ""
+//3.3Vesting swapper related
+//3.3.1seedTON
+const SEED_START = ""
+const SEED_CLIFF_DURATION_IN_SECONDS = ""
+const SEED_FIRST_CLAIM_DURATION_IN_SECONDS = ""
+const SEED_FIRST_CLAIM_AMOUNT = ""
+const SEED_DURATION_UNIT = ""
+//3.3.2privateTON
+const PRIVATE_START = ""
+const PRIVATE_CLIFF_DURATION_IN_SECONDS = ""
+const PRIVATE_FIRST_CLAIM_DURATION_IN_SECONDS = ""
+const PRIVATE_FIRST_CLAIM_AMOUNT = ""
+const PRIVATE_DURATION_UNIT = ""
+//3.3.3strategicTON
+const STRATEGIC_START = ""
+const STRATEGIC_CLIFF_DURATION_IN_SECONDS = ""
+const STRATEGIC_FIRST_CLAIM_DURATION_IN_SECONDS = ""
+const STRATEGIC_FIRST_CLAIM_AMOUNT = ""
+const STRATEGIC_DURATION_UNIT = ""
+//3.3.4marketingTON
+const MARKETING_START = ""
+const MARKETING_CLIFF_DURATION_IN_SECONDS = ""
+const MARKETING_FIRST_CLAIM_DURATION_IN_SECONDS = ""
+const MARKETING_FIRST_CLAIM_AMOUNT = ""
+const MARKETING_DURATION_UNIT = ""
 
 
 const data = {
@@ -229,37 +265,124 @@ const data = {
       ".setVault(valutAddress)",
       ".setBurner(burnerAddress)",
       ".updateRatio(marketingTON, marketingRatio)",
-      "MTON.initiate(MTONstart, MTONcliffDuration, MTONduration)",
       ".updateRatio(teamTON, teamRatio)",
-      "TeamTON.initiate(teamTON, teamTONstart, teamTONcliffDurationInSeconds, teamTONfirstClaimDurationInSeconds, teamTONfirstClaimAmount, teamTONdurationUnit)",
       ".updateRatio(advisorTON, advisorRatio)",
-      "ATON.initiate(ATON, ATONstart, ATONcliffDurationInSeconds, ATONfirstClaimDurationInSeconds, ATONfirstClaimAmount, ATONdurationUnit)",
       ".updateRatio(businessTON, businessRatio)",
-      "BTON.initiate(BTON, BTONstart, BTONcliffDurationInSeconds, BTONfirstClaimDurationInSeconds, BTONfirstClaimAmount, BTONdurationUnit)",
       ".updateRatio(reserveTON, reserveRatio)",
-      "RTON.initiate(RTON, RTONstart, RTONcliffDurationInSeconds, RTONfirstClaimDurationInSeconds, RTONfirstClaimAmount, RTONdurationUnit)",
       ".updateRatio(daoTON, daoRatio)",
-      "DTON.initiate(DTON, DTONstart, DTONcliffDurationInSeconds, DTONfirstClaimDurationInSeconds, DTONfirstClaimAmount, DTONdurationUnit)",
-      ".setStart(startTimestamp)",
+      "MTON.initiate(start, cliffDuration, duration)",
+      "TTON.initiate(start, cliffDuration, duration)",
+      "ATON.initiate(start, cliffDuration, duration)",
+      "BTON.initiate(start, cliffDuration, duration)",
+      "RTON.initiate(start, cliffDuration, duration)",
+      "DTON.initiate(start, cliffDuration, duration)",
       ".changeController(newOwner)"
-    ]
+    ],
+    "TONAddress" : TON,
+    "MTONAddress" : MARKETING_TON,
+    "valutAddress" : TON_VAULT,
+    "burnerAddress" : BURNER,
+    "MTON" : {
+      "marketingTON" : MARKETING_TON,
+      "marketingRatio" : MTON_RATIO,
+      "start": START_TIMESTAMP,
+      "cliffDuration" : CLIFF_DURATION_STEP_TOKEN,
+      "duration": DURATON,
+    },
+    "TeamTON" : {
+      "teamTON" : TEAM_TON,
+      "teamRatio" : SOURCE_RATIO,
+      "start": START_TIMESTAMP,
+      "cliffDurationInSeconds" : CLIFF_DURATION_STEP_TOKEN,
+      "duration": DURATON,
+    },
+    "AdvisorTON" : {
+      "advisorTON" : TEAM_TON,
+      "advisorRatio" : SOURCE_RATIO,
+      "start": START_TIMESTAMP,
+      "cliffDurationInSeconds" : CLIFF_DURATION_STEP_TOKEN,
+      "duration": DURATON,
+    },
+    "BusinessTON" : {
+      "BusinessTON" : TEAM_TON,
+      "BusinessRatio" : SOURCE_RATIO,
+      "start": START_TIMESTAMP,
+      "cliffDurationInSeconds" : CLIFF_DURATION_STEP_TOKEN,
+      "duration": DURATON,
+    },
+    "reserveTON" : {
+      "reserveTON" : TEAM_TON,
+      "reserveRatio" : SOURCE_RATIO,
+      "start": START_TIMESTAMP,
+      "cliffDurationInSeconds" : CLIFF_DURATION_STEP_TOKEN,
+      "duration": DURATON,
+    },
+    "daoTON" : {
+      "daoTON" : TEAM_TON,
+      "daoRatio" : SOURCE_RATIO,
+      "start": START_TIMESTAMP,
+      "cliffDurationInSeconds" : CLIFF_DURATION_STEP_TOKEN,
+      "duration": DURATON,
+    },
+    "newOwner" : SIMPLE_SWAPPER_OWNER
   },
 
   "vestingSwapper" : {
     "actions" : [
       "deploy vestingSwapper(TONAddress, MTONAddress)",
       ".setVault(vaultAddress)",
-      ".setBurner(bernerAddress)",
-      ".initiate(seedTON, seedTONstart, seedTONcliffDurationInSeconds, seedTONfirstClaimDurationInSeconds, seedTONfirstClaimAmount, seedTONdurationUnit)",
-      ".initiate(PTON, PTONstart, PTONcliffDurationInSeconds, PTONfirstClaimDurationInSeconds, PTONfirstClaimAmount, PTONdurationUnit)",
-      ".initiate(StTON, StTONstart, StTONcliffDurationInSeconds, StTONfirstClaimDurationInSeconds, StTONfirstClaimAmount, StTONdurationUnit)",
-      ".initiate(MTON, MTONstart, MTONcliffDurationInSeconds, MTONfirstClaimDurationInSeconds, MTONfirstClaimAmount, MTONdurationUnit)",
+      ".setBurner(burnerAddress)",
+      ".initiate(seedTON, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit)",
+      ".initiate(privateTON, start, PcliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit)",
+      ".initiate(strategicTON, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit)",
+      ".initiate(marketingTON, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit)",
       ".updateRatio(seedTON, seedRatio)",
       ".updateRatio(privateTON, seedRatio)",
       ".updateRatio(strategicTON, strategicRatio)",
       ".updateRatio(marketingTON, marketingRatio)",
+      ".setStart(startTimestamp)",
       ".transferPrimary(zero-one-address)"
-    ]
+    ],
+    "TONAddress" : TON,
+    "MTONAddress" : MARKETING_TON,
+    "vaultAddress" : TON_VAULT,
+    "burnerAddress" : BURNER,
+    "seedTON" : {
+      "seedTON" : SEED_TON,
+      "seedRatio" : SOURCE_RATIO,
+      "start" : SEED_START,
+      "cliffDurationInSeconds" : SEED_CLIFF_DURATION_IN_SECONDS,
+      "firstClaimDurationInSeconds" : SEED_FIRST_CLAIM_DURATION_IN_SECONDS,
+      "firstClaimAmount" : SEED_FIRST_CLAIM_AMOUNT,
+      "durationUnit" : SEED_DURATION_UNIT,
+    },
+    "privateTON" : {
+      "privateTON" : PRIVATE_TON,
+      "privateRatio" : SOURCE_RATIO,
+      "start" : PRIVATE_START,
+      "cliffDurationInSeconds" : PRIVATE_CLIFF_DURATION_IN_SECONDS,
+      "firstClaimDurationInSeconds" : PRIVATE_FIRST_CLAIM_DURATION_IN_SECONDS,
+      "firstClaimAmount" : PRIVATE_FIRST_CLAIM_AMOUNT,
+      "durationUnit" : PRIVATE_DURATION_UNIT,
+    },
+    "strategicTON" : {
+      "strategicTON" : STRATEGIC_TON,
+      "strategicRatio" : SOURCE_RATIO,
+      "start" : STRATEGIC_START,
+      "cliffDurationInSeconds" : STRATEGIC_CLIFF_DURATION_IN_SECONDS,
+      "firstClaimDurationInSeconds" : STRATEGIC_FIRST_CLAIM_DURATION_IN_SECONDS,
+      "firstClaimAmount" : STRATEGIC_FIRST_CLAIM_AMOUNT,
+      "durationUnit" : STRATEGIC_DURATION_UNIT,
+    },
+    "marketingTON" : {
+      "marketingTON" : MARKETING_TON,
+      "marketingRatio" : SOURCE_RATIO,
+      "start" : MARKETING_START,
+      "cliffDurationInSeconds" : MARKETING_CLIFF_DURATION_IN_SECONDS,
+      "firstClaimDurationInSeconds" : MARKETING_FIRST_CLAIM_DURATION_IN_SECONDS,
+      "firstClaimAmount" : MARKETING_FIRST_CLAIM_AMOUNT,
+      "durationUnit" : MARKETING_DURATION_UNIT,
+    },
   }
 };
 
