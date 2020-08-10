@@ -35,9 +35,8 @@ const RESERVE_TON = "";
 //target token : TON
 const TON = "";
 
-//vault, bur ner and swappers
+//vault and swappers
 const TON_VAULT = "";
-const BURNER = "";
 const SIMPLE_SWAPPER = "";
 const VESTING_SWAPPER = "";
 
@@ -45,18 +44,41 @@ const VESTING_SWAPPER = "";
 const SEIG_MANAGER = "0x2104cEC955b6FaBF603d8B2Ee0c28EA88886fa8C";
 
 //// 3. Swaps and Vestings ////
+
+// https://docs.google.com/spreadsheets/d/1o3MXV9ajux3H2aL7mRZRi343DrjoefgOeC9HR1xkXQk/edit#gid=556573766
+
 //3.1 Swap ratios
 const MTON_RATIO = 1;
 const SOURCE_RATIO = 50;
 
 //3.2 Vesting timestamp related
 const START_TIMESTAMP = 1597201200; //2020. 8. 12 오후 12:00:00(KST)
-const DURATON = 60 * 60 * 24 * 30; //30 days
+
+const TEAM_START = "1612728000"; // 2021. 2. 8 오전 5:00:00(KST)
+const ADVISOR_START = "1612728000"; // 2021. 2. 8 오전 5:00:00(KST)
+const MARKETING_START_SIMPLE = "1599768000"; // 2020. 9. 11 오전 5:00:00(KST)
+const BUSINNESS_START = "1599768000"; // 2020. 9. 11 오전 5:00:00(KST)
+const RESERVE_START = "1628280000"; // 2021. 8. 7 오전 5:00:00(KST)
+const DAO_START = "1610136000"; // 2021. 1. 9 오전 5:00:00(KST)
+
+var month = 60 * 60 * 24 * 30; // 30days
+var day = 60 * 60 * 24; // 1day
+var hour = 60 * 60; // 1hour
+
+const SEED_DURATION = 7*month - 7*hour;
+const PRIVATE_DURATION = 11*month - 7*hour;
+const STRATEGIC_DURATION = 11*month - 7*hour;
+const TEAM_DURATION = 35*month;
+const ADVISOR_DURATON = 18*month;
+const MARKETING_DURATION_SIMPLE = 0;
+const MARKETING_DURATOON_VESTING_SWAPPER = 10*month;
+const BIZ_DURATION = 20*month;
+const RESERVE_DURATION = 30*month;
+const DAO_DURATION = 0;
+
 const CLIFF_DURATION_STEP_TOKEN = 0; //
 
 //3.3 Vesting swapper related
-
-// https://docs.google.com/spreadsheets/d/1o3MXV9ajux3H2aL7mRZRi343DrjoefgOeC9HR1xkXQk/edit#gid=556573766
 
 //3.3.1 seedTON
 const SEED_START = START_TIMESTAMP;
@@ -232,7 +254,6 @@ const data = {
     "actions" : [
       "deploy simpleswapper(TONAddress, MTONAddress)",
       ".setVault(valutAddress)",
-      ".setBurner(burnerAddress)",
       ".updateRatio(marketingTON, marketingRatio)",
       ".updateRatio(teamTON, teamRatio)",
       ".updateRatio(advisorTON, advisorRatio)",
@@ -249,49 +270,48 @@ const data = {
     "parameters" : {
       "TONAddress" : TON,
       "MTONAddress" : MARKETING_TON,
-      "valutAddress" : TON_VAULT,
-      "burnerAddress" : BURNER,
-      "MTON" : {
+      "valutAddress" : TON_VAULT
+      "MTON" : { //swap any amount, any time
         "marketingTON" : MARKETING_TON,
         "marketingRatio" : MTON_RATIO,
-        "start": START_TIMESTAMP,
+        "start": MARKETING_START_SIMPLE,
         "cliffDuration" : CLIFF_DURATION_STEP_TOKEN,
-        "duration": DURATON,
+        "duration": MARKETING_DURATION_SIMPLE,
       },
       "TeamTON" : {
         "teamTON" : TEAM_TON,
         "teamRatio" : SOURCE_RATIO,
-        "start": START_TIMESTAMP,
+        "start": TEAM_START,
         "cliffDurationInSeconds" : CLIFF_DURATION_STEP_TOKEN,
-        "duration": DURATON,
+        "duration": TEAM_DURATION,
       },
       "AdvisorTON" : {
-        "advisorTON" : TEAM_TON,
+        "advisorTON" : ADVISOR_TON,
         "advisorRatio" : SOURCE_RATIO,
-        "start": START_TIMESTAMP,
+        "start": ADVISOR_START,
         "cliffDurationInSeconds" : CLIFF_DURATION_STEP_TOKEN,
-        "duration": DURATON,
+        "duration": ADVISOR_DURATON,
       },
       "BusinessTON" : {
-        "BusinessTON" : TEAM_TON,
+        "BusinessTON" : BUSINESS_TON,
         "BusinessRatio" : SOURCE_RATIO,
-        "start": START_TIMESTAMP,
+        "start": BUSINNESS_START,
         "cliffDurationInSeconds" : CLIFF_DURATION_STEP_TOKEN,
-        "duration": DURATON,
+        "duration": BIZ_DURATION,
       },
       "reserveTON" : {
-        "reserveTON" : TEAM_TON,
+        "reserveTON" : RESERVE_TON,
         "reserveRatio" : SOURCE_RATIO,
-        "start": START_TIMESTAMP,
+        "start": RESERVE_START,
         "cliffDurationInSeconds" : CLIFF_DURATION_STEP_TOKEN,
-        "duration": DURATON,
+        "duration": RESERVE_DURATON,
       },
       "daoTON" : {
-        "daoTON" : TEAM_TON,
+        "daoTON" : DAO_TON,
         "daoRatio" : SOURCE_RATIO,
-        "start": START_TIMESTAMP,
+        "start": DAO_START,
         "cliffDurationInSeconds" : CLIFF_DURATION_STEP_TOKEN,
-        "duration": DURATON,
+        "duration": DAO_DURATION,
       }
     }
   },
@@ -300,7 +320,6 @@ const data = {
     "actions" : [
       "deploy vestingSwapper(TONAddress, MTONAddress)",
       ".setVault(vaultAddress)",
-      ".setBurner(burnerAddress)",
       ".initiate(seedTON, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit)",
       ".initiate(privateTON, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit)",
       ".initiate(strategicTON, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit)",
@@ -313,8 +332,7 @@ const data = {
     ],
     "TONAddress" : TON,
     "MTONAddress" : MARKETING_TON,
-    "vaultAddress" : TON_VAULT,
-    "burnerAddress" : BURNER,
+    "vaultAddress" : TON_VAULT
     "seedTON" : {
       "seedTON" : SEED_TON,
       "seedRatio" : SOURCE_RATIO,
@@ -367,12 +385,6 @@ const data = {
       "simpleSwapper" : SIMPLE_SWAPPER,
       "simpleSwapperAmount" : APPROVE_SIMPLE_SWAPPER
     }
-  },
-
-  "burner" : {
-    "actions" : [
-      "deploy.burner"
-    ]
   },
 
   "mintTON" : {
