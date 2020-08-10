@@ -47,7 +47,7 @@ contract Swapper is Secondary {
 
     function swap(address payable vestingToken) external returns (bool) {
         uint256 tokenRatio = ratio[vestingToken];
-        require(tokenRatio > 0, "VestingSwapper: not valid sale token address");
+        require(tokenRatio != 0, "VestingSwapper: not valid sale token address");
 
         uint256 unreleased = releasableAmount(vestingToken, msg.sender);
         if (unreleased == 0) {
