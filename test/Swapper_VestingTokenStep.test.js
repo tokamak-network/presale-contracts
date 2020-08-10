@@ -166,6 +166,14 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
         );
       });
     });
+    describe('updateRatio', function () {
+      it('setStart - should fail on the second call', async function () {
+        await expectRevert(
+          swapper.setStart(start, {from: owner}),
+          "Swapper: the starttime is already set"
+        );
+      });
+    });
     describe('setBurner', function () {
       it('setBurner - should succeed', async function () {
         await swapper.setBurner(burner.address, {from: owner});

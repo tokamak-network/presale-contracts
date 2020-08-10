@@ -41,6 +41,7 @@ contract Swapper is Secondary {
     }
 
     function setStart(uint256 _startTimestamp) external onlyPrimary {
+        require(startTimestamp == 0, "Swapper: the starttime is already set");
         startTimestamp = _startTimestamp;
     }
 
