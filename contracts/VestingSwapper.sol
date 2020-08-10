@@ -50,7 +50,7 @@ contract VestingSwapper is Secondary {
     event Deposit(address vestingToken, address from, uint256 amount);
     event UpdateRatio(address vestingToken, uint256 tokenRatio);
     event SetVault(address vaultAddress);
-    event SetBurner(address bernerAddress);
+    event SetBurner(address burnerAddress);
 
     modifier beforeInitiated(address vestingToken) {
         require(!vestingInfo[vestingToken].isInitiated, "VestingSwapper: cannot execute after initiation");
@@ -107,9 +107,9 @@ contract VestingSwapper is Secondary {
         emit SetVault(address(vaultAddress));
     }
 
-    function setBurner(address bernerAddress) external onlyPrimary onlyBeforeStart {
-        burner = bernerAddress;
-        emit SetBurner(bernerAddress);
+    function setBurner(address burnerAddress) external onlyPrimary onlyBeforeStart {
+        burner = burnerAddress;
+        emit SetBurner(burnerAddress);
     }
 
     function setStart(uint256 _startTimestamp) external onlyPrimary {

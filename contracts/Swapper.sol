@@ -23,7 +23,7 @@ contract Swapper is Secondary {
     event Withdrew(address recipient, uint256 amount);
     event UpdateRatio(address vestingToken, uint256 tokenRatio);
     event SetVault(address vaultAddress);
-    event SetBurner(address bernerAddress);
+    event SetBurner(address burnerAddress);
 
     modifier onlyBeforeStart() {
         require(block.timestamp < startTimestamp || startTimestamp == 0, "Swapper: cannot execute after start");
@@ -113,8 +113,8 @@ contract Swapper is Secondary {
         emit SetVault(address(vaultAddress));
     }
 
-    function setBurner(address bernerAddress) external onlyPrimary onlyBeforeStart {
-        burner = bernerAddress;
-        emit SetBurner(bernerAddress);
+    function setBurner(address burnerAddress) external onlyPrimary onlyBeforeStart {
+        burner = burnerAddress;
+        emit SetBurner(burnerAddress);
     }
 }
