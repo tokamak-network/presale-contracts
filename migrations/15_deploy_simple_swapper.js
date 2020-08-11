@@ -6,8 +6,10 @@ const { BN, constants, ether } = require('openzeppelin-test-helpers');
 module.exports = async function (deployer) {
   if (process.env.SWAPPER) {
     let swapper;
-    let data = JSON.parse(fs.readFileSync('deployed.json').toString());
-    await deployer.deploy(SimpleSwapper, data.TON, data.MarketingTON).then(async () => { swapper = await SimpleSwapper.deployed(); })
+    const data = JSON.parse(fs.readFileSync('deployed.json').toString());
+    await deployer.deploy(SimpleSwapper, data.TON, data.MarketingTON).then(async () => {
+      swapper = await SimpleSwapper.deployed();
+    });
     data.SimpleSwapper = swapper.address;
     fs.writeFile('deployed.json', JSON.stringify(data), (err) => {
       if (err) throw err;

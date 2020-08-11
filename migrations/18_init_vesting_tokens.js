@@ -62,7 +62,7 @@ module.exports = async function (deployer) {
       vesting.seedTON.start,
       vesting.seedTON.cliffDurationInSeconds,
       vesting.seedTON.firstClaimDurationInSeconds,
-      vesting.seedTON.firstClaimAmountInTon.div(vesting.seedTON.seedRatio),
+      vesting.seedTON.firstClaimAmount,
       vesting.seedTON.durationInUnit
     );
 
@@ -81,7 +81,7 @@ module.exports = async function (deployer) {
       vesting.privateTON.start,
       vesting.privateTON.cliffDurationInSeconds,
       vesting.privateTON.firstClaimDurationInSeconds,
-      vesting.privateTON.firstClaimAmountInTon.div(vesting.privateTON.privateRatio),
+      vesting.privateTON.firstClaimAmount,
       vesting.privateTON.durationInUnit
     );
 
@@ -100,7 +100,7 @@ module.exports = async function (deployer) {
       vesting.strategicTON.start,
       vesting.strategicTON.cliffDurationInSeconds,
       vesting.strategicTON.firstClaimDurationInSeconds,
-      vesting.strategicTON.firstClaimAmountInTon.div(vesting.strategicTON.StrategicRatio),
+      vesting.strategicTON.firstClaimAmount,
       vesting.strategicTON.durationInUnit
     );
 
@@ -119,7 +119,7 @@ module.exports = async function (deployer) {
       vesting.marketingTON.start,
       vesting.marketingTON.cliffDurationInSeconds,
       vesting.marketingTON.firstClaimDurationInSeconds,
-      vesting.marketingTON.firstClaimAmountInTon.div(vesting.marketingTON.MarketingRatio),
+      vesting.marketingTON.firstClaimAmount,
       vesting.marketingTON.durationInUnit
     );
   }
