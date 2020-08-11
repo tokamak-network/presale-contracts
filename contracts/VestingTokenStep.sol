@@ -12,8 +12,7 @@ contract VestingTokenStep is MiniMeToken {
     uint256 private _cliff;
     uint256 private _start;
     uint256 private _duration;
-    uint256 constant UNIT_IN_SECONDS = 60 * 60 * 6;
-    // uint256 constant UNIT_IN_SECONDS = 60 * 60 * 24 * 30 ;
+    uint256 constant UNIT_IN_SECONDS = 60 * 60 * 24 * 30 ;
 
     mapping (address => uint256) private _released;
 

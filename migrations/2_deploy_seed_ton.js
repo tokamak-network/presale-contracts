@@ -11,7 +11,7 @@ const totalSupply = ether('30000');
 module.exports = async function (deployer) {
   if (process.env.SEED) {
     let token;
-    
+
     await deployer.deploy(VestingToken,
       ZERO_ADDRESS,
       ZERO_ADDRESS,
@@ -21,27 +21,13 @@ module.exports = async function (deployer) {
       'SeedTON',
       true,
     ).then(async () => { token = await VestingToken.deployed(); })
-    .then(() => token.generateTokens(accounts.owner, info.seed.totalSupply))
+      .then(() => token.generateTokens(accounts.owner, info.seed.totalSupply));
     fs.writeFile('deployed.json', '{}', (err) => { if (err) throw err; });
     const data = {};
     data.SeedTON = token.address;
     fs.writeFile('deployed.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });
-    await token.transfer(accounts.holder1, ether('110.11'), { from: accounts.owner });
-    await token.transfer(accounts.holder2, ether('220.22'), { from: accounts.owner });
-    await token.transfer(accounts.holder3, ether('330.33'), { from: accounts.owner });
-    await token.transfer(accounts.holder4, ether('440.44'), { from: accounts.owner });
-    await token.transfer(accounts.holder5, ether('350.55'), { from: accounts.owner });
-    await token.transfer(accounts.holder6, ether('110.11'), { from: accounts.owner });
-    await token.transfer(accounts.holder7, ether('220.22'), { from: accounts.owner });
-    await token.transfer(accounts.holder8, ether('330.33'), { from: accounts.owner });
-    await token.transfer(accounts.holder9, ether('440.44'), { from: accounts.owner });
-    await token.transfer(accounts.holder10, ether('220.22'), { from: accounts.owner });
-    await token.transfer(accounts.holder11, ether('543.00'), { from: accounts.owner });
-    await token.transfer(accounts.holder12, ether('440.44'), { from: accounts.owner });
-    
-
   } else if (process.env.DAEMONTEST) {
     let token;
     await deployer.deploy(VestingToken,

@@ -24,25 +24,12 @@ module.exports = async function (deployer) {
       'PrivateTON',
       true,
     ).then(async () => { token = await VestingToken.deployed(); })
-    .then(() => token.generateTokens(accounts.owner, parameter.private.totalSupply))
+      .then(() => token.generateTokens(accounts.owner, parameter.private.totalSupply));
     const data = JSON.parse(fs.readFileSync('deployed.json').toString());
     data.PrivateTON = token.address;
     fs.writeFile('deployed.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });
-    await token.transfer(accounts.holder1, ether('1100.11'), { from: accounts.owner });
-    await token.transfer(accounts.holder2, ether('2200.22'), { from: accounts.owner });
-    await token.transfer(accounts.holder3, ether('3300.33'), { from: accounts.owner });
-    await token.transfer(accounts.holder4, ether('4400.44'), { from: accounts.owner });
-    await token.transfer(accounts.holder5, ether('5500.55'), { from: accounts.owner });
-    await token.transfer(accounts.holder6, ether('1100.11'), { from: accounts.owner });
-    await token.transfer(accounts.holder7, ether('2200.22'), { from: accounts.owner });
-    await token.transfer(accounts.holder8, ether('3300.33'), { from: accounts.owner });
-    await token.transfer(accounts.holder9, ether('4400.44'), { from: accounts.owner });
-    await token.transfer(accounts.holder10, ether('1862.98'), { from: accounts.owner });
-    await token.transfer(accounts.holder11, ether('819.67'), { from: accounts.owner });
-    await token.transfer(accounts.holder12, ether('1280'), { from: accounts.owner });
-
   } else if (process.env.DAEMONTEST) {
     let token;
     await deployer.deploy(VestingToken,

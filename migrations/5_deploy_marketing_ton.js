@@ -21,17 +21,5 @@ module.exports = async function (deployer) {
     fs.writeFile('deployed.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });
-    await token.transfer(accounts.holder1, ether('110.11'), { from: accounts.owner });
-    await token.transfer(accounts.holder2, ether('220.22'), { from: accounts.owner });
-    await token.transfer(accounts.holder3, ether('330.33'), { from: accounts.owner });
-    await token.transfer(accounts.holder4, ether('440.44'), { from: accounts.owner });
-    await token.transfer(accounts.holder5, ether('550.55'), { from: accounts.owner });
-    await token.transfer(accounts.holder6, ether('110.11'), { from: accounts.owner });
-    await token.transfer(accounts.holder7, ether('220.22'), { from: accounts.owner });
-    await token.transfer(accounts.holder8, ether('330.33'), { from: accounts.owner });
-    await token.transfer(accounts.holder9, ether('440.44'), { from: accounts.owner });
-    await token.transfer(accounts.holder10, ether('153.66'), { from: accounts.owner });
-    await token.transfer(accounts.holder11, ether('166.99'), { from: accounts.owner });
-    await token.transfer(accounts.holder12, ether('199'), { from: accounts.owner });
   }
 };

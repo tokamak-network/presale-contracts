@@ -28,14 +28,13 @@ module.exports = async function (deployer) {
         console.error(e);
         throw e;
       });
-      
+
     const data = JSON.parse(fs.readFileSync('deployed.json').toString());
     // console.log(token)
     data.DaoTON = token.address;
     fs.writeFile('deployed.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });
-    
   } else if (process.env.DAEMONTEST) {
     let token;
     await deployer.deploy(VestingToken,
