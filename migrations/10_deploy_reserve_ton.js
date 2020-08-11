@@ -3,7 +3,7 @@ const { BN, toWei } = require('web3-utils');
 const VestingToken = artifacts.require('VestingTokenStep');
 const fs = require('fs');
 const accounts = require('../test_accounts.json');
-const parameter = require('./variable.js');
+const parameter = require('./variables.js');
 
 const ether = n => new BN(toWei(n, 'ether'));
 
@@ -20,12 +20,12 @@ module.exports = async function (deployer) {
       0,
       'Reserve Tokamak Network Token',
       18,
-      'ReserveTON',
+      'RTON',
       true,
     ).then(async () => { token = await VestingToken.deployed(); })
       .then(() => token.generateTokens(
-        parameter.reserveTON.parameter.reserveTONHolder,
-        parameter.reserveTON.parameter.generatedAmount
+        parameter.reserveTON.parameters.reserveTONHolder,
+        parameter.reserveTON.parameters.generatedAmount
       ))
       .catch((e) => {
         console.error(e);

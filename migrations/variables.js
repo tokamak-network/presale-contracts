@@ -3,6 +3,7 @@
 // 2.VestingTokenStep.init() should be called
 // 3.VestingToken.owner should be zero-address
 // 4.Each of VestingTokens in VestingSwapper should be inited
+const { BN, constants, ether } = require('openzeppelin-test-helpers');
 
 /// / 1.Accounts Address ////
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
@@ -20,25 +21,31 @@ const TON_OWNER = '0xC8F4035b79cB95fA18F9BAa9C457843954C28233';
 
 /// / 2.Contract Addresses ////
 // vestingToken, have to use vestingSwapper(Don't have to init token itself).
-const SEED_TON = '0x8Ae43F11DDd3fac5bbD84ab0BA795E1e51b78df7';
-const PRIVATE_TON = '0x2C0F8e85ad3DCbEc1561f6cE632DFF86294e479f';
-const STRATEGIC_TON = '0x2801265c6f888f5a9e1b72ee175fc0091e007080';
+// const SEED_TON = '0x8Ae43F11DDd3fac5bbD84ab0BA795E1e51b78df7';
+// const PRIVATE_TON = '0x2C0F8e85ad3DCbEc1561f6cE632DFF86294e479f';
+// const STRATEGIC_TON = '0x2801265c6f888f5a9e1b72ee175fc0091e007080';
+
+// for rinkeby test
+const SEED_TON = '0x023C8ca26a7B5d6829bcBb5087E3fcf5652018db';
+const PRIVATE_TON = '0xC6CE4EB6873D8de4b18f54Bf5481a73DB974BA4C';
+const STRATEGIC_TON = '0x8e8A4A8896167696cf338a7Da13Cfa1e3483dD70';
+const MARKETING_TON = '0x1D49932b141752394b5a4bB767822FAEBb297e8F';
 
 // vestingTokenStep, use simpleSwapper(It should be inited itself).
-const MARKETING_TON = '0xe3a87a9343D262F5f11280058ae807B45aa34669';
-const DAO_TON = '';
-const TEAM_TON = '';
-const ADVISOR_TON = '';
-const BUSINESS_TON = '';
-const RESERVE_TON = '';
+// const MARKETING_TON = '0xe3a87a9343D262F5f11280058ae807B45aa34669';
+const DAO_TON = '0x682912eB2B671bB5cd03E0865096229246d11b5d';
+const TEAM_TON = '0x7cff8a609E4f1b6D2546be5A1fb891c7dBF94ef2';
+const ADVISOR_TON = '0x06D69ECcCdf49a9aeBac36DA7600F59b206FBB9b';
+const BUSINESS_TON = '0x8c7De73bF0FC214A275f156165912e357471132f';
+const RESERVE_TON = '0x8fCc2a06851d924874591dAf9fED9baBCD58B025';
 
 // target token : TON
-const TON = '';
+const TON = '0x2Eb78EEC3aA8E295379D791D04a214b67EFd1875';
 
 // vault and swappers
-const TON_VAULT = '';
-const SIMPLE_SWAPPER = '';
-const VESTING_SWAPPER = '';
+const TON_VAULT = '0xFae0F743A37401d53Ea8015Be2178d6DcC552AcC';
+const SIMPLE_SWAPPER = '0xe15e2C0bA9B003fE9C461675CC9D17F6ABbBCc9a';
+const VESTING_SWAPPER = '0xEC7e115174A02430abe2794e977ccD7a0B894766';
 
 // seigManager contract
 const SEIG_MANAGER = '0x2104cEC955b6FaBF603d8B2Ee0c28EA88886fa8C';
@@ -49,17 +56,17 @@ const SEIG_MANAGER = '0x2104cEC955b6FaBF603d8B2Ee0c28EA88886fa8C';
 
 // 3.1 Swap ratios
 const MTON_RATIO = 1;
-const SOURCE_RATIO = 50;
+const SOURCE_RATIO = new BN('50');
 
 // 3.2 Vesting timestamp related
-const START_TIMESTAMP = 1597201200; // 2020. 8. 12 오후 12:00:00(KST)
+const START_TIMESTAMP = new BN('1597201200'); // 2020. 8. 12 오후 12:00:00(KST)
 
-const TEAM_START = '1612728000'; // 2021. 2. 8 오전 5:00:00(KST)
-const ADVISOR_START = '1612728000'; // 2021. 2. 8 오전 5:00:00(KST)
-const MARKETING_START_SIMPLE = '1597201200'; // 2020. 8. 12 오후 12:00:00
-const BUSINNESS_START = '1599768000'; // 2020. 9. 11 오전 5:00:00(KST)
-const RESERVE_START = '1628280000'; // 2021. 8. 7 오전 5:00:00(KST)
-const DAO_START = '1610136000'; // 2021. 1. 9 오전 5:00:00(KST)
+const TEAM_START = new BN('1612728000'); // 2021. 2. 8 오전 5:00:00(KST)
+const ADVISOR_START = new BN('1612728000'); // 2021. 2. 8 오전 5:00:00(KST)
+const MARKETING_START_SIMPLE = new BN('1597201200'); // 2020. 8. 12 오후 12:00:00
+const BUSINNESS_START = new BN('1599768000'); // 2020. 9. 11 오전 5:00:00(KST)
+const RESERVE_START = new BN('1628280000'); // 2021. 8. 7 오전 5:00:00(KST)
+const DAO_START = new BN('1610136000'); // 2021. 1. 9 오전 5:00:00(KST)
 
 // const month = 60 * 60 * 24 * 30; // 30days
 // const day = 60 * 60 * 24; // 1day
@@ -80,31 +87,31 @@ const DAO_DURATION = 1; // TODO : Test required. immediately.
 const CLIFF_DURATION_STEP_TOKEN = 0; // TTON,ATON,BTON,RTON,DTON,MTON
 
 // 3.3 Vesting swapper related
-const END_CLIFF_TIME = 1599768000; // 2020. 9. 11 오전 5:00:00(KST)
+const END_CLIFF_TIME = new BN('1599768000'); // 2020. 9. 11 오전 5:00:00(KST)
 
-const FIRST_SEED_AMOUNT = '15000' + '000000000000000000';
-const FIRST_PRIVATE_AMOUNT = '360000' + '000000000000000000';
-const FIRST_STRATEGIC_AMOUNT = '378000' + '000000000000000000';
+const FIRST_SEED_AMOUNT = new BN('15000' + '000000000000000000');
+const FIRST_PRIVATE_AMOUNT = new BN('360000' + '000000000000000000');
+const FIRST_STRATEGIC_AMOUNT = new BN('378000' + '000000000000000000');
 
 // 3.3.1 seedTON
 const SEED_START = START_TIMESTAMP;
 const SEED_CLIFF_DURATION_IN_SECONDS = 0;
-const SEED_FIRST_CLAIM_DURATION_IN_SECONDS = END_CLIFF_TIME - SEED_START; // 1599768000 - 1597201200  = 2566800
-const SEED_FIRST_CLAIM_AMOUNT = FIRST_SEED_AMOUNT / SOURCE_RATIO; // 15000 / 50 = 300
+const SEED_FIRST_CLAIM_DURATION_IN_SECONDS = END_CLIFF_TIME.sub(SEED_START); // 1599768000 - 1597201200  = 2566800
+const SEED_FIRST_CLAIM_AMOUNT = FIRST_SEED_AMOUNT.div(SOURCE_RATIO); // 15000 / 50 = 300
 const SEED_DURATION_UNIT = 6;
 
 // 3.3.2 privateTON
 const PRIVATE_START = START_TIMESTAMP;
 const PRIVATE_CLIFF_DURATION_IN_SECONDS = 0;
-const PRIVATE_FIRST_CLAIM_DURATION_IN_SECONDS = END_CLIFF_TIME - PRIVATE_START; // 1599768000 - 1597201200  = 2566800
-const PRIVATE_FIRST_CLAIM_AMOUNT = FIRST_PRIVATE_AMOUNT / SOURCE_RATIO; // 360000 / 50 = 7200
+const PRIVATE_FIRST_CLAIM_DURATION_IN_SECONDS = END_CLIFF_TIME.sub(PRIVATE_START); // 1599768000 - 1597201200  = 2566800
+const PRIVATE_FIRST_CLAIM_AMOUNT = FIRST_PRIVATE_AMOUNT.div(SOURCE_RATIO); // 360000 / 50 = 7200
 const PRIVATE_DURATION_UNIT = 10;
 
 // 3.3.3 strategicTON
 const STRATEGIC_START = START_TIMESTAMP;
 const STRATEGIC_CLIFF_DURATION_IN_SECONDS = 0;
-const STRATEGIC_FIRST_CLAIM_DURATION_IN_SECONDS = END_CLIFF_TIME - STRATEGIC_START; // 1599768000 - 1597201200  = 2566800
-const STRATEGIC_FIRST_CLAIM_AMOUNT = FIRST_STRATEGIC_AMOUNT / SOURCE_RATIO; // 378000 / 50 = 7560
+const STRATEGIC_FIRST_CLAIM_DURATION_IN_SECONDS = END_CLIFF_TIME.sub(STRATEGIC_START); // 1599768000 - 1597201200  = 2566800
+const STRATEGIC_FIRST_CLAIM_AMOUNT = FIRST_STRATEGIC_AMOUNT.div(SOURCE_RATIO); // 378000 / 50 = 7560
 const STRATEGIC_DURATION_UNIT = 10;
 
 // 3.3.4 marketingTON
@@ -224,7 +231,7 @@ const data = {
         'decimalUnits': 18,
         'transferEnabled': true,
       },
-      'bisinessTONHolder': BIZ_TON_HOLDER,
+      'businessTONHolder': BIZ_TON_HOLDER,
       'generatedAmount': GENERATED_BIZ_TON, // Wei
     },
   },
@@ -284,35 +291,35 @@ const data = {
         'marketingRatio': MTON_RATIO,
       },
       'TeamTON': {
-        'teamTON': TEAM_TON,
+        'address': TEAM_TON,
         'teamRatio': SOURCE_RATIO,
         'start': TEAM_START,
         'cliffDurationInSeconds': CLIFF_DURATION_STEP_TOKEN,
         'duration': TEAM_DURATION,
       },
       'AdvisorTON': {
-        'advisorTON': ADVISOR_TON,
+        'address': ADVISOR_TON,
         'advisorRatio': SOURCE_RATIO,
         'start': ADVISOR_START,
         'cliffDurationInSeconds': CLIFF_DURATION_STEP_TOKEN,
         'duration': ADVISOR_DURATON,
       },
       'BusinessTON': {
-        'businessTON': BUSINESS_TON,
+        'address': BUSINESS_TON,
         'businessRatio': SOURCE_RATIO,
         'start': BUSINNESS_START,
         'cliffDurationInSeconds': CLIFF_DURATION_STEP_TOKEN,
         'duration': BIZ_DURATION,
       },
       'ReserveTON': {
-        'reserveTON': RESERVE_TON,
+        'address': RESERVE_TON,
         'reserveRatio': SOURCE_RATIO,
         'start': RESERVE_START,
         'cliffDurationInSeconds': CLIFF_DURATION_STEP_TOKEN,
         'duration': RESERVE_DURATION,
       },
       'DaoTON': {
-        'daoTON': DAO_TON,
+        'address': DAO_TON,
         'daoRatio': SOURCE_RATIO,
         'start': DAO_START,
         'cliffDurationInSeconds': CLIFF_DURATION_STEP_TOKEN,
@@ -345,7 +352,7 @@ const data = {
     'MTONAddress': MARKETING_TON,
     'vaultAddress': TON_VAULT,
     'seedTON': {
-      'seedTON': SEED_TON,
+      'address': SEED_TON,
       'seedRatio': SOURCE_RATIO,
       'start': SEED_START,
       'cliffDurationInSeconds': SEED_CLIFF_DURATION_IN_SECONDS,
@@ -354,7 +361,7 @@ const data = {
       'durationUnit': SEED_DURATION_UNIT,
     },
     'privateTON': {
-      'privateTON': PRIVATE_TON,
+      'address': PRIVATE_TON,
       'privateRatio': SOURCE_RATIO,
       'start': PRIVATE_START,
       'cliffDurationInSeconds': PRIVATE_CLIFF_DURATION_IN_SECONDS,
@@ -363,7 +370,7 @@ const data = {
       'durationUnit': PRIVATE_DURATION_UNIT,
     },
     'strategicTON': {
-      'strategicTON': STRATEGIC_TON,
+      'address': STRATEGIC_TON,
       'strategicRatio': SOURCE_RATIO,
       'start': STRATEGIC_START,
       'cliffDurationInSeconds': STRATEGIC_CLIFF_DURATION_IN_SECONDS,
@@ -372,7 +379,7 @@ const data = {
       'durationUnit': STRATEGIC_DURATION_UNIT,
     },
     'marketingTON': {
-      'marketingTON': MARKETING_TON,
+      'address': MARKETING_TON,
       'marketingRatio': MTON_RATIO,
       'start': MARKETING_START,
       'cliffDurationInSeconds': MARKETING_CLIFF_DURATION_IN_SECONDS,

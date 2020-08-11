@@ -1,12 +1,27 @@
 const MTON = artifacts.require('MTON');
-const data = require('./variables.js');
+const fs = require('fs');
+const { BN, constants, ether } = require('openzeppelin-test-helpers');
 
-module.exports = async function () {
+const accounts = require('../test_accounts.json');
+const param = require('./variables.js');
+
+module.exports = async function (deployer) {
   if (process.env.MARKETING) {
-    const mton = MTON.at(data.simpleSwapper.parameters.MTONAddress);
-    await mton.generateTokens(
-      data.marketingTON.parameters.mtonHolder,
-      data.marketingTON.parameters.generatedAmount
-    );
+    let token;
+    await deployer.deploy(MTON).then(async () => { token = await MTON.deployed(); })
+      .then(() => token.mint(
+        param.marketingTON.parameters.mtonHolder,
+        param.marketingTON.parameters.generatedAmount
+      ));
+    const data = JSON.parse(fs.readFileSync('deployed.json').toString());
+    data.MarketingTON = (await MTON.deployed()).address;
+    fs.writeFile('deployed.json', JSON.stringify(data), (err) => {
+      if (err) throw err;
+    });
+    // const mton = MTON.at(param.simpleSwapper.parameters.MTONAddress);
+    // await mton.generateTokens(
+    //   data.marketingTON.parameters.mtonHolder,
+    //   data.marketingTON.parameters.generatedAmount
+    // );
   }
 };
