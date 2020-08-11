@@ -8,7 +8,6 @@ contract TONVault is Secondary {
     using SafeMath for uint256;
 
     ERC20Mintable public ton;
-    uint256 public withdrawableTime;
 
     constructor (ERC20Mintable tonToken) public {
         ton = tonToken;

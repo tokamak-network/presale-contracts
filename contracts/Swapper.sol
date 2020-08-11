@@ -14,16 +14,15 @@ contract Swapper is Secondary {
     mapping(address => uint256) public ratio;
 
     ERC20Mintable public _token;
-    IERC20 mton;
+    IERC20 public mton;
     TONVault public vault;
-    address public burner;
-    uint256 startTimestamp;
+    address public constant burner = 0x0000000000000000000000000000000000000001;
+    uint256 public startTimestamp;
 
     event Swapped(address account, uint256 unreleased, uint256 transferred);
     event Withdrew(address recipient, uint256 amount);
     event UpdateRatio(address vestingToken, uint256 tokenRatio);
     event SetVault(address vaultAddress);
-    event SetBurner(address burnerAddress);
 
     modifier onlyBeforeStart() {
         require(block.timestamp < startTimestamp || startTimestamp == 0, "Swapper: cannot execute after start");
@@ -41,12 +40,13 @@ contract Swapper is Secondary {
     }
 
     function setStart(uint256 _startTimestamp) external onlyPrimary {
+        require(startTimestamp == 0, "Swapper: the starttime is already set");
         startTimestamp = _startTimestamp;
     }
 
     function swap(address payable vestingToken) external returns (bool) {
         uint256 tokenRatio = ratio[vestingToken];
-        require(tokenRatio > 0, "VestingSwapper: not valid sale token address");
+        require(tokenRatio != 0, "VestingSwapper: not valid sale token address");
 
         uint256 unreleased = releasableAmount(vestingToken, msg.sender);
         if (unreleased == 0) {
@@ -111,10 +111,5 @@ contract Swapper is Secondary {
     function setVault(TONVault vaultAddress) external onlyPrimary {
         vault = vaultAddress;
         emit SetVault(address(vaultAddress));
-    }
-
-    function setBurner(address burnerAddress) external onlyPrimary onlyBeforeStart {
-        burner = burnerAddress;
-        emit SetBurner(burnerAddress);
     }
 }
