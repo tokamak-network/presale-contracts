@@ -7,7 +7,7 @@ module.exports = async function (deployer) {
   if (process.env.SWAPPER) {
     let swapper;
     let data = JSON.parse(fs.readFileSync('deployed.json').toString());
-    await deployer.deploy(SimpleSwapper, data.TON, data.marketingTON).then(async () => { swapper = await SimpleSwapper.deployed(); })
+    await deployer.deploy(SimpleSwapper, data.TON, data.MarketingTON).then(async () => { swapper = await SimpleSwapper.deployed(); })
     data.SimpleSwapper = swapper.address;
     fs.writeFile('deployed.json', JSON.stringify(data), (err) => {
       if (err) throw err;

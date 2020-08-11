@@ -10,6 +10,7 @@ const { createCurrency } = require('@makerdao/currency');
 const _ETH = createCurrency('ETH');
 const _TON = createCurrency('TON');
 const UNIT = 'wei';
+const parameter = require('../config.js');
 
 const seed = '30000';
 const private = '144000.083230664748493368';
@@ -29,15 +30,15 @@ module.exports = async function (deployer) {
       if (err) throw err;
     });
     let ton = await TON.at(data.TON);
-    await ton.transfer(vault.address, ether('50000000'));
+    const transferAmount = parameter.tonTotalSupply.sub(parameter.dao.totalAllocationTon)
+    await ton.transfer(vault.address, transferAmount);
     // valut 안에 ton 넣어놓고  
     
-    const amount = (_ETH(seed).add(_ETH(private)).add(_ETH(strategic))).mul(ratio).add(_ETH(marketing));
+    const amount = parameter.seed.totalAllocationTon.add(parameter.private.totalAllocationTon).add(parameter.strategic.totalAllocationTon)
     console.log(amount);
     
-    // let swapper = await Swapper.at(data['Swapper']);
-    await vault.setApprovalAmount(data.VestingSwapper, ether(amount._amount.toString())); // seed, private, strategic
-    await vault.setApprovalAmount(data.SimpleSwapper, ether('34400000')); // 3450000
+    await vault.setApprovalAmount(data.VestingSwapper, amount); // seed, private, strategic
+    await vault.setApprovalAmount(data.SimpleSwapper, transferAmount.sub(amount).sub(parameter.dao.totalAllocationTon)); // 3450000
     // vesting swapper & simple swapper
     // setApprovalAmount 계산 정교하게
     // stepSwapper need
