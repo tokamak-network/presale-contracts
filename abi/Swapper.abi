@@ -36,19 +36,6 @@
         {
           "indexed": false,
           "internalType": "address",
-          "name": "bernerAddress",
-          "type": "address"
-        }
-      ],
-      "name": "SetBurner",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "address",
           "name": "vaultAddress",
           "type": "address"
         }
@@ -152,6 +139,21 @@
     {
       "constant": true,
       "inputs": [],
+      "name": "mton",
+      "outputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
       "name": "primary",
       "outputs": [
         {
@@ -174,6 +176,21 @@
         }
       ],
       "name": "ratio",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "startTimestamp",
       "outputs": [
         {
           "internalType": "uint256",
@@ -410,21 +427,6 @@
         }
       ],
       "name": "setVault",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "bernerAddress",
-          "type": "address"
-        }
-      ],
-      "name": "setBurner",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",

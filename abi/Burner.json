@@ -8,21 +8,21 @@
       "type": "constructor"
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.5.16+commit.9c3226ce\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/home/modagi/github/onther/presale-contracts/contracts/Burner.sol\":\"Burner\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/home/modagi/github/onther/presale-contracts/contracts/Burner.sol\":{\"keccak256\":\"0xa0bf681a0c8d9a838f3631ef8d7ac0b0b09f2c5298f4d6392b44df21093f378b\",\"urls\":[\"bzz-raw://e6c9ab15875bc6c4aa653b17c177c36d82b0ca7a29f9ecd47e2fa59386eada27\",\"dweb:/ipfs/Qma2oiN2qRmGvWu7iS7JJBovcGBXYtk1YycFB26WgFSgnv\"]},\"/home/modagi/github/onther/presale-contracts/contracts/openzeppelin-solidity/access/Roles.sol\":{\"keccak256\":\"0xb002c378d7b82a101bd659c341518953ca0919d342c0a400196982c0e7e7bcdb\",\"urls\":[\"bzz-raw://00a788c4631466c220b385bdd100c571d24b2deccd657615cfbcef6cadf669a4\",\"dweb:/ipfs/QmTEwDbjJNxmMNCDMqtuou3dyM8Wtp8Q9NFvn7SAVM7Jf3\"]},\"/home/modagi/github/onther/presale-contracts/contracts/openzeppelin-solidity/access/roles/MinterRole.sol\":{\"keccak256\":\"0x63da54a7a5d4e4d82ac8d1f4f7f995fd8ef2b5fe1f2960b83e534fa37fb60910\",\"urls\":[\"bzz-raw://22e54aa25d633d51efaadb0c956ddd80616a79ee79a41bb8d958473712732612\",\"dweb:/ipfs/QmNbiwWkL4v1i6TgrppGahxHBUHJUrLJLVc8EDb7DFsVDq\"]},\"/home/modagi/github/onther/presale-contracts/contracts/openzeppelin-solidity/math/SafeMath.sol\":{\"keccak256\":\"0x4ccf2d7b51873db1ccfd54ca2adae5eac3b184f9699911ed4490438419f1c690\",\"urls\":[\"bzz-raw://d62d769b2219d5de39013093412623e624fa887f871826ea3bae6052ee893610\",\"dweb:/ipfs/QmV3yVktya1s617QmuzQR2CfuJgUi3dR2xEZY9ecmqZ2G1\"]},\"/home/modagi/github/onther/presale-contracts/contracts/openzeppelin-solidity/ownership/Secondary.sol\":{\"keccak256\":\"0xa5f5ed53adb91ab6a16bee78b255b4b8ed59945bd5c9a7b360d8a62fc63b8da0\",\"urls\":[\"bzz-raw://156f2d0b0594dda93f2aacfcc503e9f977bb89b5b18dd5ac5e4dae64630b80c1\",\"dweb:/ipfs/QmSY6W6Z6vyBe3KJUKypM1DCuZ27oViUBxMbLkUVNMSpS1\"]},\"/home/modagi/github/onther/presale-contracts/contracts/openzeppelin-solidity/token/ERC20/ERC20.sol\":{\"keccak256\":\"0x852793a3c2f86d336a683b30d688ec3dcfc57451af5a2bf5975cda3b7191a901\",\"urls\":[\"bzz-raw://4f5b57664069671648fb81f55b0082faecdf1b2f159eec6b1fa6cef9b7d73bc5\",\"dweb:/ipfs/QmcyytaLs7zFdb4Uu7C5PmQRhQdB3wA3fUdkV6mkYfdDFH\"]},\"/home/modagi/github/onther/presale-contracts/contracts/openzeppelin-solidity/token/ERC20/ERC20Mintable.sol\":{\"keccak256\":\"0x6df8d686813b2875e99928ecd07bf8ee6d7473bc6a95eb1190e8fdba86beda76\",\"urls\":[\"bzz-raw://ab0eb6779dbe75fcbae03ef6ec5d0345ff232750684c8341fc55f175bf43d13c\",\"dweb:/ipfs/QmcEyprFynsXawyHsgWMWGt7RoVV9tAt8Pac7QC1qEd7Bs\"]},\"/home/modagi/github/onther/presale-contracts/contracts/openzeppelin-solidity/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x90e8c2521653bbb1768b05889c5760031e688d9cd361f167489b89215e201b95\",\"urls\":[\"bzz-raw://d0abb99bb8bfc2bc0a89902b8ed1dc0442ad08cc78cee64c291b3df6a27bcccc\",\"dweb:/ipfs/QmP5NaEwZthQeM2ESz4WTT3osrP7jhbvu7ocbttBi2JAw6\"]}},\"version\":1}",
-  "bytecode": "0x6080604052348015600f57600080fd5b50603e80601d6000396000f3fe6080604052600080fdfea265627a7a7231582049d12dd6ccbf0a77b2020f984fc55fa082dd7de2062d1c4fee46e10bcfa6024064736f6c63430005100032",
-  "deployedBytecode": "0x6080604052600080fdfea265627a7a7231582049d12dd6ccbf0a77b2020f984fc55fa082dd7de2062d1c4fee46e10bcfa6024064736f6c63430005100032",
-  "sourceMap": "200:90:0:-;;;259:29;8:9:-1;5:2;;;30:1;27;20:12;5:2;259:29:0;200:90;;;;;;",
-  "deployedSourceMap": "200:90:0:-;;;;;",
-  "source": "pragma solidity ^0.5.0;\n\nimport \"./openzeppelin-solidity/token/ERC20/ERC20Mintable.sol\";\nimport \"./openzeppelin-solidity/math/SafeMath.sol\";\nimport \"./openzeppelin-solidity/ownership/Secondary.sol\";\n\ncontract Burner {\n    using SafeMath for uint256;\n    \n    constructor () public {\n    }\n}\n",
-  "sourcePath": "/home/modagi/github/onther/presale-contracts/contracts/Burner.sol",
+  "metadata": "{\"compiler\":{\"version\":\"0.5.16+commit.9c3226ce\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/home/modagi/github/onther/presale-contracts4/contracts/Burner.sol\":\"Burner\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/home/modagi/github/onther/presale-contracts4/contracts/Burner.sol\":{\"keccak256\":\"0xca973ab8497b29480c0a1487907b506d9e425a2a69206cd7e5c3e2825c758a29\",\"urls\":[\"bzz-raw://13b72f4b4d6ea88a93740fea726a92602b6dd3b9357a9807d9158d748bb27db9\",\"dweb:/ipfs/QmW8HmdFvAA6FgDTuXV35BYq3PbwKQ2sxegs4ZYTjKSZJ1\"]}},\"version\":1}",
+  "bytecode": "0x6080604052348015600f57600080fd5b50603e80601d6000396000f3fe6080604052600080fdfea265627a7a723158200625521de38c610f9570a018cc3e2190387ffa92f79673f56d1022d00c307c5264736f6c63430005100032",
+  "deployedBytecode": "0x6080604052600080fdfea265627a7a723158200625521de38c610f9570a018cc3e2190387ffa92f79673f56d1022d00c307c5264736f6c63430005100032",
+  "sourceMap": "25:53:0:-;;;47:29;8:9:-1;5:2;;;30:1;27;20:12;5:2;47:29:0;25:53;;;;;;",
+  "deployedSourceMap": "25:53:0:-;;;;;",
+  "source": "pragma solidity ^0.5.0;\n\ncontract Burner {\n    constructor () public {\n    }\n}\n",
+  "sourcePath": "/home/modagi/github/onther/presale-contracts4/contracts/Burner.sol",
   "ast": {
-    "absolutePath": "/home/modagi/github/onther/presale-contracts/contracts/Burner.sol",
+    "absolutePath": "/home/modagi/github/onther/presale-contracts4/contracts/Burner.sol",
     "exportedSymbols": {
       "Burner": [
-        12
+        6
       ]
     },
-    "id": 13,
+    "id": 7,
     "nodeType": "SourceUnit",
     "nodes": [
       {
@@ -37,125 +37,65 @@
         "src": "0:23:0"
       },
       {
-        "absolutePath": "/home/modagi/github/onther/presale-contracts/contracts/openzeppelin-solidity/token/ERC20/ERC20Mintable.sol",
-        "file": "./openzeppelin-solidity/token/ERC20/ERC20Mintable.sol",
-        "id": 2,
-        "nodeType": "ImportDirective",
-        "scope": 13,
-        "sourceUnit": 9998,
-        "src": "25:63:0",
-        "symbolAliases": [],
-        "unitAlias": ""
-      },
-      {
-        "absolutePath": "/home/modagi/github/onther/presale-contracts/contracts/openzeppelin-solidity/math/SafeMath.sol",
-        "file": "./openzeppelin-solidity/math/SafeMath.sol",
-        "id": 3,
-        "nodeType": "ImportDirective",
-        "scope": 13,
-        "sourceUnit": 8615,
-        "src": "89:51:0",
-        "symbolAliases": [],
-        "unitAlias": ""
-      },
-      {
-        "absolutePath": "/home/modagi/github/onther/presale-contracts/contracts/openzeppelin-solidity/ownership/Secondary.sol",
-        "file": "./openzeppelin-solidity/ownership/Secondary.sol",
-        "id": 4,
-        "nodeType": "ImportDirective",
-        "scope": 13,
-        "sourceUnit": 8793,
-        "src": "141:57:0",
-        "symbolAliases": [],
-        "unitAlias": ""
-      },
-      {
         "baseContracts": [],
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 12,
+        "id": 6,
         "linearizedBaseContracts": [
-          12
+          6
         ],
         "name": "Burner",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
-            "id": 7,
-            "libraryName": {
-              "contractScope": null,
-              "id": 5,
-              "name": "SafeMath",
-              "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 8614,
-              "src": "228:8:0",
-              "typeDescriptions": {
-                "typeIdentifier": "t_contract$_SafeMath_$8614",
-                "typeString": "library SafeMath"
-              }
-            },
-            "nodeType": "UsingForDirective",
-            "src": "222:27:0",
-            "typeName": {
-              "id": 6,
-              "name": "uint256",
-              "nodeType": "ElementaryTypeName",
-              "src": "241:7:0",
-              "typeDescriptions": {
-                "typeIdentifier": "t_uint256",
-                "typeString": "uint256"
-              }
-            }
-          },
-          {
             "body": {
-              "id": 10,
+              "id": 4,
               "nodeType": "Block",
-              "src": "281:7:0",
+              "src": "69:7:0",
               "statements": []
             },
             "documentation": null,
-            "id": 11,
+            "id": 5,
             "implemented": true,
             "kind": "constructor",
             "modifiers": [],
             "name": "",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 8,
+              "id": 2,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "271:2:0"
+              "src": "59:2:0"
             },
             "returnParameters": {
-              "id": 9,
+              "id": 3,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "281:0:0"
+              "src": "69:0:0"
             },
-            "scope": 12,
-            "src": "259:29:0",
+            "scope": 6,
+            "src": "47:29:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
           }
         ],
-        "scope": 13,
-        "src": "200:90:0"
+        "scope": 7,
+        "src": "25:53:0"
       }
     ],
-    "src": "0:291:0"
+    "src": "0:79:0"
   },
   "legacyAST": {
-    "absolutePath": "/home/modagi/github/onther/presale-contracts/contracts/Burner.sol",
+    "absolutePath": "/home/modagi/github/onther/presale-contracts4/contracts/Burner.sol",
     "exportedSymbols": {
       "Burner": [
-        12
+        6
       ]
     },
-    "id": 13,
+    "id": 7,
     "nodeType": "SourceUnit",
     "nodes": [
       {
@@ -170,138 +110,64 @@
         "src": "0:23:0"
       },
       {
-        "absolutePath": "/home/modagi/github/onther/presale-contracts/contracts/openzeppelin-solidity/token/ERC20/ERC20Mintable.sol",
-        "file": "./openzeppelin-solidity/token/ERC20/ERC20Mintable.sol",
-        "id": 2,
-        "nodeType": "ImportDirective",
-        "scope": 13,
-        "sourceUnit": 9998,
-        "src": "25:63:0",
-        "symbolAliases": [],
-        "unitAlias": ""
-      },
-      {
-        "absolutePath": "/home/modagi/github/onther/presale-contracts/contracts/openzeppelin-solidity/math/SafeMath.sol",
-        "file": "./openzeppelin-solidity/math/SafeMath.sol",
-        "id": 3,
-        "nodeType": "ImportDirective",
-        "scope": 13,
-        "sourceUnit": 8615,
-        "src": "89:51:0",
-        "symbolAliases": [],
-        "unitAlias": ""
-      },
-      {
-        "absolutePath": "/home/modagi/github/onther/presale-contracts/contracts/openzeppelin-solidity/ownership/Secondary.sol",
-        "file": "./openzeppelin-solidity/ownership/Secondary.sol",
-        "id": 4,
-        "nodeType": "ImportDirective",
-        "scope": 13,
-        "sourceUnit": 8793,
-        "src": "141:57:0",
-        "symbolAliases": [],
-        "unitAlias": ""
-      },
-      {
         "baseContracts": [],
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 12,
+        "id": 6,
         "linearizedBaseContracts": [
-          12
+          6
         ],
         "name": "Burner",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
-            "id": 7,
-            "libraryName": {
-              "contractScope": null,
-              "id": 5,
-              "name": "SafeMath",
-              "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 8614,
-              "src": "228:8:0",
-              "typeDescriptions": {
-                "typeIdentifier": "t_contract$_SafeMath_$8614",
-                "typeString": "library SafeMath"
-              }
-            },
-            "nodeType": "UsingForDirective",
-            "src": "222:27:0",
-            "typeName": {
-              "id": 6,
-              "name": "uint256",
-              "nodeType": "ElementaryTypeName",
-              "src": "241:7:0",
-              "typeDescriptions": {
-                "typeIdentifier": "t_uint256",
-                "typeString": "uint256"
-              }
-            }
-          },
-          {
             "body": {
-              "id": 10,
+              "id": 4,
               "nodeType": "Block",
-              "src": "281:7:0",
+              "src": "69:7:0",
               "statements": []
             },
             "documentation": null,
-            "id": 11,
+            "id": 5,
             "implemented": true,
             "kind": "constructor",
             "modifiers": [],
             "name": "",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 8,
+              "id": 2,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "271:2:0"
+              "src": "59:2:0"
             },
             "returnParameters": {
-              "id": 9,
+              "id": 3,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "281:0:0"
+              "src": "69:0:0"
             },
-            "scope": 12,
-            "src": "259:29:0",
+            "scope": 6,
+            "src": "47:29:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
           }
         ],
-        "scope": 13,
-        "src": "200:90:0"
+        "scope": 7,
+        "src": "25:53:0"
       }
     ],
-    "src": "0:291:0"
+    "src": "0:79:0"
   },
   "compiler": {
     "name": "solc",
     "version": "0.5.16+commit.9c3226ce.Emscripten.clang"
   },
-  "networks": {
-    "1595655529606": {
-      "events": {},
-      "links": {},
-      "address": "0x58BDE085fd9759cC29447390cFAc670987642F7b",
-      "transactionHash": "0x46d3ee7b173ce8434a05b9b64269e44766bfbc0a03321279facb7418a405586c"
-    },
-    "1596021084396": {
-      "events": {},
-      "links": {},
-      "address": "0x40094682b0DC18C1dae9532FeB91B6C24324802E",
-      "transactionHash": "0xa3bce73d3c43f16d1116a6b6159f2ad4e3a4ed1704faa1c8b1eb364bc1feb18f"
-    }
-  },
+  "networks": {},
   "schemaVersion": "3.2.0",
-  "updatedAt": "2020-07-30T02:50:00.079Z",
-  "networkType": "ethereum",
+  "updatedAt": "2020-08-11T10:57:27.602Z",
   "devdoc": {
     "methods": {}
   },
