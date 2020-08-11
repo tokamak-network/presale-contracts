@@ -17,6 +17,9 @@
 - StrategicTON: [0x2801265c6f888f5a9e1b72ee175fc0091e007080](https://etherscan.io/address/0x2801265c6f888f5a9e1b72ee175fc0091e007080)
 - Strategicsale: [0x3A9f29BAe47670aD9755bB226A155015D922c305](https://etherscan.io/address/0x3A9f29BAe47670aD9755bB226A155015D922c305)
 
+### Marketing TON
+- MTON: [0xe3a87a9343D262F5f11280058ae807B45aa34669](https://etherscan.io/address/0xe3a87a9343D262F5f11280058ae807B45aa34669)
+
 ### Other tokens
 - TTON: [0x5950181C3d6b819383Ef585db58dC61a617F8dEc](https://etherscan.io/address/0x5950181C3d6b819383Ef585db58dC61a617F8dEc)
 - ATON: [0xa9fCb03c5bBa83153fb576288A4180882aEb2eE6](https://etherscan.io/address/0xa9fCb03c5bBa83153fb576288A4180882aEb2eE6)
