@@ -43,7 +43,7 @@ module.exports = async function (deployer) {
 
     vestingSwapper = await VestingSwapper.at(param.vestingSwapper.address);
     simpleSwapper = await SimpleSwapper.at(param.simpleSwapper.SimpleSwapper);
-    burner = await Burner.at(data.Burner);
+    // burner = await Burner.at(data.Burner);
   }
   const vesting = param.vestingSwapper;
   // const start = (Date.now() / 1000 | 0) + 10;
@@ -63,10 +63,10 @@ module.exports = async function (deployer) {
       vesting.seedTON.cliffDurationInSeconds,
       vesting.seedTON.firstClaimDurationInSeconds,
       vesting.seedTON.firstClaimAmount,
-      vesting.seedTON.durationInUnit
+      vesting.seedTON.durationUnit
     );
 
-    await SeedTON.changeController(vesting.address);
+    await SeedTON.changeController(param.ownership.parameters.ZERO_ADDRESS);
   }
   if (process.env.PRIVATEINIT) {
     const PrivateTON = await VestingToken.at(
@@ -82,10 +82,10 @@ module.exports = async function (deployer) {
       vesting.privateTON.cliffDurationInSeconds,
       vesting.privateTON.firstClaimDurationInSeconds,
       vesting.privateTON.firstClaimAmount,
-      vesting.privateTON.durationInUnit
+      vesting.privateTON.durationUnit
     );
 
-    await PrivateTON.changeController(vesting.address);
+    // await PrivateTON.changeController(param.ownership.parameters.ZERO_ADDRESS);
   }
   if (process.env.STRATEGICINIT) {
     const StrategicTON = await VestingToken.at(
@@ -101,16 +101,20 @@ module.exports = async function (deployer) {
       vesting.strategicTON.cliffDurationInSeconds,
       vesting.strategicTON.firstClaimDurationInSeconds,
       vesting.strategicTON.firstClaimAmount,
-      vesting.strategicTON.durationInUnit
+      vesting.strategicTON.durationUnit
     );
 
-    await StrategicTON.changeController(vesting.address);
+    await StrategicTON.changeController(param.ownership.parameters.ZERO_ADDRESS);
   }
   if (process.env.MARKETINGINIT) {
     const MarketingTON = await VestingToken.at(
       vesting.marketingTON.MarketingTON
     );
     await simpleSwapper.updateRatio(
+      vesting.marketingTON.MarketingTON,
+      vesting.marketingTON.marketingRatio
+    );
+    await vestingSwapper.updateRatio(
       vesting.marketingTON.MarketingTON,
       vesting.marketingTON.marketingRatio
     );
@@ -122,6 +126,7 @@ module.exports = async function (deployer) {
       vesting.marketingTON.firstClaimAmount,
       vesting.marketingTON.durationInUnit
     );
+    MarketingTON.changeController(param.simpleSwapper.address);
   }
   const simple = param.simpleSwapper.parameters;
   if (process.env.TEAMINIT) {
@@ -204,14 +209,18 @@ module.exports = async function (deployer) {
 
     await daoTON.changeController(param.simpleSwapper.address);
   }
-  if (process.env.SETVAULTSIMPLE) {
-    await simpleSwapper.setVault(data.TONVault);
-    await simpleSwapper.setBurner(data.Burner);
+  if (process.env.SETVAULT) {
+    await simpleSwapper.setVault(param.simpleSwapper.parameter.TONVault);
+    await vestingSwapper.setVault(param.simpleSwapper.parameter.TONVault);
+    // await simpleSwapper.setBurner(data.Burner);
+    await simpleSwapper.changeController(param.ownership.parameters.ZERO_ADDRESS);
+    await Vault.transferPrimary(param.ownership.parameters.ZERO_ONE_ADDRESS);
+    await vestingSwapper.transferPrimary(param.ownership.parameters.ZERO_ONE_ADDRESS);
   }
-  if (process.env.SETVAULTVESTING) {
-    await vestingSwapper.setVault(data.TONVault);
-    await vestingSwapper.setBurner(data.Burner);
-  }
+  // if (process.env.SETVAULTVESTING) {
+
+  //   // await vestingSwapper.setBurner(data.Burner);
+  // }
   if (process.env.SETSWAPPER) {
     setSwapperStart(vestingSwapper, param.vestingSwapper.startTimestamp);
     setSwapperStart(simpleSwapper, param.simpleSwapper.startTimestamp);
@@ -220,57 +229,4 @@ module.exports = async function (deployer) {
   //   const SeedTON = await VestingToken.at(data.SeedTON);
   //   await SeedTON.transferOwnership();
   // }
-  if (process.env.DAEMONTEST) {
-    const data = JSON.parse(fs.readFileSync('deployed_test.json').toString());
-
-    const token1 = await VestingToken.at(data.VestingTokenAddress1);
-    const token2 = await VestingToken.at(data.VestingTokenAddress2);
-    const token3 = await VestingToken.at(data.VestingTokenAddress3);
-    const token4 = await VestingToken.at(data.VestingTokenAddress4);
-    const token5 = await VestingToken.at(data.VestingTokenAddress5);
-    const token6 = await VestingToken.at(data.VestingTokenAddress6);
-    const TON = await TON.at(data.TON);
-    const swapper = await SimpleSwapper.at(data.Swapper);
-
-    await swapper.updateRate(token1.address, 1);
-    await swapper.updateRate(token2.address, 2);
-    await swapper.updateRate(token3.address, 3);
-    await swapper.updateRate(token4.address, 4);
-    await swapper.updateRate(token5.address, 5);
-    await swapper.updateRate(token6.address, 6);
-
-    await token1.initiate((Date.now() / 1000 | 0) + 10, 0, 6);
-    await token2.initiate((Date.now() / 1000 | 0) + 10, 0, 12);
-    await token3.initiate((Date.now() / 1000 | 0) + 10, 0, 6);
-    await token4.initiate((Date.now() / 1000 | 0) + 10, 0, 12);
-    await token5.initiate((Date.now() / 1000 | 0) + 10, 0, 6);
-    await token6.initiate((Date.now() / 1000 | 0) + 10, 0, 12);
-    setSwapperStart(swapper, (Date.now() / 1000 | 0) + 10);
-
-    await token1.changeController(swapper.address);
-    await token2.changeController(swapper.address);
-    await token3.changeController(swapper.address);
-    await token4.changeController(swapper.address);
-    await token5.changeController(swapper.address);
-    await token6.changeController(swapper.address);
-
-    const web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:8545'));
-
-    try {
-      web3.currentProvider.send({
-        method: 'evm_increaseTime',
-        params: [60 * 60 * 24 * 61], // 61 days
-        jsonrpc: '2.0',
-        id: new Date().getTime(),
-      });
-      web3.currentProvider.send({
-        method: 'evm_mine',
-        params: [],
-        jsonrpc: '2.0',
-        id: new Date().getTime(),
-      });
-    } catch (err) {
-      console.error(err);
-    }
-  }
 };
