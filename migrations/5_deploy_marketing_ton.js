@@ -20,8 +20,8 @@ module.exports = async function (deployer) {
     });
     // const mton = MTON.at(param.simpleSwapper.parameters.MTONAddress);
     // await mton.generateTokens(
-    //   data.marketingTON.parameters.mtonHolder,
-    //   data.marketingTON.parameters.generatedAmount
+    //   param.marketingTON.parameters.mtonHolder,
+    //   param.marketingTON.parameters.generatedAmount
     // );
   }
 };

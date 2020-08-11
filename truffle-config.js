@@ -18,7 +18,7 @@ module.exports = {
       from: '0xF8e1d287C5Cc579dd2A2ceAe6ccf4FbfBe4CA2F5',
     },
     mainnet: {
-      provider: () => new PrivateKeyProvider(process.env.MAINNET_PRIVATE_KEY, process.env.MAINNET_JSONRPC),
+      provider: () => new PrivateKeyProvider(process.env.MAINNET_PRIVATE_KEY, 'https://mainnet.infura.io/v3/34448178b25e4fbda6d80f4da62afba2'),
       network_id: 1, // eslint-disable-line camelcase
       gasPrice: 30e9,
       production: true,
@@ -31,7 +31,7 @@ module.exports = {
       gasPrice: 0x01,
     },
     rinkeby: {
-      provider: new PrivateKeyProvider(pk, 'https://rinkeby.infura.io/v3/a608d5cd0f1e42109d964abdffe5d8d9'),
+      provider: new PrivateKeyProvider(process.env.MAINNET_PRIVATE_KEY, 'https://rinkeby.infura.io/v3/a608d5cd0f1e42109d964abdffe5d8d9'),
       network_id: '4', // eslint-disable-line camelcase
       gas: 5000000,
       gasPrice: 20000000000,

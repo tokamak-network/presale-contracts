@@ -36,7 +36,8 @@ module.exports = async function (deployer) {
     process.env.RESERVEINIT ||
     process.env.DAOINIT ||
     process.env.SETVAULTSIMPLE ||
-    process.env.SETVAULTVESTING
+    process.env.SET ||
+    process.env.OWNERSHIP
   ) {
     vesting = param.vestingSwapper;
     simple = param.simpleSwapper.parameters;
@@ -53,8 +54,6 @@ module.exports = async function (deployer) {
     ReserveTON = await VestingTokenStep.at(simple.ReserveTON.address);
     AdvisorTON = await VestingTokenStep.at(simple.AdvisorTON.address);
     BusinessTON = await VestingTokenStep.at(simple.BusinessTON.address);
-
-    // TON = await TON.at(simple.TONAddress);
   }
 
   if (process.env.SEEDINIT) {
@@ -62,6 +61,7 @@ module.exports = async function (deployer) {
       vesting.seedTON.address,
       vesting.seedTON.seedRatio
     );
+    console.log('update seed done');
     // token, start, cliff, first claim duration, first claim amount, duration
     await vestingSwapper.initiate(
       vesting.seedTON.address,
@@ -71,6 +71,7 @@ module.exports = async function (deployer) {
       vesting.seedTON.firstClaimAmount,
       vesting.seedTON.durationUnit
     );
+    console.log('init seed done');
 
     // await SeedTON.changeController(param.ownership.parameters.ZERO_ADDRESS);
   }
@@ -79,6 +80,7 @@ module.exports = async function (deployer) {
       vesting.privateTON.address,
       vesting.privateTON.privateRatio
     );
+    console.log('update priv done');
     await vestingSwapper.initiate(
       vesting.privateTON.address,
       vesting.privateTON.start,
@@ -87,12 +89,14 @@ module.exports = async function (deployer) {
       vesting.privateTON.firstClaimAmount,
       vesting.privateTON.durationUnit
     );
+    console.log('init priv done');
   }
   if (process.env.STRATEGICINIT) {
     await vestingSwapper.updateRatio(
       vesting.strategicTON.address,
       vesting.strategicTON.strategicRatio
     );
+    console.log('update st done');
     await vestingSwapper.initiate(
       vesting.strategicTON.address,
       vesting.strategicTON.start,
@@ -101,6 +105,7 @@ module.exports = async function (deployer) {
       vesting.strategicTON.firstClaimAmount,
       vesting.strategicTON.durationUnit
     );
+    console.log('init st done');
 
     // await StrategicTON.changeController(param.ownership.parameters.ZERO_ADDRESS);
   }
@@ -109,10 +114,12 @@ module.exports = async function (deployer) {
       vesting.marketingTON.address,
       vesting.marketingTON.marketingRatio
     );
+    console.log('update mton done');
     await vestingSwapper.updateRatio(
       vesting.marketingTON.address,
       vesting.marketingTON.marketingRatio
     );
+    console.log('update mton done');
     await vestingSwapper.initiate(
       vesting.marketingTON.address,
       vesting.marketingTON.start,
@@ -121,6 +128,7 @@ module.exports = async function (deployer) {
       vesting.marketingTON.firstClaimAmount,
       vesting.marketingTON.durationUnit
     );
+    console.log('init mton done');
 
     // await MarketingTON.changeController(param.simpleSwapper.address);
   }
@@ -129,6 +137,7 @@ module.exports = async function (deployer) {
       simple.TeamTON.address,
       simple.TeamTON.teamRatio
     );
+    console.log('update adv done');
     await TeamTON.initiate(
       simple.TeamTON.start,
       simple.TeamTON.cliffDurationInSeconds,
@@ -140,66 +149,81 @@ module.exports = async function (deployer) {
       simple.AdvisorTON.address,
       simple.AdvisorTON.advisorRatio
     );
+    console.log('update adv done');
     await AdvisorTON.initiate(
       simple.AdvisorTON.start,
       simple.AdvisorTON.cliffDurationInSeconds,
-      simple.AdvisorTON.durtation
+      simple.AdvisorTON.duration
     );
+    console.log('init biz done');
   }
   if (process.env.BUSINESSINIT) {
     await simpleSwapper.updateRatio(
       simple.BusinessTON.address,
       simple.BusinessTON.businessRatio
     );
+    console.log('update done');
     await BusinessTON.initiate(
       simple.BusinessTON.start,
       simple.BusinessTON.cliffDurationInSeconds,
-      simple.BusinessTON.durtation
+      simple.BusinessTON.duration
     );
+    console.log('init biz done');
   }
   if (process.env.RESERVEINIT) {
     await simpleSwapper.updateRatio(
-      simple.ReseveTON.address,
-      simple.ReseveTON.reserveRatio
+      simple.ReserveTON.address,
+      simple.ReserveTON.reserveRatio
     );
+    console.log('update reserve done');
     await ReserveTON.initiate(
       simple.ReserveTON.start,
       simple.ReserveTON.cliffDurationInSeconds,
-      simple.ReserveTON.durtation
+      simple.ReserveTON.duration
     );
+    console.log('init reserve done');
   }
   if (process.env.DAOINIT) {
     await simpleSwapper.updateRatio(
       simple.DaoTON.address,
       simple.DaoTON.daoRatio
     );
+    console.log('update dao done');
     await daoTON.initiate(
       simple.DaoTON.start,
       simple.DaoTON.cliffDurationInSeconds,
-      simple.DaoTON.durtation
+      simple.DaoTON.duration
     );
+    console.log('init dao done');
   }
   if (process.env.SET) {
-    setSwapperStart(vestingSwapper, vesting.startTimeStamp);
-    setSwapperStart(simpleSwapper, simple.startTimestamp);
-
-    await simpleSwapper.setVault(simple.TONVault);
-    await vestingSwapper.setVault(vesting.TONVault);
+    setSwapperStart(vestingSwapper, param.vestingSwapper.startTimeStamp);
+    setSwapperStart(simpleSwapper, param.simpleSwapper.parameters.startTimestamp);
+    console.log('set done');
+    await simpleSwapper.setVault(simple.valutAddress);
+    console.log('set simple vault done');
+    await vestingSwapper.setVault(vesting.vaultAddress);
+    console.log('set vesting vault done');
   }
   if (process.env.OWNERSHIP) {
     const simpleAddress = param.simpleSwapper.address;
-    const TON = await Ton.at(simple.TONAddress);
+    const TON = await Ton.at(param.simpleSwapper.parameters.TONAddress);
+    const vault = await Vault.at(param.mintTON.parameters.tonVaultAddress);
 
+    // addUsingBurner
     await TeamTON.changeController(simpleAddress);
     await BusinessTON.changeController(simpleAddress);
     await daoTON.changeController(simpleAddress);
     await AdvisorTON.changeController(simpleAddress);
     await ReserveTON.changeController(simpleAddress);
+    console.log('change controller done');
 
     await TON.transferOwnership(param.ownership.parameters.TONOwner);
-    await Vault.transferPrimary(param.ownership.parameters.ZERO_ONE_ADDRESS);
+    await vault.transferPrimary(param.ownership.parameters.ZERO_ONE_ADDRESS);
+    console.log('transfer owner ship done');
 
-    await simpleSwapper.changeController(param.ownership.parameters.ZERO_ADDRESS);
+    await simpleSwapper.transferPrimary(param.ownership.parameters.ZERO_ONE_ADDRESS);
     await vestingSwapper.transferPrimary(param.ownership.parameters.ZERO_ONE_ADDRESS);
+    console.log('transfer primary done');
   }
 };
