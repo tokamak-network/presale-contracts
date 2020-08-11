@@ -3,7 +3,7 @@ const { BN, toWei } = require('web3-utils');
 const VestingToken = artifacts.require('VestingTokenStep');
 const fs = require('fs');
 const accounts = require('../test_accounts.json');
-const parameter = require('../config.js');
+const parameter = require('./variables.js');
 
 const ether = n => new BN(toWei(n, 'ether'));
 
@@ -23,7 +23,10 @@ module.exports = async function (deployer) {
       'DaoTON',
       true,
     ).then(async () => { token = await VestingToken.deployed(); })
-      .then(() => token.generateTokens(accounts.owner, parameter.dao.totalSupply))
+      .then(() => token.generateTokens(
+        parameter.daoTON.parameters.daoTONHolder,
+        parameter.daoTON.parameters.generatedAmount
+      ))
       .catch((e) => {
         console.error(e);
         throw e;

@@ -9,7 +9,7 @@ const ether = n => new BN(toWei(n, 'ether'));
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 const wallet = '0xF8e1d287C5Cc579dd2A2ceAe6ccf4FbfBe4CA2F5';
 const totalSupply = ether('30000'); // divide 50
-const parameter = require('../config.js');
+const parameter = require('./variables.js');
 
 module.exports = async function (deployer) {
   if (process.env.ADVISOR) {
@@ -23,7 +23,10 @@ module.exports = async function (deployer) {
       'AdvisorTON',
       true,
     ).then(async () => { token = await VestingToken.deployed(); })
-      .then(() => token.generateTokens(accounts.owner, parameter.advisor.totalSupply))
+      .then(() => token.generateTokens(
+        parameter.adviosrTON.parameters.advisorTONHolder,
+        parameter.adviosrTON.parameters.generatedAmount
+      ))
       .catch((e) => {
         console.error(e);
         throw e;
@@ -33,7 +36,6 @@ module.exports = async function (deployer) {
     fs.writeFile('deployed.json', JSON.stringify(data), (err) => {
       if (err) throw err;
     });
-    
   } else if (process.env.DAEMONTEST) {
     let token;
     await deployer.deploy(VestingToken,

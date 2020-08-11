@@ -7,6 +7,7 @@ const VestingToken = artifacts.require('VestingToken');
 const VestingTokenStep = artifacts.require('VestingTokenStep');
 const TON = artifacts.require('TON');
 const parameter = require('../config.js');
+const param = require('./variables.js');
 
 const VestingSwapper = artifacts.require('VestingSwapper');
 const SimpleSwapper = artifacts.require('Swapper');
@@ -25,80 +26,184 @@ async function setSwapperStart (swapper, start) {
 module.exports = async function (deployer) {
   let data, vestingSwapper, simpleSwapper, burner;
 
-  if (process.env.SEEDINIT || process.env.PRIVATEINIT || process.env.STRATEGICINIT || process.env.MARKETINGINIT || process.env.TEAMINIT || process.env.ADVISORINIT || process.env.BUSINESSINIT || process.env.RESERVEINIT || process.env.DAOINIT || process.env.SETVAULTSIMPLE || process.env.SETVAULTVESTING) {
+  if (
+    process.env.SEEDINIT ||
+    process.env.PRIVATEINIT ||
+    process.env.STRATEGICINIT ||
+    process.env.MARKETINGINIT ||
+    process.env.TEAMINIT ||
+    process.env.ADVISORINIT ||
+    process.env.BUSINESSINIT ||
+    process.env.RESERVEINIT ||
+    process.env.DAOINIT ||
+    process.env.SETVAULTSIMPLE ||
+    process.env.SETVAULTVESTING
+  ) {
     data = JSON.parse(fs.readFileSync('deployed.json').toString());
 
-    vestingSwapper = await VestingSwapper.at(data.VestingSwapper);
-    simpleSwapper = await SimpleSwapper.at(data.SimpleSwapper);
+    vestingSwapper = await VestingSwapper.at(param.vestingSwapper.address);
+    simpleSwapper = await SimpleSwapper.at(param.simpleSwapper.SimpleSwapper);
     burner = await Burner.at(data.Burner);
   }
-
-  const start = (Date.now() / 1000 | 0) + 10;
+  const vesting = param.vestingSwapper;
+  // const start = (Date.now() / 1000 | 0) + 10;
   if (process.env.SEEDINIT) {
-    const SeedTON = await VestingToken.at(data.SeedTON);
-    const seed = parameter.seed;
-    await vestingSwapper.updateRatio(SeedTON.address, 50);
-    // token, start, cliff, first claim duration, first claim amount, duration
-    await vestingSwapper.initiate(SeedTON.address, start, 0, seed.firstClaimDurationInSeconds, seed.firstClaimAmountInTon.div(seed.ratio), seed.durationInUnit);
+    const SeedTON = await VestingToken.at(
+      vesting.seedTON.SeedTON
+    );
 
-    await SeedTON.changeController(vestingSwapper.address);
+    await vestingSwapper.updateRatio(
+      vesting.seedTON.SeedTON,
+      vesting.seedTON.seedRatio
+    );
+    // token, start, cliff, first claim duration, first claim amount, duration
+    await vestingSwapper.initiate(
+      vesting.seedTON.SeedTON,
+      vesting.seedTON.start,
+      vesting.seedTON.cliffDurationInSeconds,
+      vesting.seedTON.firstClaimDurationInSeconds,
+      vesting.seedTON.firstClaimAmountInTon.div(vesting.seedTON.seedRatio),
+      vesting.seedTON.durationInUnit
+    );
+
+    await SeedTON.changeController(vesting.address);
   }
   if (process.env.PRIVATEINIT) {
-    const pton = parameter.private;
-    const PrivateTON = await VestingToken.at(data.PrivateTON);
-    await vestingSwapper.updateRatio(PrivateTON.address, 50);
-    await vestingSwapper.initiate(PrivateTON.address, start, 0, pton.firstClaimDurationInSeconds, pton.firstClaimAmountInTon.div(pton.ratio), pton.durationInUnit);
+    const PrivateTON = await VestingToken.at(
+      vesting.privateTON.PrivateTON
+    );
+    await vestingSwapper.updateRatio(
+      vesting.privateTON.PrivateTON,
+      vesting.privateTON.privateRatio
+    );
+    await vestingSwapper.initiate(
+      vesting.privateTON.PrivateTON,
+      vesting.privateTON.start,
+      vesting.privateTON.cliffDurationInSeconds,
+      vesting.privateTON.firstClaimDurationInSeconds,
+      vesting.privateTON.firstClaimAmountInTon.div(vesting.privateTON.privateRatio),
+      vesting.privateTON.durationInUnit
+    );
 
-    await PrivateTON.changeController(vestingSwapper.address);
+    await PrivateTON.changeController(vesting.address);
   }
   if (process.env.STRATEGICINIT) {
-    const strategic = parameter.strategic;
-    const StrategicTON = await VestingToken.at(data.StrategicTON);
-    await vestingSwapper.updateRatio(StrategicTON.address, 50);
-    await vestingSwapper.initiate(StrategicTON.address, start, 0, strategic.firstClaimDurationInSeconds, strategic.firstClaimAmountInTon.div(strategic.ratio), strategic.durationInUnit);
+    const StrategicTON = await VestingToken.at(
+      vesting.strategicTON.StrategicTON
+    );
+    await vestingSwapper.updateRatio(
+      vesting.strategicTON.StrategicTON,
+      vesting.strategicTON.strategicRatio
+    );
+    await vestingSwapper.initiate(
+      vesting.strategicTON.StrategicTON,
+      vesting.strategicTON.start,
+      vesting.strategicTON.cliffDurationInSeconds,
+      vesting.strategicTON.firstClaimDurationInSeconds,
+      vesting.strategicTON.firstClaimAmountInTon.div(vesting.strategicTON.StrategicRatio),
+      vesting.strategicTON.durationInUnit
+    );
 
-    await StrategicTON.changeController(vestingSwapper.address);
+    await StrategicTON.changeController(vesting.address);
   }
   if (process.env.MARKETINGINIT) {
-    const MarketingTON = await VestingToken.at(data.MarketingTON);
-    await simpleSwapper.updateRatio(MarketingTON.address, 1);
-    // await vestingSwapper.initiate(marketingTON.address, start, 0, 0, 0, oneDays);
+    const MarketingTON = await VestingToken.at(
+      vesting.marketingTON.MarketingTON
+    );
+    await simpleSwapper.updateRatio(
+      vesting.marketingTON.MarketingTON,
+      vesting.marketingTON.marketingRatio
+    );
+    await vestingSwapper.initiate(
+      vesting.marketingTON.MarketingTON,
+      vesting.marketingTON.start,
+      vesting.marketingTON.cliffDurationInSeconds,
+      vesting.marketingTON.firstClaimDurationInSeconds,
+      vesting.marketingTON.firstClaimAmountInTon.div(vesting.marketingTON.MarketingRatio),
+      vesting.marketingTON.durationInUnit
+    );
   }
+  const simple = param.simpleSwapper.parameters;
   if (process.env.TEAMINIT) {
-    const TeamTON = await VestingTokenStep.at(data.TeamTON);
-    await simpleSwapper.updateRatio(TeamTON.address, 50);
-    await TeamTON.initiate(start, 0, 36);
+    const TeamTON = await VestingTokenStep.at(
+      simple.TeamTON.teamTON
+    );
+    await simpleSwapper.updateRatio(
+      simple.TeamTON.teamTON,
+      simple.TeamTON.teamRatio
+    );
+    await TeamTON.initiate(
+      simple.TeamTON.start,
+      simple.TeamTON.cliffDurationInSeconds,
+      simple.TeamTON.durtation
+    );
 
-    await TeamTON.changeController(simpleSwapper.address);
+    await TeamTON.changeController(param.simpleSwapper.address);
   }
   if (process.env.ADVISORINIT) {
-    const AdvisorTON = await VestingTokenStep.at(data.AdvisorTON);
-    await simpleSwapper.updateRatio(AdvisorTON.address, 50);
-    await AdvisorTON.initiate(start, 0, 18);
+    const AdvisorTON = await VestingTokenStep.at(
+      simple.AdvisorTON.advisorTON
+    );
+    await simpleSwapper.updateRatio(
+      simple.AdvisorTON.advisorTON,
+      simple.AdvisorTON.advisorRatio
+    );
+    await AdvisorTON.initiate(
+      simple.AdvisorTON.start,
+      simple.AdvisorTON.cliffDurationInSeconds,
+      simple.AdvisorTON.durtation
+    );
 
-    await AdvisorTON.changeController(simpleSwapper.address);
+    await AdvisorTON.changeController(param.simpleSwapper.address);
   }
   if (process.env.BUSINESSINIT) {
-    const BusinessTON = await VestingTokenStep.at(data.BusinessTON);
-    await simpleSwapper.updateRatio(BusinessTON.address, 50);
-    await BusinessTON.initiate(start, 0, 20);
+    const BusinessTON = await VestingTokenStep.at(
+      simple.BusinessTON.businessTON
+    );
+    await simpleSwapper.updateRatio(
+      simple.BusinessTON.businessTON,
+      simple.BusinessTON.businessRatio
+    );
+    await BusinessTON.initiate(
+      simple.BusinessTON.start,
+      simple.BusinessTON.cliffDurationInSeconds,
+      simple.BusinessTON.durtation
+    );
 
-    await BusinessTON.changeController(simpleSwapper.address);
+    await BusinessTON.changeController(param.simpleSwapper.address);
   }
   if (process.env.RESERVEINIT) {
-    const ReserveTON = await VestingTokenStep.at(data.ReserveTON);
-    await simpleSwapper.updateRatio(ReserveTON.address, 50);
-    await ReserveTON.initiate(start, 0, 30);
+    const ReserveTON = await VestingTokenStep.at(
+      simple.ReseverTON.reserveTON
+    );
+    await simpleSwapper.updateRatio(
+      simple.ReseverTON.reserveTON,
+      simple.ReseverTON.reserveRatio
+    );
+    await ReserveTON.initiate(
+      simple.ReserveTON.start,
+      simple.ReserveTON.cliffDurationInSeconds,
+      simple.ReserveTON.durtation
+    );
 
-    await ReserveTON.changeController(simpleSwapper.address);
+    await ReserveTON.changeController(param.simpleSwapper.address);
   }
-  // if (process.env.DAOINIT) {
-  //   const daoTON = await VestingTokenStep.at(data.daoTON);
-  //   await simpleSwapper.updateRatio(daoTON.address, 50);
-  //   await daoTON.initiate(start, 0, oneDays*5);
+  if (process.env.DAOINIT) {
+    const daoTON = await VestingTokenStep.at(
+      simple.DaoTON.daoTON
+    );
+    await simpleSwapper.updateRatio(
+      simple.DaoTON.daoTON,
+      simple.DaoTON.daoRatio
+    );
+    await daoTON.initiate(
+      simple.DaoTON.start,
+      simple.DaoTON.cliffDurationInSeconds,
+      simple.DaoTON.durtation
+    );
 
-  //   await daoTON.changeController(simpleSwapper.address);
-  // }
+    await daoTON.changeController(param.simpleSwapper.address);
+  }
   if (process.env.SETVAULTSIMPLE) {
     await simpleSwapper.setVault(data.TONVault);
     await simpleSwapper.setBurner(data.Burner);
@@ -108,13 +213,13 @@ module.exports = async function (deployer) {
     await vestingSwapper.setBurner(data.Burner);
   }
   if (process.env.SETSWAPPER) {
-    setSwapperStart(vestingSwapper, start);
-    setSwapperStart(simpleSwapper, start);
+    setSwapperStart(vestingSwapper, param.vestingSwapper.startTimestamp);
+    setSwapperStart(simpleSwapper, param.simpleSwapper.startTimestamp);
   }
-  if (process.env.TRANSFER) {
-    const SeedTON = await VestingToken.at(data.SeedTON);
-    await SeedTON.transferOwnership();
-  }
+  // if (process.env.TRANSFER) {
+  //   const SeedTON = await VestingToken.at(data.SeedTON);
+  //   await SeedTON.transferOwnership();
+  // }
   if (process.env.DAEMONTEST) {
     const data = JSON.parse(fs.readFileSync('deployed_test.json').toString());
 
