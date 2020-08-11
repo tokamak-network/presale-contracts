@@ -45,7 +45,7 @@ contract VestingSwapper is Secondary {
     TONVault public vault;
     address public constant burner = 0x0000000000000000000000000000000000000001; // not deployed yet
     uint64 public startTimestamp;
-    address[] public usingBurnerContracts;
+    mapping(address => bool) public usingBurnerContracts;
 
     event Swapped(address account, uint256 unreleased, uint256 transferred);
     event Withdrew(address recipient, uint256 amount);
@@ -82,7 +82,7 @@ contract VestingSwapper is Secondary {
         uint256 ton_amount = unreleased.mul(ratio);
         require(ton_amount != 0, "VestingSwapper: zero amount to swap"); //
         bool success = false;
-        if (isUsingBurnerContract(vestingToken)) {
+        if (usingBurnerContracts[vestingToken]) {
             success = IERC20(vestingToken).transfer(burner, unreleased);
         } else {
             require(VestingToken(vestingToken).balanceOf(address(this)) >= unreleased, "swap: test error 1");
@@ -143,18 +143,16 @@ contract VestingSwapper is Secondary {
     }
 
     function addUsingBurnerContract(address token) public onlyPrimary {
-        if (!isUsingBurnerContract(token)) {
-            usingBurnerContracts.push(token);
-        }
+        usingBurnerContracts[token] = true;
     }
 
+    function delUsingBurnerContract(address token) public onlyPrimary {
+        usingBurnerContracts[token] = false;
+    }
+
+
     function isUsingBurnerContract(address token) public view returns(bool) {
-        for (uint i = 0; i < usingBurnerContracts.length; i++) {
-            if (usingBurnerContracts[i] == token) {
-                return true;
-            }
-        }
-        return false;
+        return usingBurnerContracts[token] == true;
     }
 
     //
