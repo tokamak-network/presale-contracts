@@ -117,7 +117,7 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
     vault = await TONVault.new(ton.address, { from: owner });
     burner = await Burner.new({ from: owner });
     
-    await swapper.setBurner(burner.address, {from: owner});
+    //await swapper.setBurner(burner.address, {from: owner});
 
     await swapper.updateRatio(vestingToken.address, vestingData["team"]["ratio"], {from: owner});
 
@@ -166,7 +166,15 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
         );
       });
     });
-    describe('setBurner', function () {
+    describe('updateRatio', function () {
+      it('setStart - should fail on the second call', async function () {
+        await expectRevert(
+          swapper.setStart(start, {from: owner}),
+          "Swapper: the starttime is already set"
+        );
+      });
+    });
+    /*describe('setBurner', function () {
       it('setBurner - should succeed', async function () {
         await swapper.setBurner(burner.address, {from: owner});
       });
@@ -176,7 +184,7 @@ contract('Swapper basis', function ([controller, owner, investor, ...others]) {
           "Secondary: caller is not the primary account"
         );
       });
-    });
+    });*/
     it('releasableAmount - should be zero', async function () {
       (await swapper.releasableAmount(vestingToken.address, others[0])).should.be.bignumber.equal(new BN(0));
     });

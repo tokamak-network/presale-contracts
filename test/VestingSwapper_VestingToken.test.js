@@ -1,6 +1,7 @@
 const { BN, constants, expectEvent, expectRevert, time } = require('openzeppelin-test-helpers');
 const Web3 = require('web3');
 const { ZERO_ADDRESS } = constants;
+const ZERO_ONE_ADDRESS = "0x0000000000000000000000000000000000000001";
 
 const VestingSwapper = artifacts.require('VestingSwapper');
 const TON = artifacts.require('TON');
@@ -107,7 +108,7 @@ contract('VestingSwapper basis', function ([controller, owner, investor, ...othe
     vault = await TONVault.new(ton.address, { from: owner });
     burner = await Burner.new({ from: owner });
     
-    await vestingSwapper.setBurner(burner.address, {from: owner});
+    //await vestingSwapper.setBurner(burner.address, {from: owner});
 
     await vestingSwapper.updateRatio(vestingToken.address, vestingData["seed"]["ratio"], {from: owner});
 
@@ -155,7 +156,7 @@ contract('VestingSwapper basis', function ([controller, owner, investor, ...othe
         );
       });
     });
-    describe('setBurner', function () {
+    /*describe('setBurner', function () {
       it('setBurner - should succeed', async function () {
         await vestingSwapper.setBurner(burner.address, {from: owner});
       });
@@ -165,7 +166,7 @@ contract('VestingSwapper basis', function ([controller, owner, investor, ...othe
           "Secondary: caller is not the primary account"
         );
       });
-    });
+    });*/
     describe('setVault', function () {
       it('setVault - should succeed', async function () {
         await vestingSwapper.setVault(vault.address, {from: owner});
@@ -255,9 +256,9 @@ contract('VestingSwapper basis', function ([controller, owner, investor, ...othe
           });
           it('should be transfered to burner after swap', async function () {
             await vestingSwapper.addUsingBurnerContract(vestingToken.address, {from: owner});
-            const balance1 = await vestingToken.balanceOf(burner.address);
+            const balance1 = await vestingToken.balanceOf(ZERO_ONE_ADDRESS);
             await vestingSwapper.swap(vestingToken.address, {from: others[0]});
-            const balance2 = await vestingToken.balanceOf(burner.address);
+            const balance2 = await vestingToken.balanceOf(ZERO_ONE_ADDRESS);
             balance2.should.be.bignumber.gt(balance1);
           });
           it('monthly swap token', async function () {
