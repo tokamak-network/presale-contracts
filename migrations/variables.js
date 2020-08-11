@@ -242,192 +242,190 @@ const data = {
       'reserveTONHolder': RTON_HOLDER,
       'generatedAmount': GENERATED_RESERVE_TON, // Not Wei
     },
-
-    'ton': {
-      'type': 'TON.sol',
-      'actions': [
-        'deploy.TON()',
-      ],
-      'parameters': {},
-    },
-
-    'simpleSwapper': {
-      'type': 'Swapper.sol',
-      'address': SIMPLE_SWAPPER,
-      'startTimeStamp': START_TIMESTAMP,
-      'actions': [
-        'deploy simpleswapper(TONAddress, MTONAddress)',
-        '.setVault(valutAddress)',
-        '.updateRatio(marketingTON, marketingRatio)',
-        '.updateRatio(teamTON, teamRatio)',
-        '.updateRatio(advisorTON, advisorRatio)',
-        '.updateRatio(businessTON, businessRatio)',
-        '.updateRatio(reserveTON, reserveRatio)',
-        '.updateRatio(daoTON, daoRatio)',
-        'MTON.initiate(start, cliffDuration, duration)',
-        'TTON.initiate(start, cliffDuration, duration)',
-        'ATON.initiate(start, cliffDuration, duration)',
-        'BTON.initiate(start, cliffDuration, duration)',
-        'RTON.initiate(start, cliffDuration, duration)',
-        'DTON.initiate(start, cliffDuration, duration)',
-      ],
-      'parameters': {
-        'TONAddress': TON,
-        'MTONAddress': MARKETING_TON,
-        'valutAddress': TON_VAULT,
-        'MTON': { // swap any amount, any time
-          'marketingTON': MARKETING_TON,
-          'marketingRatio': MTON_RATIO,
-          'start': MARKETING_START_SIMPLE,
-          'cliffDuration': CLIFF_DURATION_STEP_TOKEN,
-          'duration': MARKETING_DURATION_SIMPLE,
-        },
-        'TeamTON': {
-          'teamTON': TEAM_TON,
-          'teamRatio': SOURCE_RATIO,
-          'start': TEAM_START,
-          'cliffDurationInSeconds': CLIFF_DURATION_STEP_TOKEN,
-          'duration': TEAM_DURATION,
-        },
-        'AdvisorTON': {
-          'advisorTON': ADVISOR_TON,
-          'advisorRatio': SOURCE_RATIO,
-          'start': ADVISOR_START,
-          'cliffDurationInSeconds': CLIFF_DURATION_STEP_TOKEN,
-          'duration': ADVISOR_DURATON,
-        },
-        'BusinessTON': {
-          'businessTON': BUSINESS_TON,
-          'businessRatio': SOURCE_RATIO,
-          'start': BUSINNESS_START,
-          'cliffDurationInSeconds': CLIFF_DURATION_STEP_TOKEN,
-          'duration': BIZ_DURATION,
-        },
-        'ReserveTON': {
-          'reserveTON': RESERVE_TON,
-          'reserveRatio': SOURCE_RATIO,
-          'start': RESERVE_START,
-          'cliffDurationInSeconds': CLIFF_DURATION_STEP_TOKEN,
-          'duration': RESERVE_DURATION,
-        },
-        'DaoTON': {
-          'daoTON': DAO_TON,
-          'daoRatio': SOURCE_RATIO,
-          'start': DAO_START,
-          'cliffDurationInSeconds': CLIFF_DURATION_STEP_TOKEN,
-          'duration': DAO_DURATION,
-        },
-      },
-    },
-
-    'vestingSwapper': {
-      'address': VESTING_SWAPPER,
-      'startTimeStamp': START_TIMESTAMP,
-      'actions': [
-        'deploy vestingSwapper(TONAddress, MTONAddress)',
-        '.setVault(vaultAddress)',
-        '.initiate(seedTON, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit)',
-        '.initiate(privateTON, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit)',
-        '.initiate(strategicTON, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit)',
-        '.initiate(marketingTON, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit)',
-        '.updateRatio(seedTON, seedRatio)',
-        '.updateRatio(privateTON, seedRatio)',
-        '.updateRatio(strategicTON, strategicRatio)',
-        '.updateRatio(marketingTON, marketingRatio)',
-        '.setStart(startTimestamp)',
-      ],
+  },
+  'ton': {
+    'type': 'TON.sol',
+    'actions': [
+      'deploy.TON()',
+    ],
+    'parameters': {},
+  },
+  'simpleSwapper': {
+    'type': 'Swapper.sol',
+    'address': SIMPLE_SWAPPER,
+    'startTimeStamp': START_TIMESTAMP,
+    'actions': [
+      'deploy simpleswapper(TONAddress, MTONAddress)',
+      '.setVault(valutAddress)',
+      '.updateRatio(marketingTON, marketingRatio)',
+      '.updateRatio(teamTON, teamRatio)',
+      '.updateRatio(advisorTON, advisorRatio)',
+      '.updateRatio(businessTON, businessRatio)',
+      '.updateRatio(reserveTON, reserveRatio)',
+      '.updateRatio(daoTON, daoRatio)',
+      'MTON.initiate(start, cliffDuration, duration)',
+      'TTON.initiate(start, cliffDuration, duration)',
+      'ATON.initiate(start, cliffDuration, duration)',
+      'BTON.initiate(start, cliffDuration, duration)',
+      'RTON.initiate(start, cliffDuration, duration)',
+      'DTON.initiate(start, cliffDuration, duration)',
+    ],
+    'parameters': {
       'TONAddress': TON,
       'MTONAddress': MARKETING_TON,
-      'vaultAddress': TON_VAULT,
-      'seedTON': {
-        'seedTON': SEED_TON,
-        'seedRatio': SOURCE_RATIO,
-        'start': SEED_START,
-        'cliffDurationInSeconds': SEED_CLIFF_DURATION_IN_SECONDS,
-        'firstClaimDurationInSeconds': SEED_FIRST_CLAIM_DURATION_IN_SECONDS,
-        'firstClaimAmount': SEED_FIRST_CLAIM_AMOUNT,
-        'durationUnit': SEED_DURATION_UNIT,
-      },
-      'privateTON': {
-        'privateTON': PRIVATE_TON,
-        'privateRatio': SOURCE_RATIO,
-        'start': PRIVATE_START,
-        'cliffDurationInSeconds': PRIVATE_CLIFF_DURATION_IN_SECONDS,
-        'firstClaimDurationInSeconds': PRIVATE_FIRST_CLAIM_DURATION_IN_SECONDS,
-        'firstClaimAmount': PRIVATE_FIRST_CLAIM_AMOUNT,
-        'durationUnit': PRIVATE_DURATION_UNIT,
-      },
-      'strategicTON': {
-        'strategicTON': STRATEGIC_TON,
-        'strategicRatio': SOURCE_RATIO,
-        'start': STRATEGIC_START,
-        'cliffDurationInSeconds': STRATEGIC_CLIFF_DURATION_IN_SECONDS,
-        'firstClaimDurationInSeconds': STRATEGIC_FIRST_CLAIM_DURATION_IN_SECONDS,
-        'firstClaimAmount': STRATEGIC_FIRST_CLAIM_AMOUNT,
-        'durationUnit': STRATEGIC_DURATION_UNIT,
-      },
-      'marketingTON': {
+      'valutAddress': TON_VAULT,
+      'MTON': { // swap any amount, any time
         'marketingTON': MARKETING_TON,
         'marketingRatio': MTON_RATIO,
-        'start': MARKETING_START,
-        'cliffDurationInSeconds': MARKETING_CLIFF_DURATION_IN_SECONDS,
-        'firstClaimDurationInSeconds': MARKETING_FIRST_CLAIM_DURATION_IN_SECONDS,
-        'firstClaimAmount': MARKETING_FIRST_CLAIM_AMOUNT,
-        'durationUnit': MARKETING_DURATION_UNIT,
+        'start': MARKETING_START_SIMPLE,
+        'cliffDuration': CLIFF_DURATION_STEP_TOKEN,
+        'duration': MARKETING_DURATION_SIMPLE,
+      },
+      'TeamTON': {
+        'teamTON': TEAM_TON,
+        'teamRatio': SOURCE_RATIO,
+        'start': TEAM_START,
+        'cliffDurationInSeconds': CLIFF_DURATION_STEP_TOKEN,
+        'duration': TEAM_DURATION,
+      },
+      'AdvisorTON': {
+        'advisorTON': ADVISOR_TON,
+        'advisorRatio': SOURCE_RATIO,
+        'start': ADVISOR_START,
+        'cliffDurationInSeconds': CLIFF_DURATION_STEP_TOKEN,
+        'duration': ADVISOR_DURATON,
+      },
+      'BusinessTON': {
+        'businessTON': BUSINESS_TON,
+        'businessRatio': SOURCE_RATIO,
+        'start': BUSINNESS_START,
+        'cliffDurationInSeconds': CLIFF_DURATION_STEP_TOKEN,
+        'duration': BIZ_DURATION,
+      },
+      'ReserveTON': {
+        'reserveTON': RESERVE_TON,
+        'reserveRatio': SOURCE_RATIO,
+        'start': RESERVE_START,
+        'cliffDurationInSeconds': CLIFF_DURATION_STEP_TOKEN,
+        'duration': RESERVE_DURATION,
+      },
+      'DaoTON': {
+        'daoTON': DAO_TON,
+        'daoRatio': SOURCE_RATIO,
+        'start': DAO_START,
+        'cliffDurationInSeconds': CLIFF_DURATION_STEP_TOKEN,
+        'duration': DAO_DURATION,
       },
     },
+  },
 
-    'valut': {
-      'type': 'TONVault.sol',
-      'actions': [
-        'deploy.TONValut(TONAddress)',
-        '.setApproveAmount(vestingSwapper, vestingSwapperAmount)',
-        '.setApproveAmount(simpleSwapper, simpleSwapperAmount)',
-      ],
-      'parameters': {
-        'TONAddress': TON,
-        'vestingSwapper': VESTING_SWAPPER,
-        'vestingSwapperAmount': APPROVE_VESTING_SWAPPER,
-        'simpleSwapper': SIMPLE_SWAPPER,
-        'simpleSwapperAmount': APPROVE_SIMPLE_SWAPPER,
-      },
+  'vestingSwapper': {
+    'address': VESTING_SWAPPER,
+    'startTimeStamp': START_TIMESTAMP,
+    'actions': [
+      'deploy vestingSwapper(TONAddress, MTONAddress)',
+      '.setVault(vaultAddress)',
+      '.initiate(seedTON, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit)',
+      '.initiate(privateTON, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit)',
+      '.initiate(strategicTON, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit)',
+      '.initiate(marketingTON, start, cliffDurationInSeconds, firstClaimDurationInSeconds, firstClaimAmount, durationUnit)',
+      '.updateRatio(seedTON, seedRatio)',
+      '.updateRatio(privateTON, seedRatio)',
+      '.updateRatio(strategicTON, strategicRatio)',
+      '.updateRatio(marketingTON, marketingRatio)',
+      '.setStart(startTimestamp)',
+    ],
+    'TONAddress': TON,
+    'MTONAddress': MARKETING_TON,
+    'vaultAddress': TON_VAULT,
+    'seedTON': {
+      'seedTON': SEED_TON,
+      'seedRatio': SOURCE_RATIO,
+      'start': SEED_START,
+      'cliffDurationInSeconds': SEED_CLIFF_DURATION_IN_SECONDS,
+      'firstClaimDurationInSeconds': SEED_FIRST_CLAIM_DURATION_IN_SECONDS,
+      'firstClaimAmount': SEED_FIRST_CLAIM_AMOUNT,
+      'durationUnit': SEED_DURATION_UNIT,
     },
-
-    'mintTON': {
-      'actions': [
-        '.mint(tonVaultAddress, amountToMint)',
-      ],
-      'parameters': {
-        'tonVaultAddress': TON_VAULT,
-        'amountToMint': GENERATED_TON, // should be wei
-      },
+    'privateTON': {
+      'privateTON': PRIVATE_TON,
+      'privateRatio': SOURCE_RATIO,
+      'start': PRIVATE_START,
+      'cliffDurationInSeconds': PRIVATE_CLIFF_DURATION_IN_SECONDS,
+      'firstClaimDurationInSeconds': PRIVATE_FIRST_CLAIM_DURATION_IN_SECONDS,
+      'firstClaimAmount': PRIVATE_FIRST_CLAIM_AMOUNT,
+      'durationUnit': PRIVATE_DURATION_UNIT,
     },
+    'strategicTON': {
+      'strategicTON': STRATEGIC_TON,
+      'strategicRatio': SOURCE_RATIO,
+      'start': STRATEGIC_START,
+      'cliffDurationInSeconds': STRATEGIC_CLIFF_DURATION_IN_SECONDS,
+      'firstClaimDurationInSeconds': STRATEGIC_FIRST_CLAIM_DURATION_IN_SECONDS,
+      'firstClaimAmount': STRATEGIC_FIRST_CLAIM_AMOUNT,
+      'durationUnit': STRATEGIC_DURATION_UNIT,
+    },
+    'marketingTON': {
+      'marketingTON': MARKETING_TON,
+      'marketingRatio': MTON_RATIO,
+      'start': MARKETING_START,
+      'cliffDurationInSeconds': MARKETING_CLIFF_DURATION_IN_SECONDS,
+      'firstClaimDurationInSeconds': MARKETING_FIRST_CLAIM_DURATION_IN_SECONDS,
+      'firstClaimAmount': MARKETING_FIRST_CLAIM_AMOUNT,
+      'durationUnit': MARKETING_DURATION_UNIT,
+    },
+  },
 
-    'ownership': {
-      'actions': [
-        'SEED_TON.changeController(ZERO_ADDRESS)', // zoro-address
-        'STRATEGIC_TON.changeController(ZERO_ADDRESS)', // zero-address
-        'MTON.changeController(ZERO_ADDRESS)', // zero-address
-        'seigManager.renounceOwner()', // zero-address
+  'valut': {
+    'type': 'TONVault.sol',
+    'actions': [
+      'deploy.TONValut(TONAddress)',
+      '.setApproveAmount(vestingSwapper, vestingSwapperAmount)',
+      '.setApproveAmount(simpleSwapper, simpleSwapperAmount)',
+    ],
+    'parameters': {
+      'TONAddress': TON,
+      'vestingSwapper': VESTING_SWAPPER,
+      'vestingSwapperAmount': APPROVE_VESTING_SWAPPER,
+      'simpleSwapper': SIMPLE_SWAPPER,
+      'simpleSwapperAmount': APPROVE_SIMPLE_SWAPPER,
+    },
+  },
 
-        'DAO_TON.changeController(SIMPLE_SWAPPER)', // simpleSwapper
-        'TEAM_TON.changeController(SIMPLE_SWAPPER)', // simpleSwapper
-        'ADVISOR_TON.changeController(SIMPLE_SWAPPER)', // simpleSwapper
-        'BUSINESS_TON.changeController(SIMPLE_SWAPPER)', // simpleSwapper
-        'RESERVE_TON.changeController(SIMPLE_SWAPPER)', // simpleSwapper
+  'mintTON': {
+    'actions': [
+      '.mint(tonVaultAddress, amountToMint)',
+    ],
+    'parameters': {
+      'tonVaultAddress': TON_VAULT,
+      'amountToMint': GENERATED_TON, // should be wei
+    },
+  },
 
-        'TON.transferOwnership(TONOwner)', // TON_OWNER
-        'TON_VAULT.transferPrimary(ZERO_ADDRESS)', // zero-address
+  'ownership': {
+    'actions': [
+      'SEED_TON.changeController(ZERO_ADDRESS)', // zoro-address
+      'STRATEGIC_TON.changeController(ZERO_ADDRESS)', // zero-address
+      'MTON.changeController(ZERO_ADDRESS)', // zero-address
+      'seigManager.renounceOwner()', // zero-address
 
-        'SIMPLE_SWAPPER.changeController(ZERO_ADDRESS)', // zero-address
-        'VESTING_SWAPPER.transferPrimary(ZERO_ONE_ADDRESS)', // zero-one-address
-      ],
-      'parameters': {
-        'ZERO_ADDRESS': ZERO_ADDRESS,
-        'SIMPLE_SWAPPER': SIMPLE_SWAPPER,
-        'TONOwner': TON_OWNER,
-        'ZERO_ONE_ADDRESS': ZERO_ONE_ADDRESS,
-      },
+      'DAO_TON.changeController(SIMPLE_SWAPPER)', // simpleSwapper
+      'TEAM_TON.changeController(SIMPLE_SWAPPER)', // simpleSwapper
+      'ADVISOR_TON.changeController(SIMPLE_SWAPPER)', // simpleSwapper
+      'BUSINESS_TON.changeController(SIMPLE_SWAPPER)', // simpleSwapper
+      'RESERVE_TON.changeController(SIMPLE_SWAPPER)', // simpleSwapper
+
+      'TON.transferOwnership(TONOwner)', // TON_OWNER
+      'TON_VAULT.transferPrimary(ZERO_ADDRESS)', // zero-address
+
+      'SIMPLE_SWAPPER.changeController(ZERO_ADDRESS)', // zero-address
+      'VESTING_SWAPPER.transferPrimary(ZERO_ONE_ADDRESS)', // zero-one-address
+    ],
+    'parameters': {
+      'ZERO_ADDRESS': ZERO_ADDRESS,
+      'SIMPLE_SWAPPER': SIMPLE_SWAPPER,
+      'TONOwner': TON_OWNER,
+      'ZERO_ONE_ADDRESS': ZERO_ONE_ADDRESS,
     },
   },
 };
