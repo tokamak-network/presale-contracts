@@ -61,19 +61,6 @@
         {
           "indexed": false,
           "internalType": "address",
-          "name": "bernerAddress",
-          "type": "address"
-        }
-      ],
-      "name": "SetBurner",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "address",
           "name": "vaultAddress",
           "type": "address"
         }
@@ -147,6 +134,36 @@
     {
       "constant": true,
       "inputs": [],
+      "name": "UNIT_IN_SECONDS",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "",
+          "type": "uint64"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "ZERO_ADDRESS",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
       "name": "_token",
       "outputs": [
         {
@@ -208,12 +225,42 @@
     {
       "constant": true,
       "inputs": [],
+      "name": "mton",
+      "outputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
       "name": "primary",
       "outputs": [
         {
           "internalType": "address",
           "name": "",
           "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "startTimestamp",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "",
+          "type": "uint64"
         }
       ],
       "payable": false,
@@ -233,6 +280,27 @@
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "usingBurnerContracts",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -267,38 +335,38 @@
           "type": "bool"
         },
         {
-          "internalType": "uint256",
+          "internalType": "uint64",
+          "name": "ratio",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint64",
           "name": "start",
-          "type": "uint256"
+          "type": "uint64"
         },
         {
-          "internalType": "uint256",
+          "internalType": "uint64",
           "name": "cliff",
-          "type": "uint256"
+          "type": "uint64"
         },
         {
-          "internalType": "uint256",
+          "internalType": "uint64",
           "name": "firstClaimTimestamp",
-          "type": "uint256"
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint64",
+          "name": "durationUnit",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint64",
+          "name": "durationInSeconds",
+          "type": "uint64"
         },
         {
           "internalType": "uint256",
           "name": "firstClaimAmount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "durationUnit",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "durationInSeconds",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "ratio",
           "type": "uint256"
         },
         {
@@ -371,24 +439,9 @@
       "constant": false,
       "inputs": [
         {
-          "internalType": "address",
-          "name": "bernerAddress",
-          "type": "address"
-        }
-      ],
-      "name": "setBurner",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "internalType": "uint256",
+          "internalType": "uint64",
           "name": "_startTimestamp",
-          "type": "uint256"
+          "type": "uint64"
         }
       ],
       "name": "setStart",
@@ -485,6 +538,57 @@
       "inputs": [
         {
           "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "addUsingBurnerContract",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "delUsingBurnerContract",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "isUsingBurnerContract",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
           "name": "from",
           "type": "address"
         },
@@ -519,19 +623,19 @@
           "type": "address"
         },
         {
-          "internalType": "uint256",
+          "internalType": "uint64",
           "name": "start",
-          "type": "uint256"
+          "type": "uint64"
         },
         {
-          "internalType": "uint256",
+          "internalType": "uint64",
           "name": "cliffDurationInSeconds",
-          "type": "uint256"
+          "type": "uint64"
         },
         {
-          "internalType": "uint256",
+          "internalType": "uint64",
           "name": "firstClaimDurationInSeconds",
-          "type": "uint256"
+          "type": "uint64"
         },
         {
           "internalType": "uint256",
@@ -539,9 +643,9 @@
           "type": "uint256"
         },
         {
-          "internalType": "uint256",
+          "internalType": "uint64",
           "name": "durationUnit",
-          "type": "uint256"
+          "type": "uint64"
         }
       ],
       "name": "initiate",
@@ -559,9 +663,9 @@
           "type": "address"
         },
         {
-          "internalType": "uint256",
+          "internalType": "uint64",
           "name": "tokenRatio",
-          "type": "uint256"
+          "type": "uint64"
         }
       ],
       "name": "updateRatio",
@@ -582,9 +686,9 @@
       "name": "ratio",
       "outputs": [
         {
-          "internalType": "uint256",
+          "internalType": "uint64",
           "name": "",
-          "type": "uint256"
+          "type": "uint64"
         }
       ],
       "payable": false,
@@ -624,9 +728,9 @@
       "name": "start",
       "outputs": [
         {
-          "internalType": "uint256",
+          "internalType": "uint64",
           "name": "",
-          "type": "uint256"
+          "type": "uint64"
         }
       ],
       "payable": false,
@@ -645,9 +749,9 @@
       "name": "cliff",
       "outputs": [
         {
-          "internalType": "uint256",
+          "internalType": "uint64",
           "name": "",
-          "type": "uint256"
+          "type": "uint64"
         }
       ],
       "payable": false,
@@ -666,9 +770,9 @@
       "name": "firstClaim",
       "outputs": [
         {
-          "internalType": "uint256",
+          "internalType": "uint64",
           "name": "",
-          "type": "uint256"
+          "type": "uint64"
         }
       ],
       "payable": false,
@@ -687,9 +791,9 @@
       "name": "duration",
       "outputs": [
         {
-          "internalType": "uint256",
+          "internalType": "uint64",
           "name": "",
-          "type": "uint256"
+          "type": "uint64"
         }
       ],
       "payable": false,
