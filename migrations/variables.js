@@ -71,13 +71,13 @@ const STRATEGIC_DURATION = 10;
 const MARKETING_DURATOON_VESTING_SWAPPER = 10;
 
 const TEAM_DURATION = 36; // 36month
-const ADVISOR_DURATON = 18; //18month
-// const MARKETING_DURATION_SIMPLE = 0;
-const BIZ_DURATION = 20; //20month
-const RESERVE_DURATION = 30; //30month
-const DAO_DURATION = 1; //TODO : Test required. immediately.
+const ADVISOR_DURATON = 18; // 18month
+const MARKETING_DURATION_SIMPLE = 0;
+const BIZ_DURATION = 20; // 20month
+const RESERVE_DURATION = 30; // 30month
+const DAO_DURATION = 1; // TODO : Test required. immediately.
 
-const CLIFF_DURATION_STEP_TOKEN = 0; //TTON,ATON,BTON,RTON,DTON,MTON
+const CLIFF_DURATION_STEP_TOKEN = 0; // TTON,ATON,BTON,RTON,DTON,MTON
 
 // 3.3 Vesting swapper related
 const END_CLIFF_TIME = 1599768000; // 2020. 9. 11 오전 5:00:00(KST)
@@ -116,7 +116,7 @@ const MARKETING_DURATION_UNIT = 10;
 
 // amount to be minted
 
-//2,600,000 - (1515283.424251996524338723 + 20322.890490684333034588187841973)
+// 2,600,000 - (1515283.424251996524338723 + 20322.890490684333034588187841973)
 const GENERATED_MTON = '1064393' + '685257319142626689'; // wei
 const GENERATED_DAO_TON = '350000' + '000000000000000000'; // wei
 const GENERATED_TEAM_TON = '150000' + '000000000000000000'; // wei
@@ -381,7 +381,7 @@ const data = {
     },
   },
 
-  'valut': {
+  'vault': {
     'type': 'TONVault.sol',
     'actions': [
       'deploy.TONValut(TONAddress)',
