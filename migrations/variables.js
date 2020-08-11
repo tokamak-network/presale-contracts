@@ -116,7 +116,7 @@ const MARKETING_DURATION_UNIT = 10;
 
 // amount to be minted
 
-// 2,600,000 - (1515283.424251996524338723 + 20322.890490684333034588187841973)
+// 2,600,000 - (1515283.424251996524338723 + 20322.890490684333034588187841973) + @(?)
 const GENERATED_MTON = '1064393' + '685257319142626689'; // wei
 const GENERATED_DAO_TON = '350000' + '000000000000000000'; // wei
 const GENERATED_TEAM_TON = '150000' + '000000000000000000'; // wei
@@ -145,7 +145,7 @@ const data = {
     ],
     'parameters': {
       'mtonHolder': MTON_HOLDER1,
-      'generatedAmount': GENERATED_MTON, // should be wei
+      'generatedAmount': GENERATED_MTON, // wei
     },
   },
 
@@ -165,7 +165,7 @@ const data = {
         'transferEnabled': true,
       },
       'daoTONHolder': DAO_TON_HOLDER,
-      'generatedAmount': GENERATED_DAO_TON, // should be Wei
+      'generatedAmount': GENERATED_DAO_TON, // Wei
     },
   },
 
@@ -185,7 +185,7 @@ const data = {
         'transferEnabled': true,
       },
       'teamTONHolder': TEAM_TON_HOLDER,
-      'generatedAmount': GENERATED_TEAM_TON, // Not Wei
+      'generatedAmount': GENERATED_TEAM_TON, // Wei
     },
   },
 
@@ -205,7 +205,7 @@ const data = {
         'transferEnabled': true,
       },
       'advisorTONHolder': ATON_HOLDER,
-      'generatedAmount': GENERATED_ADVISOR_TON, // Not Wei
+      'generatedAmount': GENERATED_ADVISOR_TON, // Wei
     },
   },
 
@@ -220,12 +220,12 @@ const data = {
         'tokenFactory': ZERO_ADDRESS,
         'parentToken': ZERO_ADDRESS,
         'parentSnapShotBlock': 0,
-        'tokenName': 'business Tokamak Network Token',
+        'tokenName': 'Business Tokamak Network Token',
         'decimalUnits': 18,
         'transferEnabled': true,
       },
       'bisinessTONHolder': BIZ_TON_HOLDER,
-      'generatedAmount': GENERATED_BIZ_TON, // Not Wei
+      'generatedAmount': GENERATED_BIZ_TON, // Wei
     },
   },
 
@@ -248,43 +248,40 @@ const data = {
       'generatedAmount': GENERATED_RESERVE_TON, // Not Wei
     },
   },
+
   'ton': {
-    'type': 'TON.sol',
+    'type': 'TON.sol deploy()',
     'actions': [
       'deploy.TON()',
     ],
     'parameters': {},
   },
+
   'simpleSwapper': {
     'type': 'Swapper.sol',
     'address': SIMPLE_SWAPPER,
-    'startTimeStamp': START_TIMESTAMP,
     'actions': [
       'deploy simpleswapper(TONAddress, MTONAddress)',
-      '.setVault(valutAddress)',
       '.updateRatio(marketingTON, marketingRatio)',
       '.updateRatio(teamTON, teamRatio)',
       '.updateRatio(advisorTON, advisorRatio)',
       '.updateRatio(businessTON, businessRatio)',
       '.updateRatio(reserveTON, reserveRatio)',
       '.updateRatio(daoTON, daoRatio)',
-      'MTON.initiate(start, cliffDuration, duration)',
       'TTON.initiate(start, cliffDuration, duration)',
       'ATON.initiate(start, cliffDuration, duration)',
       'BTON.initiate(start, cliffDuration, duration)',
       'RTON.initiate(start, cliffDuration, duration)',
       'DTON.initiate(start, cliffDuration, duration)',
+      '.setStart(startTimeStamp)',
     ],
     'parameters': {
       'TONAddress': TON,
       'MTONAddress': MARKETING_TON,
       'valutAddress': TON_VAULT,
-      'MTON': { // swap any amount, any time
+      'MTON': { // swap any amount, any time, setStart(startTimeStamp) is startTimeStamp of MTON
         'marketingTON': MARKETING_TON,
         'marketingRatio': MTON_RATIO,
-        'start': MARKETING_START_SIMPLE,
-        'cliffDuration': CLIFF_DURATION_STEP_TOKEN,
-        'duration': MARKETING_DURATION_SIMPLE,
       },
       'TeamTON': {
         'teamTON': TEAM_TON,
@@ -321,6 +318,7 @@ const data = {
         'cliffDurationInSeconds': CLIFF_DURATION_STEP_TOKEN,
         'duration': DAO_DURATION,
       },
+      'startTimeStamp': START_TIMESTAMP,
     },
   },
 
@@ -339,6 +337,9 @@ const data = {
       '.updateRatio(strategicTON, strategicRatio)',
       '.updateRatio(marketingTON, marketingRatio)',
       '.setStart(startTimestamp)',
+      '.addUsingBurnerContract(SEED_TON)', //* ** TODO : should be imp in migration script ***
+      '.addUsingBurnerContract(STRATEGIC_TON)', //* ** TODO : should be imp in migration script ***
+      '.addUsingBurnerContract(MTON)', //* ** TODO : should be imp in migration script ***
     ],
     'TONAddress': TON,
     'MTONAddress': MARKETING_TON,
@@ -387,6 +388,8 @@ const data = {
       'deploy.TONValut(TONAddress)',
       '.setApproveAmount(vestingSwapper, vestingSwapperAmount)',
       '.setApproveAmount(simpleSwapper, simpleSwapperAmount)',
+      'SIMPLE_SWAPPER.setVault(valutAddress)',
+      'VESTING_SWAPPER.setVault(valutAddress)',
     ],
     'parameters': {
       'TONAddress': TON,
@@ -403,16 +406,21 @@ const data = {
     ],
     'parameters': {
       'tonVaultAddress': TON_VAULT,
-      'amountToMint': GENERATED_TON, // should be wei
+      'amountToMint': GENERATED_TON, // wei
     },
   },
 
+  // 9 tokens
+  // 1 seigManager
+  // 2 swapper
+  // 1 valut
   'ownership': {
     'actions': [
-      'SEED_TON.changeController(ZERO_ADDRESS)', // zoro-address
-      'STRATEGIC_TON.changeController(ZERO_ADDRESS)', // zero-address
-      'MTON.changeController(ZERO_ADDRESS)', // zero-address
-      'seigManager.renounceOwner()', // zero-address
+      'SEED_TON.changeController(ZERO_ADDRESS)', // kevin's task
+      'STRATEGIC_TON.changeController(ZERO_ADDRESS)', // kevin's task
+      'MTON.changeController(SIMPLE_SWAPPER)', // kevin's task
+
+      'seigManager.renounceOwner()', // kevin's task. Don't need in migration script
 
       'DAO_TON.changeController(SIMPLE_SWAPPER)', // simpleSwapper
       'TEAM_TON.changeController(SIMPLE_SWAPPER)', // simpleSwapper
@@ -421,7 +429,7 @@ const data = {
       'RESERVE_TON.changeController(SIMPLE_SWAPPER)', // simpleSwapper
 
       'TON.transferOwnership(TONOwner)', // TON_OWNER
-      'TON_VAULT.transferPrimary(ZERO_ADDRESS)', // zero-address
+      'TON_VAULT.transferPrimary(ZERO_ONE_ADDRESS)', // zero-address
 
       'SIMPLE_SWAPPER.changeController(ZERO_ADDRESS)', // zero-address
       'VESTING_SWAPPER.transferPrimary(ZERO_ONE_ADDRESS)', // zero-one-address
