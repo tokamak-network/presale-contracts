@@ -55,14 +55,14 @@ const MTON_RATIO = 1;
 const SOURCE_RATIO = new BN('50');
 
 // 3.2 Vesting timestamp related
-const START_TIMESTAMP = new BN('1597201200'); // 2020. 8. 12 오후 12:00:00(KST)
+const START_TIMESTAMP = new BN('1597287600'); // 2020. 8. 13 오후 12:00:00(KST)
 
-const TEAM_START = new BN('1612728000'); // 2021. 2. 8 오전 5:00:00(KST)
-const ADVISOR_START = new BN('1612728000'); // 2021. 2. 8 오전 5:00:00(KST)
-const MARKETING_START_SIMPLE = new BN('1597201200'); // 2020. 8. 12 오후 12:00:00
-const BUSINNESS_START = new BN('1599768000'); // 2020. 9. 11 오전 5:00:00(KST)
-const RESERVE_START = new BN('1628280000'); // 2021. 8. 7 오전 5:00:00(KST)
-const DAO_START = new BN('1610136000'); // 2021. 1. 9 오전 5:00:00(KST)
+const TEAM_START = new BN('1612814400'); // 2021. 2. 9 오전 5:00:00(KST)
+const ADVISOR_START = new BN('1612814400'); // 2021. 2. 9 오전 5:00:00(KST)
+const MARKETING_START_SIMPLE = new BN('1597287600'); // 2020. 8. 13 오후 12:00:00
+const BUSINNESS_START = new BN('1599854400'); // 2020. 9. 12 오전 5:00:00(KST)
+const RESERVE_START = new BN('1628366400'); // 2021. 8. 8 오전 5:00:00(KST)
+const DAO_START = new BN('1610222400'); // 2021. 1. 10 오전 5:00:00(KST)
 
 // const month = 60 * 60 * 24 * 30; // 30days
 // const day = 60 * 60 * 24; // 1day
@@ -83,7 +83,7 @@ const DAO_DURATION = 1; // TODO : Test required. immediately.
 const CLIFF_DURATION_STEP_TOKEN = 0; // TTON,ATON,BTON,RTON,DTON,MTON
 
 // 3.3 Vesting swapper related
-const END_CLIFF_TIME = new BN('1599768000'); // 2020. 9. 11 오전 5:00:00(KST)
+const END_CLIFF_TIME = new BN('1599854400'); // 2020. 9. 12 오전 5:00:00(KST)
 
 const FIRST_SEED_AMOUNT = new BN('15000' + '000000000000000000');
 const FIRST_PRIVATE_AMOUNT = new BN('360000' + '000000000000000000');
