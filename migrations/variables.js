@@ -22,29 +22,29 @@ const HOLDER = '0x2b3a5A8E301e3e0aA6FACf0B2ef821b236ee5EE3';
 
 /// / 2.Contract Addresses ////
 // vestingToken, have to use vestingSwapper(Don't have to init token itself).
-const SEED_TON = '0x8Ae43F11DDd3fac5bbD84ab0BA795E1e51b78df7';
-const PRIVATE_TON = '0x2C0F8e85ad3DCbEc1561f6cE632DFF86294e479f';
-const STRATEGIC_TON = '0x2801265c6f888f5a9e1b72ee175fc0091e007080';
+const SEED_TON = '';
+const PRIVATE_TON = '';
+const STRATEGIC_TON = '';
 
 // vestingTokenStep, use simpleSwapper(It should be inited itself).
 const MARKETING_TON = '0xe3a87a9343D262F5f11280058ae807B45aa34669';
 
-const DAO_TON = '0x1b20FF313638F5C3A5bD603a1861d6F839e73245';
-const TEAM_TON = '0x5950181C3d6b819383Ef585db58dC61a617F8dEc';
-const ADVISOR_TON = '0xa9fCb03c5bBa83153fb576288A4180882aEb2eE6';
-const BUSINESS_TON = '0xD5f2dDF3E26dF4d36F8FF4Ec6279b7F870865699';
-const RESERVE_TON = '0x4F92A03510842f3673350161bdA7d03BA8fCD16C';
+const DAO_TON = '';
+const TEAM_TON = '';
+const ADVISOR_TON = '';
+const BUSINESS_TON = '';
+const RESERVE_TON = '';
 
 // target token : TON
-const TON = '0x7490c52916C738998f6e441Fbe1150193D5cB0AC';
+const TON = '';
 
 // vault and swappers
-const TON_VAULT = '0x52EaeeCE9BfD8782F88b6B2A709893673077EfD6';
-const SIMPLE_SWAPPER = '0x2171cb136e9764DD35CEfA687145c8a87bC838Bd';
-const VESTING_SWAPPER = '0xE253dAC5c5798319EAF2b7015dB8aA646De035e4';
+const TON_VAULT = '';
+const SIMPLE_SWAPPER = '';
+const VESTING_SWAPPER = '';
 
 // seigManager contract
-const SEIG_MANAGER = '0x2104cEC955b6FaBF603d8B2Ee0c28EA88886fa8C';
+//const SEIG_MANAGER = '0x2104cEC955b6FaBF603d8B2Ee0c28EA88886fa8C';
 
 /// / 3. Swaps and Vestings ////
 

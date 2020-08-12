@@ -204,6 +204,13 @@ module.exports = async function (deployer) {
     console.log('set simple vault done');
     await vestingSwapper.setVault(vesting.vaultAddress);
     console.log('set vesting vault done');
+    await vestingSwapper.addUsingBurnerContract(param.vestingSwapper.seedTON.address);
+    console.log('set seedton as using burner contract');
+    await vestingSwapper.addUsingBurnerContract(param.vestingSwapper.privateTON.address);
+    console.log('set privateton as using burner contract');
+    await vestingSwapper.addUsingBurnerContract(param.vestingSwapper.strategicTON.address);
+    console.log('set strategicton as using burner contract');
+    
   }
   // if (process.env.OWNERSHIP) {
   //   const simpleAddress = param.simpleSwapper.address;
