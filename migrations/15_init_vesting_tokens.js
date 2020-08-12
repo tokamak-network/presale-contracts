@@ -205,25 +205,25 @@ module.exports = async function (deployer) {
     await vestingSwapper.setVault(vesting.vaultAddress);
     console.log('set vesting vault done');
   }
-  if (process.env.OWNERSHIP) {
-    const simpleAddress = param.simpleSwapper.address;
-    const TON = await Ton.at(param.simpleSwapper.parameters.TONAddress);
-    const vault = await Vault.at(param.mintTON.parameters.tonVaultAddress);
+  // if (process.env.OWNERSHIP) {
+  //   const simpleAddress = param.simpleSwapper.address;
+  //   const TON = await Ton.at(param.simpleSwapper.parameters.TONAddress);
+  //   const vault = await Vault.at(param.mintTON.parameters.tonVaultAddress);
 
-    // addUsingBurner
-    await TeamTON.changeController(simpleAddress);
-    await BusinessTON.changeController(simpleAddress);
-    await daoTON.changeController(simpleAddress);
-    await AdvisorTON.changeController(simpleAddress);
-    await ReserveTON.changeController(simpleAddress);
-    console.log('change controller done');
+  //   // addUsingBurner
+  //   await TeamTON.changeController(simpleAddress);
+  //   await BusinessTON.changeController(simpleAddress);
+  //   await daoTON.changeController(simpleAddress);
+  //   await AdvisorTON.changeController(simpleAddress);
+  //   await ReserveTON.changeController(simpleAddress);
+  //   console.log('change controller done');
 
-    await TON.transferOwnership(param.ownership.parameters.TONOwner);
-    await vault.transferPrimary(param.ownership.parameters.ZERO_ONE_ADDRESS);
-    console.log('transfer owner ship done');
+  //   await TON.transferOwnership(param.ownership.parameters.TONOwner);
+  //   await vault.transferPrimary(param.ownership.parameters.ZERO_ONE_ADDRESS);
+  //   console.log('transfer owner ship done');
 
-    await simpleSwapper.transferPrimary(param.ownership.parameters.ZERO_ONE_ADDRESS);
-    await vestingSwapper.transferPrimary(param.ownership.parameters.ZERO_ONE_ADDRESS);
-    console.log('transfer primary done');
-  }
+  //   await simpleSwapper.transferPrimary(param.ownership.parameters.ZERO_ONE_ADDRESS);
+  //   await vestingSwapper.transferPrimary(param.ownership.parameters.ZERO_ONE_ADDRESS);
+  //   console.log('transfer primary done');
+  // }
 };
