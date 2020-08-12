@@ -18,6 +18,7 @@ const RTON_HOLDER = '0x2Db13E39eaf889A433E0CB23C38520419eC37202';
 const ATON_HOLDER = '0x33c0e0cf845502EDa9873E8Ab1Da1DaF5a47eac6';
 const TON_VAULT_OWNER = '0xBB6b2fCCC6AA3518FBE36F739A7dE048e814998A';
 const TON_OWNER = '0xC8F4035b79cB95fA18F9BAa9C457843954C28233';
+const HOLDER = '0x2b3a5A8E301e3e0aA6FACf0B2ef821b236ee5EE3';
 
 /// / 2.Contract Addresses ////
 // vestingToken, have to use vestingSwapper(Don't have to init token itself).
@@ -126,6 +127,9 @@ const GENERATED_ADVISOR_TON = new BN('30000' + '000000000000000000'); // wei
 const GENERATED_BIZ_TON = new BN('100000' + '000000000000000000'); // wei
 const GENERATED_RESERVE_TON = new BN('60000' + '000000000000000000'); // wei
 const GENERATED_TON = new BN('50000000' + '000000000000000000'); // wei
+const GENERATED_SEEDTON = new BN('30000' + '000000000000000000');
+const GENERATED_PRIVATETON = new BN('144000' + '000000000000000000');
+const GENERATED_STRATEGICTON = new BN('84000' + '000000000000000000');
 
 // Vault approve amount
 
@@ -140,6 +144,25 @@ const APPROVE_VESTING_SWAPPER = new BN('15299800' + '000000000000000000'); // we
 const APPROVE_SIMPLE_SWAPPER = new BN('34700200' + '000000000000000000'); // wei
 
 const data = {
+  'seedTON': {
+    'parameters': {
+      'holder': HOLDER,
+      'amount': GENERATED_SEEDTON,
+    },
+  },
+  'privateTON': {
+    'parameters': {
+      'holder': HOLDER,
+      'amount': GENERATED_PRIVATETON,
+    },
+  },
+  'strategicTON': {
+    'address': '',
+    'parameters': {
+      'holder': HOLDER,
+      'amount': GENERATED_STRATEGICTON,
+    },
+  },
   'marketingTON': {
     'type': 'MTON.sol',
     'actions': [
