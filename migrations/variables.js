@@ -129,15 +129,15 @@ const GENERATED_TON = new BN('50000000' + '000000000000000000'); // wei
 
 // Vault approve amount
 
-// VestingSwapperApproved = (STON + PTON + STTON)*50 + FirstCliffMTON
-// = (30000 + 144000.083230664748493368 + 84000.1)*50 + 200200
-// = 13100209.1615332374246684
-const APPROVE_VESTING_SWAPPER = new BN('13100209' + '1615332374246684'); // wei
+// VestingSwapperApproved = (STON + PTON + STTON)*50 + vestingMTON
+// = (30000 + 144000 + 84000)*50 + 2399800
+// = 15299800
+const APPROVE_VESTING_SWAPPER = new BN('15299800' + '000000000000000000'); // wei
 
 // SimpleSwapperApproved = TON.totalSupply - VestingSwapperApproved
-// = 50000000 - 13100209.1615332374246684
-// = 36899790.8384667625753316
-const APPROVE_SIMPLE_SWAPPER = new BN('36899790' + '8384667625753316'); // wei
+// = 50000000 - 15299800
+// = 34700200
+const APPROVE_SIMPLE_SWAPPER = new BN('34700200' + '000000000000000000'); // wei
 
 const data = {
   'marketingTON': {
