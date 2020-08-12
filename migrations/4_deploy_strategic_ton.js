@@ -5,7 +5,7 @@ const Strategicsale = artifacts.require('Strategicsale');
 const fs = require('fs');
 const accounts = require('../test_accounts.json');
 const parameter = require('../config.js');
-
+const param = require('./variables.js');
 const ether = n => new BN(toWei(n, 'ether'));
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
@@ -25,7 +25,10 @@ module.exports = async function (deployer) {
       'StrategicTON',
       true,
     ).then(async () => { token = await VestingToken.deployed(); })
-      .then(() => token.generateTokens(accounts.owner, parameter.strategic.totalSupply))
+      .then(() => token.generateTokens(
+        param.strategicTON.parameters.holder,
+        param.strategicTON.parameters.amount
+      ))
       .catch((e) => {
         console.error(e);
         throw e;
